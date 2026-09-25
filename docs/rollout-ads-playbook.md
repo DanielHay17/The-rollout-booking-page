@@ -1,6 +1,6 @@
 # The Rollout: Meta ads to booked calls, working playbook
 
-Last updated 19 September 2026. This repo is public, so this file holds method only.
+Last updated 25 September 2026. This repo is public, so this file holds method only.
 No lead names, phone numbers, client names, account IDs or live performance figures belong here.
 That context lives in Claude's project memory for this folder and loads automatically in a new chat.
 
@@ -70,6 +70,10 @@ Gotcha: editing a campaign budget through the ads API force-pauses the campaign.
 5. Assembly in the generation platform's sandbox: whisper for timings, fit each clip to its voiceover slot, burn captions, mux, upload.
 6. No backing music. Voice plus any native clip sound only.
 7. Check one still per shot before delivery, and say plainly that motion and audio were not reviewed.
+8. Captions sit mid-frame, roughly between y=1050 and y=1450 on a 1080x1920 canvas, never near the top or bottom: the Reels interface covers about the top 250px and bottom 350px. No native clip sound under the voiceover unless asked.
+9. Keep a Reel near 50 seconds. If it runs long, shorten the script and re-record. Never trim the read with silence removal or mid-sentence cuts; it mangles the voice.
+10. Every Reel gets a cover card, never a raw video frame, so the Instagram grid stays consistent: logo top-left, two-line Playfair headline, one-line Inter subline, the pixel-art illustration, and the footer "Free weekly email. Real AI rollouts." with the sage Subscribe button. Template: docs/reel-cover-card-template.html. Keep everything important inside the 4:5 centre crop. Pass the card as the video thumbnail when scheduling.
+11. Whisper word timestamps can invent multi-second gaps at paragraph breaks. Anchor beats on word-level phrase matches, and verify any suspicious gap with ffmpeg silencedetect before acting on it.
 
 Known tooling quirks: list-type and numeric tool parameters can be rejected, so send single jobs and poll one job at a time; the sandbox does not persist between calls, so assemble in one command; always use a fresh upload slot for a re-render; decline preset suggestions that would change the visual style.
 

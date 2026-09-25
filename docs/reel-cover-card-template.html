@@ -1,0 +1,39 @@
+<!doctype html>
+<!--
+  The Rollout: Reel cover card template (1080x1920).
+  Every Reel thumbnail is one of these, never a raw video frame, so the Instagram grid stays consistent.
+  Rule agreed 25 Sep 2026.
+
+  How to use:
+  1. Replace the headline (two short lines), the subline (one sentence) and the illustration (ILLUSTRATION_URL).
+  2. Render at 1080x1920 with headless Chrome or Playwright, e.g.
+       npx playwright screenshot --viewport-size=1080,1920 --wait-for-timeout=3000 file://$PWD/docs/reel-cover-card-template.html cover.png
+  3. Pass the PNG/JPG as the video thumbnail when scheduling the Reel.
+
+  Layout rules:
+  - Everything important sits inside the 4:5 centre crop (y 285 to 1635), which is what the grid shows.
+  - Illustration: pixel-art still in the brand palette. mix-blend-mode: multiply makes a white background disappear into the cream.
+  - Footer is always "Free weekly email. Real AI rollouts." plus the sage Subscribe button.
+  - Fonts: Playfair Display 700 for the headline, Inter for everything else. Palette: cream #F8F4F0, black, grey #4B4B4B / #8A8A8A, sage #7BB5A8.
+-->
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1080px;height:1920px;background:#F8F4F0;font-family:Inter,sans-serif;color:#000;padding:290px 84px 0;display:flex;flex-direction:column;position:relative}
+.logo{width:300px;margin-bottom:54px}
+h1{font-family:'Playfair Display',serif;font-weight:700;font-size:100px;line-height:1.06;letter-spacing:-.01em;margin-bottom:28px}
+p{font-size:34px;line-height:1.4;color:#4B4B4B;max-width:860px}
+.ill{margin:40px auto 0;width:912px;height:600px;overflow:hidden}
+.ill img{width:100%;height:100%;object-fit:cover;mix-blend-mode:multiply;image-rendering:pixelated}
+.foot{position:absolute;left:84px;right:84px;top:1566px;display:flex;justify-content:space-between;align-items:center}
+.foot span{font-size:28px;color:#8A8A8A}
+.btn{background:#7BB5A8;color:#fff;font-weight:600;font-size:34px;padding:22px 44px;border-radius:6px}
+</style></head>
+<body>
+<img class="logo" src="../assets/rollout-logo.png" alt="The Rollout">
+<h1>Ten inboxes.<br>One email.</h1>
+<p>A bookkeeper's Power Automate flow, built with Claude, reads ten Outlook accounts and sends one digest at 7am.</p>
+<div class="ill"><img src="ILLUSTRATION_URL" alt=""></div>
+<div class="foot"><span>Free weekly email. Real AI rollouts.</span><div class="btn">Subscribe</div></div>
+</body></html>
