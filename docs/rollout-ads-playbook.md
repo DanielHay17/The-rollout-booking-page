@@ -1,6 +1,6 @@
 # The Rollout: Meta ads to booked calls, working playbook
 
-Last updated 25 September 2026. This repo is public, so this file holds method only.
+Last updated 1 October 2026. This repo is public, so this file holds method only.
 No lead names, phone numbers, client names, account IDs or live performance figures belong here.
 That context lives in Claude's project memory for this folder and loads automatically in a new chat.
 
@@ -35,6 +35,14 @@ Rules of thumb agreed so far:
 - Accounting and bookkeeping firms are the strongest segment by far.
 - Brand: cream #F8F4F0, black, sage #7BB5A8, Playfair Display + Inter, pixel-art illustration, real lockup. Never Phlo teal.
 - Anonymise client businesses and towns in video unless permission is explicit.
+
+## Ad account structure and naming
+
+- One test is one campaign with one ad set and one ad per video. Meta splits the single ad set budget toward the winner. Don't make one campaign per video.
+- Every name is about three plain words saying what it is, then ` | ` and the date it was made: campaign `Xero Real Footage | 1 Oct`, ad set `AU Business Owners | 1 Oct`, ads `Best Ad Script | 1 Oct`.
+- Name every uploaded video and cover image the same way, so they can be found in the media library when an ad has to be fixed by hand.
+- Retired tests get paused, then deleted by hand in Ads Manager.
+- Full build steps: .claude/skills/meta-ads-build/SKILL.md
 
 ## Reporting method
 
