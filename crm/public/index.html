@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Command center | The Rollout</title>
+<meta name="description" content="The Rollout command center: call queue, pipeline board, acquisition cost and campaign reporting.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F8F4F0">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-in">
+    <a class="lockup" href="#/today" aria-label="The Rollout command center">
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <circle cx="16" cy="16" r="12.2" fill="none" stroke="#7BB5A8" stroke-width="1.6"/>
+        <circle cx="16" cy="16" r="7.6" fill="none" stroke="#000000" stroke-width="1.6"/>
+        <circle cx="16" cy="16" r="2.8" fill="#000000"/>
+      </svg>
+      <span class="lockup-type">
+        <span class="lockup-the">The</span>
+        <span class="lockup-name">Rollout</span>
+      </span>
+    </a>
+
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Views">
+      <button class="tab" role="tab" type="button" data-view="today" aria-selected="false">
+        Today<span class="tab-badge nums" id="tab-badge-today" hidden></span>
+      </button>
+      <button class="tab" role="tab" type="button" data-view="board" aria-selected="false">Board</button>
+      <button class="tab" role="tab" type="button" data-view="dashboard" aria-selected="false">Dashboard</button>
+    </nav>
+
+    <div class="header-right">
+      <div class="search-wrap" id="search-wrap">
+        <input id="search" type="search" autocomplete="off" spellcheck="false"
+               placeholder="Search leads" aria-label="Search leads"
+               aria-expanded="false" aria-controls="search-results" role="combobox">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <circle cx="6.8" cy="6.8" r="4.6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10.3 10.3 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span class="search-kbd" aria-hidden="true">/</span>
+        <div class="search-results" id="search-results" role="listbox" aria-label="Lead search results" hidden></div>
+      </div>
+      <button class="icon-btn" id="refresh" type="button" title="Refresh (r)" aria-label="Refresh">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <path d="M13.5 8a5.5 5.5 0 1 1-1.9-4.16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M13.6 1.4v2.9h-2.9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <span class="identity" id="identity" aria-live="polite"></span>
+    </div>
+  </div>
+</header>
+
+<main class="shell" id="view" aria-live="polite">
+  <div class="skeleton" aria-hidden="true">
+    <div class="sk-line w-30"></div>
+    <div class="sk-line w-80"></div>
+    <div class="sk-line w-55"></div>
+  </div>
+</main>
+
+<footer class="app-foot">
+  <span id="foot-version">The Rollout command center</span>
+  <span>Money in AUD. Pipeline from beehiiv, spend from Meta.</span>
+</footer>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden></aside>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script type="module" src="/app.js"></script>
+</body>
+</html>

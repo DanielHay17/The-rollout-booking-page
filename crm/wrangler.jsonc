@@ -1,0 +1,51 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "rollout-crm",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+
+  // Assets are matched first; anything that is not a file on disk falls through
+  // to the Worker, which owns /api/* and serves index.html for everything else.
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "none"
+  },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "rollout-crm",
+      "database_id": "f3a02e68-418a-4566-aed0-a8d6b5c6eeac",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  "triggers": {
+    "crons": [
+      "7 * * * *",    // pull new beehiiv subscribers into the pipeline
+      "23 */3 * * *"  // pull Meta campaign spend so CAC stays current
+    ]
+  },
+
+  "observability": { "enabled": true },
+
+  // Only values that are safe to keep in source control live here.
+  //
+  // These are set as SECRETS, never as vars, so that a deploy cannot clobber
+  // them (vars are replaced on every deploy, secrets are preserved):
+  //   ACCESS_TEAM_DOMAIN      e.g. yourteam.cloudflareaccess.com
+  //   ACCESS_AUD              the Access application AUD tag (optional)
+  //   ALLOWED_EMAILS          comma-separated allowlist
+  //   BEEHIIV_API_KEY         for the subscriber backfill
+  //   BEEHIIV_WEBHOOK_SECRET  shared secret for the inbound webhook
+  //   META_ACCESS_TOKEN       for campaign spend
+  //
+  // See README.md for the exact `wrangler secret put` commands.
+  "vars": {
+    "BEEHIIV_PUBLICATION_ID": "pub_b6872449-a6e2-478d-ac5f-5da7935929cb",
+    "META_AD_ACCOUNT_ID": "1378462499217593",
+    "META_API_VERSION": "v21.0",
+    "APP_VERSION": "2.0.0"
+  }
+}
