@@ -2,7 +2,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "rollout-crm",
   "main": "src/index.ts",
-  "compatibility_date": "2026-09-01",
+  // Matches what the live Worker was already deployed with, so this upgrade
+  // cannot change runtime behaviour by moving the compatibility date backwards.
+  "compatibility_date": "2026-09-15",
 
   // Assets are matched first; anything that is not a file on disk falls through
   // to the Worker, which owns /api/* and serves index.html for everything else.

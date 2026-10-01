@@ -18,7 +18,7 @@
 
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import type { Env } from './types';
-import { json } from './util';
+import { errorMessage, json } from './util';
 
 export interface Identity {
   email: string;
@@ -154,6 +154,10 @@ export async function verifyAccess(
   const token = tokenFrom(request);
   if (token) {
     const issuer = `https://${teamDomain}`;
+    // ACCESS_AUD pins the token to ONE Access application. Without it, a token
+    // minted for any other application in the same Cloudflare team verifies
+    // here too, and only the email allowlist stands between that token and
+    // every lead's phone number. Set it.
     const audience = env.ACCESS_AUD?.trim();
     try {
       const { payload } = await jwtVerify(token, jwksFor(teamDomain), {
@@ -161,8 +165,12 @@ export async function verifyAccess(
         ...(audience ? { audience } : {}),
       });
       email = emailFromIdentity(payload);
-    } catch {
-      // A present but unverifiable token is a locked door, not a 500.
+    } catch (err) {
+      // A present but unverifiable token is a locked door, not a 500. The
+      // reason is logged because "why am I locked out" is otherwise
+      // undiagnosable from the outside: a bad signature, an expired token and
+      // a failed fetch of the certs endpoint all look identical to the caller.
+      console.warn('access: jwt rejected:', errorMessage(err));
       return { ok: false, response: json(LOCKED, 401) };
     }
   }

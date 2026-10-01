@@ -1,0 +1,115 @@
+name: Deploy CRM
+
+# Deploys the rollout-crm Worker to Cloudflare.
+#
+# One-time setup, in the repo's Settings -> Secrets and variables -> Actions:
+#   CLOUDFLARE_API_TOKEN    Workers Scripts:Edit, D1:Edit, Account Settings:Read
+#   CLOUDFLARE_ACCOUNT_ID   sidebar of the Cloudflare Workers dashboard
+#   ACCESS_TEAM_DOMAIN      e.g. yourteam.cloudflareaccess.com
+#   ACCESS_AUD              the Access application AUD tag
+#   ALLOWED_EMAILS          comma-separated allowlist of who may open the CRM
+#   BEEHIIV_API_KEY         beehiiv -> Settings -> Integrations -> API
+#   BEEHIIV_WEBHOOK_SECRET  any long random string; also paste it into beehiiv
+#   META_ACCESS_TOKEN       Meta token that can read ad account insights
+#
+# After that, every push to main touching crm/** deploys itself.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'crm/**'
+      - '.github/workflows/deploy-crm.yml'
+
+permissions:
+  contents: read
+
+# Never let two deploys race each other onto the same Worker.
+concurrency:
+  group: deploy-crm
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: crm
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: crm/package-lock.json
+
+      - run: npm ci
+
+      # Guard BEFORE anything is uploaded.
+      #
+      # wrangler-action pushes the secrets listed below to the Worker on every
+      # deploy. A GitHub secret that is unset arrives as an empty string, which
+      # would overwrite a good value in Cloudflare with "" — and an empty
+      # ALLOWED_EMAILS locks every user out of the CRM (by design: the Worker
+      # fails closed). So refuse to deploy rather than clobber.
+      - name: Check required secrets are present
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ACCESS_TEAM_DOMAIN: ${{ secrets.ACCESS_TEAM_DOMAIN }}
+          ALLOWED_EMAILS: ${{ secrets.ALLOWED_EMAILS }}
+          BEEHIIV_WEBHOOK_SECRET: ${{ secrets.BEEHIIV_WEBHOOK_SECRET }}
+        run: |
+          missing=''
+          for name in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID \
+                      ACCESS_TEAM_DOMAIN ALLOWED_EMAILS BEEHIIV_WEBHOOK_SECRET; do
+            if [ -z "${!name}" ]; then missing="$missing $name"; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required repository secrets:$missing"
+            echo "Add them under Settings -> Secrets and variables -> Actions."
+            exit 1
+          fi
+          echo "All required secrets are present."
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Test
+        run: npx vitest run
+
+      # Migrations run BEFORE the deploy, and a failure stops the job, so new
+      # code is never served against an old schema.
+      - name: Apply D1 migrations
+        uses: cloudflare/wrangler-action@v3.14.1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: crm
+          command: d1 migrations apply rollout-crm --remote
+
+      - name: Deploy
+        uses: cloudflare/wrangler-action@v3.14.1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: crm
+          command: deploy
+          # Uploaded as Worker secrets, so they are preserved across deploys
+          # and a plain `wrangler deploy` cannot wipe them.
+          secrets: |
+            ACCESS_TEAM_DOMAIN
+            ACCESS_AUD
+            ALLOWED_EMAILS
+            BEEHIIV_API_KEY
+            BEEHIIV_WEBHOOK_SECRET
+            META_ACCESS_TOKEN
+        env:
+          ACCESS_TEAM_DOMAIN: ${{ secrets.ACCESS_TEAM_DOMAIN }}
+          ACCESS_AUD: ${{ secrets.ACCESS_AUD }}
+          ALLOWED_EMAILS: ${{ secrets.ALLOWED_EMAILS }}
+          BEEHIIV_API_KEY: ${{ secrets.BEEHIIV_API_KEY }}
+          BEEHIIV_WEBHOOK_SECRET: ${{ secrets.BEEHIIV_WEBHOOK_SECRET }}
+          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
