@@ -268,12 +268,11 @@ describe('parseWindow', () => {
    * guards above the `from` default, or default `from` from `today` rather than
    * from the unvalidated `to`.
    *
-   * This test is marked `.fails` so the defect stays visible and the suite
-   * stays honest. It is NOT weakened — it still asserts the correct behaviour.
-   * When the defect is fixed this test will start FAILING, which is the signal
-   * to delete the `.fails` marker and fold these cases into the test above.
+   * Fixed: `to` is now validated before it is used to derive the default
+   * `from`. This test guards that ordering, which is easy to undo by moving
+   * the default back above the guard.
    */
-  it.fails('returns 400 for an unparseable `to` with no `from` (KNOWN DEFECT: throws, 500s)', () => {
+  it('returns 400 for an unparseable `to` with no `from`', () => {
     for (const query of ['?to=garbage', '?to=2026-13-40', '?to=0000-00-00']) {
       const win = windowFor(query);
       expect(win instanceof Response, query).toBe(true);

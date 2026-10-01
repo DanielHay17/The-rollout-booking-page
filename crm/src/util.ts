@@ -415,10 +415,15 @@ export function parseWindow(url: URL, now: Date = new Date()): Window | Response
 
   const today = operatorToday(now);
   const to = rawTo && rawTo !== '' ? rawTo : today;
-  const from = rawFrom && rawFrom !== '' ? rawFrom : addDays(to, -29);
 
-  if (!isCalendarDate(from)) return badRequest('bad from', 'expected YYYY-MM-DD');
+  // `to` is validated BEFORE it is used to derive the default `from`, and the
+  // order is load-bearing. `addDays` ends in `toISOString()`, which throws
+  // RangeError on an Invalid Date, so deriving `from` from an unvalidated `to`
+  // turned `?to=garbage` into a 500 "server error" instead of this 400.
   if (!isCalendarDate(to)) return badRequest('bad to', 'expected YYYY-MM-DD');
+
+  const from = rawFrom && rawFrom !== '' ? rawFrom : addDays(to, -29);
+  if (!isCalendarDate(from)) return badRequest('bad from', 'expected YYYY-MM-DD');
   if (from > to) return badRequest('bad window', 'from is after to');
 
   const days = daysInclusive(from, to);
@@ -439,4 +444,40 @@ export function isResponse(value: unknown): value is Response {
 export function likeTerm(raw: string): string {
   const escaped = raw.replace(/[\\%_]/g, (c) => `\\${c}`);
   return `%${escaped}%`;
+}
+
+/**
+ * Reduces a phone number to its national significant number: digits only, with
+ * an Australian country code (`61`) or trunk prefix (`0`) removed.
+ *
+ * This is what makes phone search actually work. Every Australian writes their
+ * own mobile as `0412 345 678`, but beehiiv hands many of them over as
+ * `+61 412 345 678`. Matching on digits alone fails, because `0412345` does not
+ * appear anywhere inside `61412345678` — there is no `0` before the `412`. So
+ * typing a number straight off a missed call used to return nothing at all,
+ * which reads as "that lead isn't in the CRM" rather than as a bug.
+ *
+ * Both sides of the comparison must be reduced the same way, hence the matching
+ * SQL in `phoneDigitsExpr`. Keep the two in step.
+ */
+export function phoneSearchDigits(raw: string): string {
+  const digits = raw.replace(/\D/g, '');
+  if (digits.startsWith('61')) return digits.slice(2);
+  if (digits.startsWith('0')) return digits.slice(1);
+  return digits;
+}
+
+/** The SQL counterpart of `phoneSearchDigits`, applied to a phone column. */
+export function phoneDigitsExpr(column: string): string {
+  // SQLite has no regex, so the separators are stripped by nesting replace().
+  // '+' must be in this list: leaving it in was the original bug.
+  const digits = [" ", "-", "(", ")", "+", ".", "/"].reduce(
+    (acc, ch) => `replace(${acc}, '${ch}', '')`,
+    `COALESCE(${column}, '')`,
+  );
+  return `CASE
+            WHEN ${digits} LIKE '61%' THEN substr(${digits}, 3)
+            WHEN ${digits} LIKE '0%'  THEN substr(${digits}, 2)
+            ELSE ${digits}
+          END`;
 }

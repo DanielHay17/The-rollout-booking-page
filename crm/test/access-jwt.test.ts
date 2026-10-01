@@ -13,7 +13,7 @@
 
 import { fetchMock } from 'cloudflare:test';
 import { SignJWT, exportJWK, generateKeyPair } from 'jose';
-import type { JWK, KeyLike } from 'jose';
+import type { JWK } from 'jose';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { OPERATOR, OUTSIDER, callJson, insertLead } from './helpers';
 
@@ -22,15 +22,16 @@ const ISSUER = `https://${TEAM_DOMAIN}`;
 const AUD = 'test-access-aud-placeholder';
 const KID = 'test-signing-key';
 
-let privateKey: KeyLike | CryptoKey;
-let otherPrivateKey: KeyLike | CryptoKey;
+// jose v6 generates Web Crypto keys.
+let privateKey: CryptoKey;
+let otherPrivateKey: CryptoKey;
 
 interface ClaimOverrides {
   email?: string | null;
   issuer?: string;
   audience?: string;
   expiresIn?: number;
-  key?: KeyLike | CryptoKey;
+  key?: CryptoKey;
   kid?: string;
 }
 

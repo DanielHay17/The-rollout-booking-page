@@ -564,15 +564,14 @@ describe('window validation on the metrics endpoints', () => {
    * and index.ts's catch-all turns it into a 500. Every endpoint that takes a
    * window is affected.
    *
-   * Left as `.fails` rather than deleted or softened: it asserts the documented
-   * 400 and will go red (prompting removal of the marker) once src/util.ts is
-   * fixed.
+   * Fixed in src/util.ts by validating `to` before deriving `from`. Kept as a
+   * regression guard at the HTTP layer, since the symptom was a 500.
    */
-  it.fails.each([
+  it.each([
     '/api/metrics/summary?to=garbage',
     '/api/metrics/daily?to=garbage',
     '/api/campaigns?to=garbage',
-  ])('%s is 400, not 500 (KNOWN DEFECT in parseWindow)', async (path) => {
+  ])('%s is 400, not 500', async (path) => {
     const res = await callJson<{ error: string }>(path, { as: OPERATOR });
     expect(res.status).toBe(400);
     expect(res.body.error).not.toBe('server error');

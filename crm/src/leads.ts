@@ -14,6 +14,7 @@ import { normaliseStage, parseStage, dbValuesForStage, dbValuesForStages, CLOSED
 import {
   json, badRequest, notFound, isRecord, blankToNull, safeInt, safeFloat,
   clampLimit, isCalendarDate, likeTerm, tsExpr, addDays, operatorToday,
+  phoneSearchDigits, phoneDigitsExpr,
 } from './util';
 
 /**
@@ -201,13 +202,12 @@ export async function listLeads(env: Env, url: URL): Promise<Response> {
     ];
     binds.push(term, term, term, term);
 
-    // Phone numbers are stored however beehiiv supplied them, so also compare
-    // digits-only: searching "0412 345" has to find "+61 412 345 678".
-    const digits = rawQ.replace(/\D/g, '');
+    // Phone numbers are stored however beehiiv supplied them, so compare the
+    // national significant number on both sides: searching "0412 345" has to
+    // find "+61 412 345 678". See phoneSearchDigits() for why.
+    const digits = phoneSearchDigits(rawQ);
     if (digits.length >= 3) {
-      clauses.push(
-        `replace(replace(replace(replace(COALESCE(l.phone, ''), ' ', ''), '-', ''), '(', ''), ')', '') LIKE ? ${SQL_ESCAPE}`,
-      );
+      clauses.push(`${phoneDigitsExpr('l.phone')} LIKE ? ${SQL_ESCAPE}`);
       binds.push(`%${digits}%`);
     }
     wheres.push(`(${clauses.join(' OR ')})`);
