@@ -477,8 +477,13 @@ async function neighbourIn(
   env: Env,
   stage: Stage,
   id: number | null,
+  movingId: number,
 ): Promise<RankedNeighbour | null | 'needs-renumber'> {
   if (id === null) return null;
+  // A card cannot be its own neighbour. A drag-and-drop library that reports
+  // the dragged card as the one above or below it would otherwise have the
+  // card's own rank fed into the midpoint, pinning it where it already was.
+  if (id === movingId) return null;
   const row = await env.DB.prepare('SELECT id, board_rank, status FROM leads WHERE id = ?')
     .bind(id)
     .first<NeighbourRow>();
@@ -554,8 +559,8 @@ async function computeBoardRank(
   beforeId: number | null,
   allowRetry = true,
 ): Promise<number> {
-  const above = await neighbourIn(env, stage, afterId);
-  const below = await neighbourIn(env, stage, beforeId);
+  const above = await neighbourIn(env, stage, afterId, movingId);
+  const below = await neighbourIn(env, stage, beforeId, movingId);
 
   if (above === 'needs-renumber' || below === 'needs-renumber') {
     if (!allowRetry) return appendRank(env, stage, movingId);

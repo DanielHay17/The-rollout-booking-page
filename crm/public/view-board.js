@@ -501,7 +501,7 @@ export function createBoardView(ctx) {
     writeCollapsed(collapsed);
   }
 
-  function columnNode(stage, stageLeads) {
+  function columnNode(stage, stageLeads, meta) {
     const countEl = el('span', { class: 'col-count nums' });
     const toggle = el('button', {
       class: 'icon-btn col-toggle', type: 'button',
@@ -523,7 +523,7 @@ export function createBoardView(ctx) {
       dataset: { stage: stage.id },
     }, [
       el('div', { class: 'col-head' }, [
-        el('span', { class: 'col-label', text: stage.label }),
+        el('span', { class: 'col-label', text: meta?.label || stage.label }),
         countEl,
         toggle,
       ]),
@@ -531,19 +531,28 @@ export function createBoardView(ctx) {
     ]);
 
     toggle.addEventListener('click', () => setCollapsed(stage.id, !collapsed.has(stage.id)));
-    columns.set(stage.id, { col, list, countEl, empty, toggle, label: stage.label });
+    columns.set(stage.id, {
+      col, list, countEl, empty, toggle,
+      label: meta?.label || stage.label,
+      serverCount: Number.isFinite(Number(meta?.count)) ? Number(meta.count) : null,
+      truncated: Number.isFinite(Number(meta?.count)) && Number(meta.count) > stageLeads.length,
+    });
     return col;
   }
 
-  function refreshCounts() {
+  function refreshCounts({ fromServer = false } = {}) {
     for (const entry of columns.values()) {
       const all = [...entry.list.children].filter((child) => child.classList.contains('card'));
       const shown = all.filter((child) => !child.classList.contains('is-filtered'));
-      entry.countEl.textContent = query && shown.length !== all.length
-        ? `${shown.length}/${all.length}`
-        : String(all.length);
+      if (!fromServer) entry.serverCount = null;        // the DOM is now the truth
+      let label;
+      if (query && shown.length !== all.length) label = `${shown.length}/${all.length}`;
+      else if (fromServer && entry.serverCount !== null) label = String(entry.serverCount);
+      else label = String(all.length);
+      entry.countEl.textContent = label;
       entry.empty.hidden = shown.length > 0;
       entry.empty.textContent = query && all.length ? 'No match here' : 'Nothing in here';
+      if (entry.truncated) entry.countEl.title = `${entry.serverCount ?? all.length} in this stage, showing ${all.length}`;
     }
   }
 
@@ -576,7 +585,7 @@ export function createBoardView(ctx) {
     ])));
   }
 
-  function applyFilter() {
+  function applyFilter({ fromServer = false } = {}) {
     const needle = query.trim().toLowerCase();
     for (const node of root.querySelectorAll('.card')) {
       if (!needle) { node.classList.remove('is-filtered'); continue; }
@@ -585,7 +594,7 @@ export function createBoardView(ctx) {
         .filter(Boolean).join(' ').toLowerCase();
       node.classList.toggle('is-filtered', !haystack.includes(needle));
     }
-    refreshCounts();
+    refreshCounts({ fromServer });
   }
 
   /* --------------------------------------------------------------- render */
@@ -620,11 +629,11 @@ export function createBoardView(ctx) {
 
     const orderedStages = STAGES.map((stage) => {
       const match = stages.find((s) => s.id === stage.id);
-      return { stage, leads: match && Array.isArray(match.leads) ? match.leads : [] };
+      return { stage, meta: match || null, leads: match && Array.isArray(match.leads) ? match.leads : [] };
     });
 
-    boardEl = el('div', { class: 'board' }, orderedStages.map(({ stage, leads: stageLeads }) =>
-      columnNode(stage, stageLeads)));
+    boardEl = el('div', { class: 'board' }, orderedStages.map(({ stage, leads: stageLeads, meta }) =>
+      columnNode(stage, stageLeads, meta)));
     append(root, boardEl);
 
     if (!leads.size) {
@@ -636,7 +645,7 @@ export function createBoardView(ctx) {
       }));
     }
 
-    applyFilter();
+    applyFilter({ fromServer: true });
     renderTotals();
   }
 
@@ -647,6 +656,7 @@ export function createBoardView(ctx) {
     else if (!payload) { clear(root); append(root, skeleton(5)); }
     try {
       payload = await api.board();
+      ctx.setBadge(payload.totals?.overdue ?? 0);
       render();
     } catch (err) {
       if (ctx.fatal(err)) return;

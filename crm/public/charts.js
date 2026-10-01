@@ -31,7 +31,7 @@ function clamp(n, lo, hi) { return n < lo ? lo : n > hi ? hi : n; }
 
 function niceMax(value, integer) {
   if (!(value > 0)) return 1;
-  const steps = integer ? [1, 2, 5, 10] : [1, 2, 2.5, 5, 10];
+  const steps = integer ? [2, 4, 6, 8, 10] : [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
   const mag = 10 ** Math.floor(Math.log10(value));
   for (const m of steps) {
     const candidate = Number((m * mag).toPrecision(12));
@@ -310,6 +310,21 @@ export function timeSeries({
         svgNode.appendChild(svg('circle', {
           cx, cy: yOf(rawMax), r: 4, fill: color, stroke: SURFACE, 'stroke-width': 2,
         }));
+        const lastIndex = n - 1;
+        const lastValue = values[lastIndex];
+        const lastX = padL + slotW * (lastIndex + 0.5);
+        if (Math.abs(lastIndex - maxIndex) * slotW > 58 && lastValue > 0) {
+          const lastText = formatValue(lastValue);
+          svgNode.appendChild(svg('text', {
+            x: Math.min(padL + plotW, lastX + 6), y: Math.max(10, yOf(lastValue) - 7),
+            'text-anchor': 'end',
+            'font-family': 'Inter, sans-serif', 'font-size': 11, 'font-weight': 500,
+            fill: INK_3,
+          }, lastText));
+          svgNode.appendChild(svg('circle', {
+            cx: lastX, cy: yOf(lastValue), r: 4, fill: color, stroke: SURFACE, 'stroke-width': 2,
+          }));
+        }
       }
     }
 
@@ -371,7 +386,7 @@ export function timeSeries({
   const observer = typeof ResizeObserver === 'function'
     ? new ResizeObserver(() => {
       const width = ui.body.clientWidth;
-      if (Math.abs(width - lastWidth) < 4) return;
+      if (!width || Math.abs(width - lastWidth) < 4) return;
       lastWidth = width;
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => { hideTip(); render(); });
@@ -545,7 +560,7 @@ export function funnelChart({ steps = [], conversions = [], formatRate }) {
   const observer = typeof ResizeObserver === 'function'
     ? new ResizeObserver(() => {
       const width = ui.body.clientWidth;
-      if (Math.abs(width - lastWidth) < 4) return;
+      if (!width || Math.abs(width - lastWidth) < 4) return;
       lastWidth = width;
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => { hideTip(); render(); });

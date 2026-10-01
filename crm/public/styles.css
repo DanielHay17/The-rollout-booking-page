@@ -27,9 +27,15 @@
   --alert: #C85A3E;
   --alert-wash: #FAF0EC;
 
-  /* chart series: one hue each, titles carry identity */
+  /* Chart series: one hue per chart, so the chart title carries identity and no
+     legend is needed. These are fills on the cream surface, so each one needs
+     at least 3:1 against #F8F4F0 to read as a solid bar.
+     Measured contrast vs #F8F4F0: 15.90, 3.88, 3.22, 6.13.
+     The brand accent #7BB5A8 is deliberately NOT used here — it is only 2.13:1
+     on cream and renders as a washed-out bar. It stays the interactive accent
+     (buttons, active states) where it sits against white and carries a label. */
   --series-spend: #1A1A1A;
-  --series-leads: #7BB5A8;
+  --series-leads: #4E8578;
   --series-booked: #5A9387;
   --series-won: #37645A;
 

@@ -171,6 +171,7 @@ export function createTodayView(ctx) {
     else if (!data) { clear(root); append(root, skeleton(4)); }
     try {
       data = await api.queue();
+      ctx.setBadge((data.overdue || []).length);
       render();
       if (soft) window.scrollTo({ top: scrollY });
     } catch (err) {
