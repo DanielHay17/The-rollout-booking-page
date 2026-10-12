@@ -129,6 +129,9 @@ points the shadcn CLI at), so `npx shadcn@latest add <component>` drops new ones
 in the same place and the `@/components/ui/...` imports keep working.
 `multistep-form.tsx` is the survey's progress bar, step transitions and
 tap-to-advance questions; the survey content itself is in `src/pages/welcome.tsx`.
+`profile-card.tsx` (built on shadcn's `card` and `avatar`) is Daniel's profile
+at the top of the survey; its name, headline and follower counts live in
+`config.profile` in `src/config.ts`. Keep those counts true.
 
 ## Working on it locally
 

@@ -20,6 +20,8 @@ import { PageColumn, SiteHeader, mountPage } from "@/components/site";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LinkedInMark } from "@/components/linkedin-mark";
+import { ProfileCard, type ProfileStat } from "@/components/ui/profile-card";
 import {
   ChoiceQuestion,
   MultiStepForm,
@@ -170,27 +172,33 @@ function WelcomePage() {
   );
 }
 
+/** "You're in", then who's actually reading the answers, as a social profile. */
 function Intro() {
+  const { profile } = config;
+  const stats: ProfileStat[] = [{ value: profile.subscribers, label: "subscribers" }];
+  if (profile.linkedinFollowers) {
+    stats.push({ value: profile.linkedinFollowers, label: "followers", icon: <LinkedInMark /> });
+  }
+
   return (
-    <div className="mb-8 flex items-start gap-4">
-      {config.danielPhoto ? (
-        <img
-          src={config.danielPhoto}
-          alt="Daniel, founder of The Rollout"
-          width={56}
-          height={56}
-          className="h-14 w-14 shrink-0 rounded-full object-cover"
-        />
-      ) : null}
-      <div>
-        <h1 className="text-[1.75rem] font-bold sm:text-3xl">
-          You&apos;re in. Now let me actually help.
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          I read every one of these myself. Three quick taps so I can tailor what I send you, and
-          if I spot something worth building in your business, I&apos;ll reach out.
-        </p>
-      </div>
+    <div className="mb-8">
+      <h1 className="text-[1.75rem] font-bold sm:text-3xl">You&apos;re in. Now let me actually help.</h1>
+      <ProfileCard
+        className="mt-5"
+        name={profile.name}
+        avatarSrc={config.danielPhoto}
+        avatarFallback="DH"
+        headline={profile.headline}
+        verified="Verified on LinkedIn"
+        stats={stats}
+        bio={
+          <p>
+            Hey, I&apos;m Daniel. I read every one of these myself. Three quick taps so I can tailor
+            what I send you, and if I spot something worth building in your business, I&apos;ll reach
+            out.
+          </p>
+        }
+      />
     </div>
   );
 }

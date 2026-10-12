@@ -29,6 +29,21 @@
   --radius: 6px;
 }
 
+/* The profile card's cover sweeps out from the photo once, like the radar
+   mark's rings (circle centre = the photo, see profile-card.tsx). */
+@theme {
+  --animate-cover-reveal: cover-reveal 0.9s cubic-bezier(0.87, 0, 0.13, 1) 0.15s both;
+
+  @keyframes cover-reveal {
+    from {
+      clip-path: circle(0px at 56px 64px);
+    }
+    to {
+      clip-path: circle(150% at 56px 64px);
+    }
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

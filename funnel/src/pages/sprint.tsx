@@ -5,6 +5,7 @@ import { ArrowRight, Check, Star, Volume2 } from "lucide-react";
 
 import type { AiStage, Bottleneck } from "@shared/survey";
 import { CtaLink, PageColumn, SiteFooter, SiteHeader, mountPage } from "@/components/site";
+import { LinkedInMark } from "@/components/linkedin-mark";
 import { config } from "@/config";
 import { attribution, currentState, sendEvent, type FunnelEvent, type FunnelState } from "@/lib/funnel";
 import { initPixel, trackPixelCustom } from "@/lib/pixel";
@@ -95,6 +96,12 @@ function SprintPage() {
               // No VSL yet: show the work itself, not a stock picture of it.
               <WorkClip />
             )}
+            <p className="mt-3 text-[0.8125rem] text-muted-foreground">
+              As featured in{" "}
+              <span className="font-serif font-bold whitespace-nowrap text-foreground uppercase tracking-wide">
+                The Australian Business Journal
+              </span>
+            </p>
           </div>
 
           <div className="mt-6">
@@ -106,25 +113,20 @@ function SprintPage() {
             </p>
           </div>
 
-          <HostCard />
           <p className="mt-4 text-[0.8125rem] text-muted-foreground">
             We&apos;ve just joined the Claude Partner Network, so the System Sprint is free for Rollout
             readers right now.
           </p>
         </section>
 
-        {/* One real result, in the client's words, right before the ask */}
-        <figure className="mt-10 rounded-md border bg-card px-5 py-5 sm:px-6">
-          <Stars />
-          <blockquote className="mt-3 font-serif text-lg leading-snug font-medium sm:text-xl">
-            &ldquo;Phlo moved our clients from monthly reporting to daily engagement using a live
-            dashboard and an internal AI built on their financial data. It&apos;s transformed how
-            clients interact with their numbers.&rdquo;
-          </blockquote>
-          <figcaption className="mt-3 text-sm text-muted-foreground">
-            <strong className="text-foreground">Craig Whitton</strong>, Managing Director, Real Balance
-          </figcaption>
-        </figure>
+        {/* The LinkedIn reviews, right before the ask */}
+        <section className="mt-10" aria-label="Reviews on LinkedIn">
+          <p className="mb-3 flex items-center gap-2 text-sm">
+            <Stars small /> <strong>5.0</strong>
+            <span className="text-muted-foreground">on LinkedIn</span>
+          </p>
+          <Reviews />
+        </section>
 
         {/* Booking */}
         <section ref={booking} id="book" className="mt-14 scroll-mt-6">
@@ -155,6 +157,12 @@ function SprintPage() {
                 <figcaption className="px-4 py-4 sm:px-5">
                   <p className="font-serif text-[1.625rem] leading-tight font-bold">{study.result}</p>
                   <p className="mt-1.5 text-[0.9375rem] text-muted-foreground">{study.detail}</p>
+                  {study.quote ? (
+                    <blockquote className="mt-3 border-l-[3px] border-primary pl-3 text-[0.9375rem]">
+                      <p>&ldquo;{study.quote}&rdquo;</p>
+                      <footer className="mt-1 text-sm text-muted-foreground">{study.quoteBy}</footer>
+                    </blockquote>
+                  ) : null}
                   <p className="mt-3 text-sm">
                     <strong>{study.client}</strong>
                     <span className="text-muted-foreground">, {study.who}</span>
@@ -203,18 +211,6 @@ function SprintPage() {
               </li>
             ))}
           </ul>
-        </section>
-
-        {/* Reviews */}
-        <section className="mt-14" aria-label="Reviews">
-          <SectionHeading>What people say on LinkedIn</SectionHeading>
-          <Reviews />
-          <p className="mt-5 text-center text-[0.8125rem] text-muted-foreground">
-            As featured in{" "}
-            <span className="font-serif font-bold whitespace-nowrap text-foreground uppercase tracking-wide">
-              The Australian Business Journal
-            </span>
-          </p>
         </section>
 
         {/* Why this exists, from Daniel */}
@@ -324,6 +320,9 @@ const CASE_STUDIES = [
     result: "3+ hours saved per client, every month",
     detail:
       "A live dashboard synced with Xero that clients log into, plus an AI that answers questions about their numbers in plain English.",
+    quote:
+      "Phlo moved our clients from monthly reporting to daily engagement using a live dashboard and an internal AI built on their financial data. It's transformed how clients interact with their numbers.",
+    quoteBy: "Craig Whitton, Managing Director",
     client: "Real Balance",
     who: "accounting and CFO advisory",
     image: "/assets/work/realbalance-dashboard.webp",
@@ -354,25 +353,6 @@ const CASE_STUDIES = [
     alt: "Before and after: a colour-coded roster spreadsheet on the left, the same jobs in Remedy's live inspector calendar on the right.",
   },
 ];
-
-/** Who they'll actually be talking to. Sits right under the button. */
-function HostCard() {
-  return (
-    <div className="mt-6 flex items-center gap-3.5 rounded-md border bg-card px-4 py-3.5">
-      <DanielPhoto className="h-14 w-14" />
-      <div className="min-w-0 text-sm">
-        <p className="text-[0.9375rem] font-semibold">You&apos;ll be talking to Daniel Hay</p>
-        <p className="text-muted-foreground">
-          Founder of The Rollout, read by 5,000+ operators each week. Runs Phlo, the team that does
-          the builds.
-        </p>
-        <p className="mt-1 flex items-center gap-1.5 text-muted-foreground">
-          <Stars small /> 5.0 on LinkedIn
-        </p>
-      </div>
-    </div>
-  );
-}
 
 function DanielPhoto({ className }: { className?: string }) {
   if (!config.danielPhoto) return null;
@@ -567,24 +547,37 @@ function VslPlaceholder() {
   );
 }
 
+/*
+ * LinkedIn recommendations, word for word as posted, rebuilt as cards so
+ * they're readable on a phone (a screenshot shrinks to ~6px text there).
+ * Moushumi first: a CFO and Xero award winner speaks to who the ads reach.
+ */
 const REVIEWS = [
   {
-    src: "/assets/review-moushumi.jpg",
-    width: 767,
-    height: 301,
-    alt: "LinkedIn review from Moushumi Sikand, CFO for Purpose-Driven Businesses, rated 5.0 stars: Daniel is very knowledgeable and passionate about providing great outcomes when it comes to automations and efficiency projects leveraging technology and AI. Strongly recommend.",
+    name: "Moushumi Sikand",
+    photo: "/assets/reviewer-moushumi.webp",
+    headline:
+      "CFO for Purpose-Driven Businesses | 20+ Yrs Experience | Helping Founders Gain Financial Clarity, Confidence & Sustainable Profit | Winner of Xero Sole Practitioner of the year",
+    service: "IT Consulting",
+    date: "May 19, 2026",
+    text: "Daniel is very knowledgeable and passionate about providing great outcomes when it comes to automations and efficiency projects leveraging technology and Ai. Strongly recommend.",
   },
   {
-    src: "/assets/review-justin.jpg",
-    width: 766,
-    height: 294,
-    alt: "LinkedIn review from Justin Rigby, Consultant, Corrosion Technologist and Senior Coatings Inspector, rated 5.0 stars: Daniel has a great grasp on task management and how automation can be achieved. He is helpful and inquisitive, I expect he will soon be an industry leader. Grab him now while he is still available.",
+    name: "Craig Whitton",
+    photo: "/assets/reviewer-craig.webp",
+    headline:
+      "Growth & Leadership Consulting Partner; Wingman; Mentor; Accountability Partner; Organisational Consulting; Outsourced Consulting CFO at Real Balance Business Consulting, Vocalist and Band Manager/Roadie",
+    service: "Custom Software Development",
+    date: "January 24, 2026",
+    text: "Incredibly knowledgeable about apps and development. Has a clear strategic foresight of the project, not just its development. Easy to talk with and communicates tech matters in an easy to understand manner. Thanks mate for your support",
   },
   {
-    src: "/assets/review-craig.jpg",
-    width: 764,
-    height: 342,
-    alt: "LinkedIn review from Craig Whitton, Consulting CFO at Real Balance Business Consulting, rated 5.0 stars: Incredibly knowledgeable about apps and development. Has a clear strategic foresight of the project, not just its development. Easy to talk with and communicates tech matters in an easy to understand manner. Thanks mate for your support.",
+    name: "Justin Rigby",
+    photo: "/assets/reviewer-justin.webp",
+    headline: "Consultant - Corrosion Technologist & Senior Coatings Inspector (AMPP)",
+    service: "Custom Software Development",
+    date: "May 11, 2026",
+    text: "Daniel has a great grasp on task management and how automation can be achieved. His is helpful and inquisitive - I expect he will soon be an industry leader. Grab him now while he is still available.",
   },
 ];
 
@@ -619,19 +612,40 @@ function Reviews() {
   return (
     <div
       ref={scroller}
-      className="flex snap-x snap-mandatory items-start gap-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="flex snap-x snap-mandatory gap-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       {REVIEWS.map((review) => (
-        <img
-          key={review.src}
+        <figure
+          key={review.name}
           data-review
-          src={review.src}
-          width={review.width}
-          height={review.height}
-          alt={review.alt}
-          loading="lazy"
-          className="h-auto w-[85%] shrink-0 snap-start rounded-md border bg-white sm:w-[320px]"
-        />
+          className="flex w-[85%] shrink-0 snap-start flex-col rounded-md border bg-card px-4 py-4 sm:w-[340px]"
+        >
+          <figcaption className="flex gap-3">
+            <img
+              src={review.photo}
+              alt=""
+              width={44}
+              height={44}
+              className="h-11 w-11 shrink-0 rounded-full object-cover"
+            />
+            <span className="min-w-0">
+              <strong className="block text-[0.9375rem] leading-snug">{review.name}</strong>
+              <span className="line-clamp-2 text-xs leading-snug text-muted-foreground">
+                {review.headline}
+              </span>
+            </span>
+          </figcaption>
+          <span className="mt-3 self-start rounded-sm bg-muted px-2 py-0.5 text-xs font-medium">
+            {review.service}
+          </span>
+          <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Stars small /> <strong className="text-foreground">5.0</strong> &middot; {review.date}
+          </p>
+          <blockquote className="mt-2 flex-1 text-[0.9375rem] leading-relaxed">{review.text}</blockquote>
+          <p className="mt-3 flex items-center gap-1.5 border-t pt-3 text-xs text-muted-foreground">
+            <LinkedInMark /> Recommendation on LinkedIn
+          </p>
+        </figure>
       ))}
     </div>
   );

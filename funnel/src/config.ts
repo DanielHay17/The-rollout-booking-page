@@ -37,4 +37,15 @@ export const config = {
 
   /** A square photo of Daniel (from his beehiiv author profile). Survey and booking page. */
   danielPhoto: "/assets/daniel.webp",
+
+  /**
+   * The profile card at the top of the survey. Keep the counts true: LinkedIn
+   * showed 2,225 followers on 12 Oct 2026. Empty hides that count.
+   */
+  profile: {
+    name: "Daniel Hay",
+    headline: "Founder of The Rollout · Sydney, Australia",
+    subscribers: "5,000+",
+    linkedinFollowers: "2,200+",
+  },
 } as const;
