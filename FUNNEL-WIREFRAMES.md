@@ -50,7 +50,7 @@ four changes.
 ## Step 1: Subscribe (email only)
 
 **Job:** turn ad clicks into subscribers with as little friction as possible.
-**Fires:** `CompleteRegistration` (Meta Pixel and Conversions API).
+**Fires:** `Subscribe`, the same event beehiiv's page sends today, so ad optimisation carries over.
 
 ```
 ┌──────────────────────────────────────┐
@@ -455,7 +455,7 @@ than any layout change here.
 
 ```
 Step 1 submit ──▶ server fn ──▶ beehiiv: create subscriber
-                            └─▶ Meta CAPI: CompleteRegistration
+                            └─▶ Meta pixel: Subscribe
 Step 2 answers ─▶ server fn ──▶ beehiiv: custom fields (stage, bottleneck, team, site, phone)
                             ├─▶ CRM / Google Sheet (one row per lead)
                             └─▶ Meta CAPI: Lead (on phone submit)
@@ -504,3 +504,8 @@ Fix the step with the biggest drop first.
    completion looks low)
 4. Headline personalised by bottleneck vs generic
 5. Calendar always visible vs revealed at 50% of the VSL
+
+---
+
+**Built:** these wireframes are implemented in [`funnel/`](funnel/README.md), a Cloudflare
+Worker that writes straight into the rollout-crm database.

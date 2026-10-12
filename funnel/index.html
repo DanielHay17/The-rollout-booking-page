@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Subscribe | The Rollout</title>
+    <meta
+      name="description"
+      content="Join 5,000+ business owners, operators, and leaders reading a weekly email on how real companies are actually implementing AI."
+    />
+    <meta property="og:title" content="The Rollout" />
+    <meta property="og:description" content="How AI is being rolled out across modern companies." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Plain HTML on purpose: this is the ad landing page, so it paints
+         before any JavaScript arrives. The script only handles the form. -->
+    <script type="module" src="/src/pages/subscribe.ts"></script>
+  </head>
+  <body>
+    <main class="mx-auto flex min-h-svh max-w-6xl flex-col px-4 sm:px-8">
+      <div
+        class="flex flex-1 flex-col items-center gap-10 py-10 md:flex-row md:justify-between md:gap-16 md:py-16"
+      >
+        <section class="w-full max-w-xl">
+          <img
+            src="/assets/rollout-logo.png"
+            alt="The Rollout"
+            width="600"
+            height="200"
+            class="h-12 w-auto sm:h-14"
+          />
+
+          <h1 class="mt-8 text-[2rem] font-medium leading-tight sm:text-[2.5rem]">
+            How AI is being rolled out across modern companies.
+          </h1>
+
+          <p class="mt-5 text-[1.0625rem] leading-relaxed">
+            Join 5,000+ business owners, operators, and leaders reading a weekly email on how real
+            companies are actually implementing AI.
+          </p>
+
+          <form id="subscribe-form" class="mt-5 flex w-full max-w-md flex-col gap-2 sm:flex-row sm:gap-0" novalidate>
+            <label for="email" class="sr-only">Email address</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              inputmode="email"
+              required
+              placeholder="Email address"
+              class="h-12 w-full rounded-md border border-input bg-card px-4 text-base placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/40 sm:rounded-r-none"
+            />
+            <!-- Honeypot: hidden from people, irresistible to bots. -->
+            <div class="hidden" aria-hidden="true">
+              <label for="company_fax">Leave this empty</label>
+              <input id="company_fax" name="company_fax" type="text" tabindex="-1" autocomplete="off" />
+            </div>
+            <button
+              id="subscribe-button"
+              type="submit"
+              class="h-12 shrink-0 cursor-pointer rounded-md bg-primary px-6 text-[0.9375rem] font-semibold uppercase tracking-wide text-primary-foreground transition-colors hover:bg-primary-hover disabled:cursor-wait disabled:opacity-70 sm:rounded-l-none"
+            >
+              Subscribe
+            </button>
+          </form>
+          <p id="form-error" class="mt-2 text-sm text-destructive empty:hidden" role="alert"></p>
+
+          <p class="mt-5 text-sm">
+            Bonus: Access interviews and tutorials showing how companies actually rolled it out
+          </p>
+        </section>
+
+        <div class="w-full max-w-[17rem] sm:max-w-[20rem] md:max-w-[24rem]">
+          <img
+            src="/assets/rollout-mockup.webp"
+            alt="The Rollout weekly email open on a phone, next to the icons of popular AI apps"
+            width="395"
+            height="632"
+            class="h-auto w-full"
+          />
+        </div>
+      </div>
+
+      <footer class="pb-6 text-xs text-muted-foreground">&copy; 2026 The Rollout.</footer>
+    </main>
+  </body>
+</html>
