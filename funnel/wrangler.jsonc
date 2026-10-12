@@ -36,6 +36,18 @@
   "workers_dev": true,
   "preview_urls": true,
 
+  // The funnel's own domain. Listing both here means every deploy keeps them,
+  // and Cloudflare creates the DNS records and certificates itself.
+  "routes": [
+    { "pattern": "therollout.ai", "custom_domain": true },
+    { "pattern": "www.therollout.ai", "custom_domain": true }
+  ],
+
+  // Keep variables added in the dashboard. Without this, every deploy resets
+  // them to what's in this file, which wiped a plain-text BEEHIIV_API_KEY once.
+  // (Secrets are never touched by deploys; keys belong there anyway.)
+  "keep_vars": true,
+
   // Identifiers, not credentials. The one secret, BEEHIIV_API_KEY, is set in
   // the dashboard (Settings > Variables and Secrets), never in this file.
   "vars": {

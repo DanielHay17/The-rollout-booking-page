@@ -38,8 +38,9 @@ ad ─▶ /  ──POST /api/subscribe──▶ lead in the CRM + added to beehi
    Changing the production branch doesn't start a build on its own; the next
    push to that branch does. Anything pushed to it goes live.
 3. **Add the beehiiv key.** Workers & Pages → rollout-funnel → Settings →
-   Variables and Secrets → Add → type *Secret*, name `BEEHIIV_API_KEY`, the
-   same value rollout-crm uses. Without it, signups still reach the CRM but
+   Variables and Secrets → Add → type **Secret** (not Text), name
+   `BEEHIIV_API_KEY`, the same value rollout-crm uses. Not under Settings →
+   Build: those variables only exist while building. Without it, signups still reach the CRM but
    **not beehiiv**, so they won't get the newsletter.
 4. **Check it.** Open `https://<your-worker-url>/api/health`. You want
    `{"ok":true,"db":true,"beehiiv":true}`.
