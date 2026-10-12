@@ -27,7 +27,7 @@ export const config = {
   },
 
   /** Daniel's LinkedIn profile, e.g. https://www.linkedin.com/in/... */
-  linkedinUrl: "",
+  linkedinUrl: "https://www.linkedin.com/in/daniel--hay/",
 
   /**
    * A mobile number people can text "confirmed" to after booking, in
@@ -35,6 +35,6 @@ export const config = {
    */
   textNumber: "",
 
-  /** A square photo of Daniel, e.g. "/assets/daniel.jpg". Shown on the survey. */
-  danielPhoto: "",
+  /** A square photo of Daniel (from his beehiiv author profile). Survey and booking page. */
+  danielPhoto: "/assets/daniel.webp",
 } as const;

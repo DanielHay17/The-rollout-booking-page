@@ -1,7 +1,7 @@
 import "../index.css";
 
 import * as React from "react";
-import { ArrowRight, Star, Volume2 } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Star, Volume2 } from "lucide-react";
 
 import type { AiStage, Bottleneck } from "@shared/survey";
 import { CtaLink, PageColumn, SiteFooter, SiteHeader, mountPage } from "@/components/site";
@@ -103,21 +103,26 @@ function SprintPage() {
             </p>
           </div>
 
-          <p className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-            <span className="inline-flex text-primary" aria-hidden="true">
-              {Array.from({ length: 5 }, (_, index) => (
-                <Star key={index} className="h-4 w-4 fill-current" />
-              ))}
-            </span>
-            <span>
-              5.0 on LinkedIn from Moushumi (CFO), Justin and Craig (Consulting CFO)
-            </span>
-          </p>
-          <p className="mt-3 text-[0.8125rem] text-muted-foreground">
+          <HostCard />
+          <p className="mt-4 text-[0.8125rem] text-muted-foreground">
             We&apos;ve just joined the Claude Partner Network, so the System Sprint is free for Rollout
             readers right now.
           </p>
         </section>
+
+        {/* One real review, right before the ask */}
+        <figure className="mt-10 rounded-md border bg-card px-5 py-5 sm:px-6">
+          <Stars />
+          <blockquote className="mt-3 font-serif text-lg leading-snug font-medium sm:text-xl">
+            &ldquo;Incredibly knowledgeable about apps and development. Has a clear strategic
+            foresight of the project, not just its development. Easy to talk with and communicates
+            tech matters in an easy to understand manner.&rdquo;
+          </blockquote>
+          <figcaption className="mt-3 text-sm text-muted-foreground">
+            <strong className="text-foreground">Craig Whitton</strong>, Consulting CFO, Real Balance
+            Business Consulting <Dot /> LinkedIn review
+          </figcaption>
+        </figure>
 
         {/* Booking */}
         <section ref={booking} id="book" className="mt-14 scroll-mt-6">
@@ -129,40 +134,11 @@ function SprintPage() {
           <BookingEmbed state={state} />
         </section>
 
-        {/* What you'll walk away with */}
-        <section className="mt-14">
-          <SectionHeading>What you&apos;ll walk away with</SectionHeading>
-          <ul className="flex flex-col gap-3 sm:flex-row">
-            {[
-              "The one to three automations I'd build in your business first",
-              "A rough read on the time and money each would save",
-              "An honest answer on whether it's even worth doing",
-            ].map((item) => (
-              <li key={item} className="rounded-md border bg-card px-4 py-4 text-[0.9375rem] sm:flex-1">
-                {item}
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* How it works */}
+        {/* How it works, and what they leave with */}
         <section className="mt-14">
           <SectionHeading>Here&apos;s how the Sprint works</SectionHeading>
           <ol className="space-y-3">
-            {[
-              {
-                title: "Call one · 20 minutes",
-                body: "I'll have read your answers before we talk, so we skip the small talk, look at your business and find where the hours are hiding.",
-              },
-              {
-                title: "We map it",
-                body: "My team scopes the one to three automations worth building first, and roughly what each would save you.",
-              },
-              {
-                title: "Call two",
-                body: "We walk you through what we'd build and what it'd save. If it's a fit to build together, great. If not, you keep the plan and run it yourself.",
-              },
-            ].map((step, index) => (
+            {SPRINT_STEPS.map((step, index) => (
               <li key={step.title} className="flex gap-4 rounded-md border bg-card px-4 py-4">
                 <span
                   aria-hidden="true"
@@ -177,34 +153,60 @@ function SprintPage() {
               </li>
             ))}
           </ol>
+          <h3 className="mt-8 mb-3 text-xl font-semibold">What you&apos;ll walk away with</h3>
+          <ul className="space-y-2.5">
+            {[
+              "The one to three automations I'd build in your business first",
+              "A rough read on the time and money each would save",
+              "An honest answer on whether it's even worth doing",
+            ].map((item) => (
+              <li key={item} className="flex gap-3 text-[0.9375rem]">
+                <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                {item}
+              </li>
+            ))}
+          </ul>
         </section>
 
-        {/* Selected work */}
+        {/* Results, number first */}
         <section className="mt-14">
-          <SectionHeading>Selected work</SectionHeading>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            {[
-              { name: "Saig", result: "Cut AI operations costs by 80%" },
-              {
-                name: "Hash Financial Group",
-                result: "Automated investor onboarding and KYC, faster deal flow",
-              },
-              {
-                name: "Studyfin",
-                result: "Full-stack platform built from scratch, seven products managed",
-              },
-            ].map((work) => (
-              <div key={work.name} className="rounded-md border bg-card px-4 py-4 text-[0.9375rem] sm:flex-1">
-                <strong className="block">{work.name}</strong>
-                <span className="text-muted-foreground">{work.result}</span>
+          <SectionHeading>Results from businesses we&apos;ve built for</SectionHeading>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {RESULTS.map((result) => (
+              <div key={result.client} className="rounded-md border bg-card px-4 py-4">
+                <p className="font-serif text-[1.75rem] leading-tight font-bold">{result.headline}</p>
+                <p className="mt-1 text-[0.9375rem] text-muted-foreground">{result.detail}</p>
+                <p className="mt-3 text-sm font-semibold">{result.client}</p>
               </div>
             ))}
           </div>
+
+          <h3 className="mt-8 mb-3 text-xl font-semibold">More real rollouts, written up in The Rollout</h3>
+          <ul className="divide-y rounded-md border bg-card">
+            {WRITE_UPS.map((post) => (
+              <li key={post.href}>
+                <a
+                  href={post.href}
+                  target="_blank"
+                  rel="noopener"
+                  className="group flex items-center gap-4 px-4 py-3.5 no-underline"
+                >
+                  <span className="w-24 shrink-0 font-serif text-xl font-bold text-foreground sm:w-28">
+                    {post.figure}
+                  </span>
+                  <span className="flex-1 text-[0.9375rem] text-muted-foreground group-hover:text-foreground">
+                    {post.title}
+                  </span>
+                  <ArrowUpRight className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
 
         {/* Reviews */}
         <section className="mt-14" aria-label="Reviews">
-          <SectionHeading>Reviews</SectionHeading>
+          <SectionHeading>What people say on LinkedIn</SectionHeading>
           <Reviews />
           <p className="mt-5 text-center text-[0.8125rem] text-muted-foreground">
             As featured in{" "}
@@ -212,50 +214,43 @@ function SprintPage() {
               The Australian Business Journal
             </span>
           </p>
-          <p className="mt-3 flex flex-wrap items-baseline justify-center gap-x-6 gap-y-2 text-center text-[0.9375rem] text-muted-foreground">
-            <span>
-              <strong className="font-serif text-xl text-foreground">3+ hrs</strong> saved per client
-              per month
-            </span>
-            <span className="text-primary" aria-hidden="true">
-              &middot;
-            </span>
-            <span>
-              <strong className="font-serif text-xl text-foreground">24/7</strong> client access to
-              live insights and AI
-            </span>
-          </p>
         </section>
 
-        {/* Why this exists */}
+        {/* Why this exists, from Daniel */}
         <section className="mt-14" aria-label="Why this call exists">
-          <blockquote className="border-l-[3px] border-primary pl-5">
-            <p className="mb-4">
-              I started The Rollout because most founders I talk to are sitting on 10+ hours of manual
-              work a week that could be automated. They just don&apos;t know where to start.
-            </p>
-            <p className="mb-5">
-              Every issue I publish is a real case study of a business that found that bottleneck and
-              fixed it. This call is the same thing, pointed straight at your business.
-            </p>
-            <footer className="text-[0.9375rem] text-muted-foreground">
-              <strong className="text-foreground">Daniel, founder of The Rollout</strong> (and Phlo,
-              the team that builds this stuff)
+          <figure className="rounded-md border bg-card px-5 py-5 sm:px-6">
+            <blockquote className="space-y-4 border-l-[3px] border-primary pl-4">
+              <p>
+                I started The Rollout because most founders I talk to are sitting on 10+ hours of
+                manual work a week that could be automated. They just don&apos;t know where to start.
+              </p>
+              <p>
+                Every issue I publish is a real case study of a business that found that bottleneck and
+                fixed it. This call is the same thing, pointed straight at your business.
+              </p>
+            </blockquote>
+            <figcaption className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
+              <span className="flex items-center gap-3">
+                <DanielPhoto className="h-12 w-12" />
+                <span className="text-[0.9375rem]">
+                  <strong className="block">Daniel Hay</strong>
+                  <span className="text-muted-foreground">
+                    Founder of The Rollout (and Phlo, the team that builds this stuff)
+                  </span>
+                </span>
+              </span>
               {config.linkedinUrl ? (
-                <>
-                  {" · "}
-                  <a
-                    href={config.linkedinUrl}
-                    target="_blank"
-                    rel="noopener"
-                    className="text-primary-hover underline underline-offset-2"
-                  >
-                    Daniel on LinkedIn
-                  </a>
-                </>
+                <a
+                  href={config.linkedinUrl}
+                  target="_blank"
+                  rel="noopener"
+                  className="inline-flex min-h-10 items-center gap-1.5 rounded-md border px-3.5 text-sm font-medium no-underline transition-colors hover:border-primary"
+                >
+                  Connect on LinkedIn <ArrowUpRight className="h-4 w-4 text-primary" aria-hidden="true" />
+                </a>
               ) : null}
-            </footer>
-          </blockquote>
+            </figcaption>
+          </figure>
         </section>
 
         {/* FAQ */}
@@ -312,6 +307,95 @@ const FAQS = [
     a: "Nothing. I'll have read your answers and had a look at your website before we talk.",
   },
 ];
+
+const SPRINT_STEPS = [
+  {
+    title: "Call one · 20 minutes",
+    body: "I'll have read your answers before we talk, so we skip the small talk, look at your business and find where the hours are hiding.",
+  },
+  {
+    title: "We map it",
+    body: "My team scopes the one to three automations worth building first, and roughly what each would save you.",
+  },
+  {
+    title: "Call two",
+    body: "We walk you through what we'd build and what it'd save. If it's a fit to build together, great. If not, you keep the plan and run it yourself.",
+  },
+];
+
+const RESULTS = [
+  { headline: "−80%", detail: "on AI operations costs", client: "Saig" },
+  {
+    headline: "Onboarding + KYC",
+    detail: "investor onboarding automated, for faster deal flow",
+    client: "Hash Financial Group",
+  },
+  {
+    headline: "7 products",
+    detail: "run on one full-stack platform, built from scratch",
+    client: "Studyfin",
+  },
+];
+
+const WRITE_UPS = [
+  {
+    figure: "$85,000",
+    title: "AI found $85,000 in this business's data",
+    href: "https://the-rollout.co/p/ai-found-85-000-in-this-business-s-data",
+  },
+  {
+    figure: "5 years",
+    title: "How we got AI to do five years of Xero reconciliation",
+    href: "https://the-rollout.co/p/how-we-got-ai-to-do-a-5-year-of-xero-reconciliation",
+  },
+  {
+    figure: "1 sheet",
+    title: "How one spreadsheet became an operations dashboard",
+    href: "https://the-rollout.co/p/how-one-spreadsheet-became-an-operations-dashboard",
+  },
+];
+
+/** Who they'll actually be talking to. Sits right under the button. */
+function HostCard() {
+  return (
+    <div className="mt-6 flex items-center gap-3.5 rounded-md border bg-card px-4 py-3.5">
+      <DanielPhoto className="h-14 w-14" />
+      <div className="min-w-0 text-sm">
+        <p className="text-[0.9375rem] font-semibold">You&apos;ll be talking to Daniel Hay</p>
+        <p className="text-muted-foreground">
+          Founder of The Rollout, read by 5,000+ operators each week. Runs Phlo, the team that does
+          the builds.
+        </p>
+        <p className="mt-1 flex items-center gap-1.5 text-muted-foreground">
+          <Stars small /> 5.0 on LinkedIn
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function DanielPhoto({ className }: { className?: string }) {
+  if (!config.danielPhoto) return null;
+  return (
+    <img
+      src={config.danielPhoto}
+      alt="Daniel Hay"
+      width={256}
+      height={256}
+      className={cn("shrink-0 rounded-full object-cover", className)}
+    />
+  );
+}
+
+function Stars({ small = false }: { small?: boolean }) {
+  return (
+    <span className="inline-flex text-primary" role="img" aria-label="5 out of 5 stars">
+      {Array.from({ length: 5 }, (_, index) => (
+        <Star key={index} className={cn("fill-current", small ? "h-3.5 w-3.5" : "h-4 w-4")} aria-hidden="true" />
+      ))}
+    </span>
+  );
+}
 
 function SectionHeading({ children }: { children: React.ReactNode }) {
   return <h2 className="mb-3.5 text-2xl font-bold sm:text-[1.75rem]">{children}</h2>;

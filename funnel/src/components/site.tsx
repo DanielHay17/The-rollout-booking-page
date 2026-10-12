@@ -25,12 +25,13 @@ export function SiteHeader({ partner = true }: { partner?: boolean }) {
         className="h-9 w-auto sm:h-10"
       />
       {partner ? (
+        // Scales with the screen so it sits beside the logo even on small phones.
         <img
           src="/assets/claude-partner-logo.svg"
           alt="Claude Partner Network"
-          width={365}
-          height={115}
-          className="h-8 w-auto sm:h-9"
+          width={363}
+          height={28}
+          className="h-auto w-[min(50vw,280px)]"
         />
       ) : null}
     </header>
