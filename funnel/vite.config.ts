@@ -19,6 +19,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         subscribe: here("./index.html"),
+        xero: here("./xero.html"),
         welcome: here("./welcome.html"),
         sprint: here("./sprint.html"),
         booked: here("./booked.html"),

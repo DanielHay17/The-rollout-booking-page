@@ -5,8 +5,9 @@ Four pages and a small API, deployed as one Cloudflare Worker (`rollout-funnel`)
 | Page | File | What it does |
 | ---- | ---- | ------------ |
 | `/` | `index.html` + `src/pages/subscribe.ts` | Email-only subscribe page, a copy of the-rollout.co/subscribe. Plain HTML so it paints instantly from an ad. |
+| `/xero` | `xero.html` + `src/pages/subscribe.ts` | The same form, worded for the "Free: the Claude + Xero setup" ads, with the real Claude-in-Xero footage. Point those ads here. |
 | `/welcome` | `src/pages/welcome.tsx` | The survey: three multiple-choice taps (AI stage, where the manual work is, team size), then name, website and mobile on one screen. |
-| `/sprint` | `src/pages/sprint.tsx` | VSL and the iClosed calendar, personalised from the survey. Works without a VSL until you add one. |
+| `/sprint` | `src/pages/sprint.tsx` | VSL and the iClosed calendar, personalised from the survey. Until there's a VSL, real footage of a build plays in its place. Nothing on it links off the page except the calendar. |
 | `/booked` | `src/pages/booked.tsx` | After booking: accept the invite, what to prepare, a few case studies to read. |
 | `/privacy` | `privacy.html` | What the site collects, and the Meta pixel notice Meta's terms require. Linked from every page's footer. |
 
@@ -82,6 +83,11 @@ utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{ad
 
 beehiiv shows the readable names; `utm_id` gives the CRM the campaign ID, so
 cost per lead and per booking work per campaign.
+
+Send each ad to the page that matches its promise: the Xero ads to `/xero`,
+anything general to `/`. Every signup records which page it came through
+(`landing` on its `subscribe` row in `funnel_events`), so the two can be
+compared.
 
 **No tags at all?** The funnel records it the way beehiiv's own form does:
 `direct`, or the referring site with `referral` (or `organic` for search

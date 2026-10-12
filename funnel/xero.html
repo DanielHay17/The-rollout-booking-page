@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Free: the Claude + Xero setup | The Rollout</title>
+    <meta
+      name="description"
+      content="Get Claude reconciling your Xero bank lines. The full setup and every prompt, free in The Rollout."
+    />
+    <meta property="og:title" content="Free: the Claude + Xero setup" />
+    <meta property="og:description" content="Get Claude reconciling your Xero bank lines. The full setup and every prompt, free." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <!-- The landing page for the "Free: the Claude + Xero setup" ads. Same
+         form and tracking as /, with the ad's promise as the headline so the
+         page picks up exactly where the ad left off. -->
+    <script type="module" src="/src/pages/subscribe.ts"></script>
+  </head>
+  <body>
+    <main class="mx-auto flex min-h-svh max-w-6xl flex-col px-4 sm:px-8">
+      <div
+        class="flex flex-1 flex-col items-center gap-10 py-10 md:flex-row md:justify-between md:gap-16 md:py-16"
+      >
+        <section class="w-full max-w-xl">
+          <img
+            src="/assets/rollout-logo.png"
+            alt="The Rollout"
+            width="600"
+            height="200"
+            class="h-12 w-auto sm:h-14"
+          />
+
+          <h1 class="mt-8 text-[2rem] font-medium leading-tight sm:text-[2.5rem]">
+            Get Claude reconciling your Xero bank lines.
+          </h1>
+
+          <p class="mt-5 text-[1.0625rem] leading-relaxed">
+            It finds the matching bills, ticks them off, and leaves anything it isn't sure about for a
+            person to check. The full setup and every prompt are free in The Rollout.
+          </p>
+
+          <form id="subscribe-form" class="mt-5 flex w-full max-w-md flex-col gap-2 sm:flex-row sm:gap-0" novalidate>
+            <label for="email" class="sr-only">Email address</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              inputmode="email"
+              required
+              placeholder="Email address"
+              class="h-12 w-full rounded-md border border-input bg-card px-4 text-base placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/40 sm:rounded-r-none"
+            />
+            <!-- Honeypot: hidden from people, irresistible to bots. -->
+            <div class="hidden" aria-hidden="true">
+              <label for="company_fax">Leave this empty</label>
+              <input id="company_fax" name="company_fax" type="text" tabindex="-1" autocomplete="off" />
+            </div>
+            <button
+              id="subscribe-button"
+              type="submit"
+              class="h-12 shrink-0 cursor-pointer whitespace-nowrap rounded-md bg-primary px-6 text-[0.9375rem] font-semibold uppercase tracking-wide text-primary-foreground transition-colors hover:bg-primary-hover disabled:cursor-wait disabled:opacity-70 sm:rounded-l-none"
+            >Send me the setup</button>
+          </form>
+          <p id="form-error" class="mt-2 text-sm text-destructive empty:hidden" role="alert"></p>
+
+          <ul class="mt-5 space-y-1.5 text-[0.9375rem]">
+            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&check;</span> Works with the Xero you already have</li>
+            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&check;</span> Anything it isn't sure about is left for you</li>
+            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&check;</span> Free. Join 5,000+ business owners and operators reading The Rollout</li>
+          </ul>
+        </section>
+
+        <figure class="w-full max-w-xl md:max-w-[30rem]">
+          <video
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            poster="/assets/work/xero-reconcile-poster.webp"
+            width="900"
+            height="506"
+            aria-label="Claude matching a $4,500 bank line to two bills in Xero, then ticking it off"
+            class="h-auto w-full rounded-md border bg-black"
+          >
+            <source src="/assets/work/xero-reconcile.webm" type="video/webm" />
+            <source src="/assets/work/xero-reconcile.mp4" type="video/mp4" />
+          </video>
+          <figcaption class="mt-2 text-[0.8125rem] text-muted-foreground">
+            Real footage: Claude on the left, Xero on the right, on Xero's demo company.
+          </figcaption>
+        </figure>
+      </div>
+
+      <footer class="pb-6 text-xs text-muted-foreground">
+        &copy; 2026 The Rollout. &middot; <a href="/privacy" class="underline">Privacy</a>
+      </footer>
+    </main>
+  </body>
+</html>

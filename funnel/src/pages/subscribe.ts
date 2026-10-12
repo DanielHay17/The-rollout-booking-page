@@ -16,11 +16,13 @@ const button = document.getElementById("subscribe-button") as HTMLButtonElement;
 const errorLine = document.getElementById("form-error") as HTMLParagraphElement;
 
 let busy = false;
+// Each landing page words its button for its own ad ("Send me the setup").
+const buttonLabel = button.textContent?.trim() || "Subscribe";
 
 function setBusy(next: boolean) {
   busy = next;
   button.disabled = next;
-  button.textContent = next ? "Subscribing…" : "Subscribe";
+  button.textContent = next ? "Subscribing…" : buttonLabel;
 }
 
 function showError(message: string) {
@@ -51,6 +53,8 @@ form.addEventListener("submit", async (event) => {
       email,
       company_fax: honeypot.value,
       referrer,
+      // Which landing page did it, so the CRM can compare them.
+      landing: window.location.pathname,
       ...utm,
     });
     writeState({ token: result.token ?? undefined, email, utm, pendingSubscribeEvent: true });
@@ -70,6 +74,12 @@ form.addEventListener("submit", async (event) => {
 window.addEventListener("pageshow", () => setBusy(false));
 
 rememberTouch();
+
+// Landing pages with a looping clip: hold it on its first frame for anyone
+// who has asked their device for less motion.
+if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  for (const clip of document.querySelectorAll<HTMLVideoElement>("video[autoplay]")) clip.pause();
+}
 
 if (document.readyState === "complete") initPixel();
 else window.addEventListener("load", () => initPixel(), { once: true });

@@ -105,6 +105,7 @@ async function subscribe(request: Request, env: Env, ctx: ExecutionContext) {
     utm_term: str(body.utm_term, 200),
   };
   const referrer = str(body.referrer, 300);
+  const landing = str(body.landing, 100);
   // No tags: credit it the way beehiiv's own form does (direct, or the
   // referring site), so beehiiv's acquisition reports read the same as before.
   if (!utm.utm_source) {
@@ -122,7 +123,7 @@ async function subscribe(request: Request, env: Env, ctx: ExecutionContext) {
       leadId,
       created ? 1 : 0,
     ),
-    funnelEvent(env.DB, leadId, "subscribe", { new_lead: created, ...compact(utm) }),
+    funnelEvent(env.DB, leadId, "subscribe", { new_lead: created, landing, ...compact(utm) }),
   ]);
 
   ctx.waitUntil(addToBeehiiv(env, { leadId, email, utm, referrer }));

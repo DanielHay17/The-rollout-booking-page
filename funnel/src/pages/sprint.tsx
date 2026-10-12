@@ -1,7 +1,7 @@
 import "../index.css";
 
 import * as React from "react";
-import { ArrowRight, ArrowUpRight, Check, Star, Volume2 } from "lucide-react";
+import { ArrowRight, Check, Star, Volume2 } from "lucide-react";
 
 import type { AiStage, Bottleneck } from "@shared/survey";
 import { CtaLink, PageColumn, SiteFooter, SiteHeader, mountPage } from "@/components/site";
@@ -84,15 +84,18 @@ function SprintPage() {
             </p>
           )}
 
-          {showVsl ? (
-            <div className="mt-6">
-              {config.vsl.src ? (
+          <div className="mt-6">
+            {showVsl ? (
+              config.vsl.src ? (
                 <Vsl src={config.vsl.src} poster={config.vsl.poster} captions={config.vsl.captions} />
               ) : (
                 <VslPlaceholder />
-              )}
-            </div>
-          ) : null}
+              )
+            ) : (
+              // No VSL yet: show the work itself, not a stock picture of it.
+              <WorkClip />
+            )}
+          </div>
 
           <div className="mt-6">
             <CtaLink ref={heroCta} href="#book" onClick={onBookClick}>
@@ -110,17 +113,16 @@ function SprintPage() {
           </p>
         </section>
 
-        {/* One real review, right before the ask */}
+        {/* One real result, in the client's words, right before the ask */}
         <figure className="mt-10 rounded-md border bg-card px-5 py-5 sm:px-6">
           <Stars />
           <blockquote className="mt-3 font-serif text-lg leading-snug font-medium sm:text-xl">
-            &ldquo;Incredibly knowledgeable about apps and development. Has a clear strategic
-            foresight of the project, not just its development. Easy to talk with and communicates
-            tech matters in an easy to understand manner.&rdquo;
+            &ldquo;Phlo moved our clients from monthly reporting to daily engagement using a live
+            dashboard and an internal AI built on their financial data. It&apos;s transformed how
+            clients interact with their numbers.&rdquo;
           </blockquote>
           <figcaption className="mt-3 text-sm text-muted-foreground">
-            <strong className="text-foreground">Craig Whitton</strong>, Consulting CFO, Real Balance
-            Business Consulting <Dot /> LinkedIn review
+            <strong className="text-foreground">Craig Whitton</strong>, Managing Director, Real Balance
           </figcaption>
         </figure>
 
@@ -132,6 +134,41 @@ function SprintPage() {
             hop on.
           </p>
           <BookingEmbed state={state} />
+        </section>
+
+        {/* Proof straight after the calendar, for anyone who scrolled past it
+            unconvinced: the work itself, number first. Nothing here links
+            off the page; the only way on is the calendar. */}
+        <section className="mt-14">
+          <SectionHeading>What we&apos;ve built for businesses like yours</SectionHeading>
+          <div className="space-y-4">
+            {CASE_STUDIES.map((study) => (
+              <figure key={study.client} className="overflow-hidden rounded-md border bg-card">
+                <img
+                  src={study.image}
+                  width={study.width}
+                  height={study.height}
+                  alt={study.alt}
+                  loading="lazy"
+                  className="h-auto w-full border-b bg-white"
+                />
+                <figcaption className="px-4 py-4 sm:px-5">
+                  <p className="font-serif text-[1.625rem] leading-tight font-bold">{study.result}</p>
+                  <p className="mt-1.5 text-[0.9375rem] text-muted-foreground">{study.detail}</p>
+                  <p className="mt-3 text-sm">
+                    <strong>{study.client}</strong>
+                    <span className="text-muted-foreground">, {study.who}</span>
+                  </p>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          <p className="mt-4 text-[0.9375rem] text-muted-foreground">
+            Also built for <strong className="text-foreground">Saig</strong> (−80% on AI operations
+            costs), <strong className="text-foreground">Hash Financial Group</strong> (investor
+            onboarding and KYC) and <strong className="text-foreground">Studyfin</strong> (seven
+            products on one platform).
+          </p>
         </section>
 
         {/* How it works, and what they leave with */}
@@ -163,42 +200,6 @@ function SprintPage() {
               <li key={item} className="flex gap-3 text-[0.9375rem]">
                 <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
                 {item}
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* Results, number first */}
-        <section className="mt-14">
-          <SectionHeading>Results from businesses we&apos;ve built for</SectionHeading>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {RESULTS.map((result) => (
-              <div key={result.client} className="rounded-md border bg-card px-4 py-4">
-                <p className="font-serif text-[1.75rem] leading-tight font-bold">{result.headline}</p>
-                <p className="mt-1 text-[0.9375rem] text-muted-foreground">{result.detail}</p>
-                <p className="mt-3 text-sm font-semibold">{result.client}</p>
-              </div>
-            ))}
-          </div>
-
-          <h3 className="mt-8 mb-3 text-xl font-semibold">More real rollouts, written up in The Rollout</h3>
-          <ul className="divide-y rounded-md border bg-card">
-            {WRITE_UPS.map((post) => (
-              <li key={post.href}>
-                <a
-                  href={post.href}
-                  target="_blank"
-                  rel="noopener"
-                  className="group flex items-center gap-4 px-4 py-3.5 no-underline"
-                >
-                  <span className="w-24 shrink-0 font-serif text-xl font-bold text-foreground sm:w-28">
-                    {post.figure}
-                  </span>
-                  <span className="flex-1 text-[0.9375rem] text-muted-foreground group-hover:text-foreground">
-                    {post.title}
-                  </span>
-                  <ArrowUpRight className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                </a>
               </li>
             ))}
           </ul>
@@ -239,16 +240,6 @@ function SprintPage() {
                   </span>
                 </span>
               </span>
-              {config.linkedinUrl ? (
-                <a
-                  href={config.linkedinUrl}
-                  target="_blank"
-                  rel="noopener"
-                  className="inline-flex min-h-10 items-center gap-1.5 rounded-md border px-3.5 text-sm font-medium no-underline transition-colors hover:border-primary"
-                >
-                  Connect on LinkedIn <ArrowUpRight className="h-4 w-4 text-primary" aria-hidden="true" />
-                </a>
-              ) : null}
             </figcaption>
           </figure>
         </section>
@@ -323,35 +314,44 @@ const SPRINT_STEPS = [
   },
 ];
 
-const RESULTS = [
-  { headline: "−80%", detail: "on AI operations costs", client: "Saig" },
+/*
+ * Real screenshots from the builds, each already published in The Rollout.
+ * Accounting and finance first: that's who the ads reach. Personal details
+ * in the screenshots (a name and mobile in Remedy's sheet) are blurred.
+ */
+const CASE_STUDIES = [
   {
-    headline: "Onboarding + KYC",
-    detail: "investor onboarding automated, for faster deal flow",
-    client: "Hash Financial Group",
+    result: "3+ hours saved per client, every month",
+    detail:
+      "A live dashboard synced with Xero that clients log into, plus an AI that answers questions about their numbers in plain English.",
+    client: "Real Balance",
+    who: "accounting and CFO advisory",
+    image: "/assets/work/realbalance-dashboard.webp",
+    width: 900,
+    height: 816,
+    alt: "Real Balance's client dashboard: revenue, expenses, net profit and cash at bank, with recent activity and upcoming BAS and tax deadlines.",
   },
   {
-    headline: "7 products",
-    detail: "run on one full-stack platform, built from scratch",
-    client: "Studyfin",
-  },
-];
-
-const WRITE_UPS = [
-  {
-    figure: "$85,000",
-    title: "AI found $85,000 in this business's data",
-    href: "https://the-rollout.co/p/ai-found-85-000-in-this-business-s-data",
+    result: "5 years of bank lines, reconciled in Xero",
+    detail:
+      "Claude works down the reconciliation screen coding each line and writing the why. A bookkeeper approves every page.",
+    client: "Ethical CFO",
+    who: "Xero Sole Practitioner of the Year",
+    image: "/assets/work/ethicalcfo-xero.webp",
+    width: 800,
+    height: 446,
+    alt: "Claude running beside Xero's bank reconciliation screen, prompted to work as an experienced Australian bookkeeper.",
   },
   {
-    figure: "5 years",
-    title: "How we got AI to do five years of Xero reconciliation",
-    href: "https://the-rollout.co/p/how-we-got-ai-to-do-a-5-year-of-xero-reconciliation",
-  },
-  {
-    figure: "1 sheet",
-    title: "How one spreadsheet became an operations dashboard",
-    href: "https://the-rollout.co/p/how-one-spreadsheet-became-an-operations-dashboard",
+    result: "6 new jobs and 11 changes, caught from one upload",
+    detail:
+      "The spreadsheet that ran a national inspection team, turned into a live calendar of every inspector and job.",
+    client: "Remedy Asset Protection",
+    who: "asset inspection, nationwide",
+    image: "/assets/work/remedy-before-after.webp",
+    width: 1000,
+    height: 563,
+    alt: "Before and after: a colour-coded roster spreadsheet on the left, the same jobs in Remedy's live inspector calendar on the right.",
   },
 ];
 
@@ -514,6 +514,45 @@ function Vsl({ src, poster, captions }: { src: string; poster: string; captions:
         </button>
       )}
     </div>
+  );
+}
+
+/**
+ * Real footage of a build, looping silently in place of a VSL. Cheaper than
+ * the GIF it came from (150 KB, not 1.5 MB) and still for reduced motion.
+ */
+function WorkClip() {
+  const video = React.useRef<HTMLVideoElement>(null);
+
+  React.useEffect(() => {
+    const element = video.current;
+    if (!element) return;
+    element.muted = true;
+    element.setAttribute("muted", "");
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) element.play().catch(() => {});
+  }, []);
+
+  return (
+    <figure>
+      <video
+        ref={video}
+        playsInline
+        loop
+        preload="metadata"
+        poster="/assets/work/xero-reconcile-poster.webp"
+        width={900}
+        height={506}
+        aria-label="Claude matching a $4,500 bank line to two bills in Xero, then ticking it off"
+        className="h-auto w-full rounded-md border bg-black"
+      >
+        <source src="/assets/work/xero-reconcile.webm" type="video/webm" />
+        <source src="/assets/work/xero-reconcile.mp4" type="video/mp4" />
+      </video>
+      <figcaption className="mt-2 text-[0.8125rem] text-muted-foreground">
+        Real footage: Claude reconciling a bank line in Xero (Xero&apos;s demo company). This is the
+        kind of thing we find on call one.
+      </figcaption>
+    </figure>
   );
 }
 
