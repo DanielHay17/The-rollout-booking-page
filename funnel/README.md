@@ -23,14 +23,20 @@ ad ─▶ /  ──POST /api/subscribe──▶ lead in the CRM + added to beehi
 ## Going live (all in the Cloudflare dashboard, no terminal)
 
 1. **Database first.** Migration `0007_funnel.sql` (rollout-crm repo) must be
-   applied before this Worker takes traffic. If rollout-crm's Workers Builds
-   deploy command is set to `npx wrangler d1 migrations apply rollout-crm --remote && npx wrangler deploy`
-   (see its README, "The one rule: migrations go first"), merging that branch does it.
+   applied before this Worker takes traffic. Done on the live database on
+   12 Oct 2026; for a fresh database, see rollout-crm's README ("The one
+   rule: migrations go first").
 2. **Create the Worker.** Workers & Pages → Create → Import a repository →
    `The-rollout-booking-page`. Set:
+   - Project name: `rollout-funnel` (must match `name` in `wrangler.jsonc`)
+   - Production branch: the branch that has this `funnel/` folder. This repo
+     has no `main`; the funnel lives on `claude/happy-brown-mx6m51`.
    - Root directory: `funnel`
    - Build command: `npm run build`
    - Deploy command: `npx wrangler deploy`
+
+   Changing the production branch doesn't start a build on its own; the next
+   push to that branch does. Anything pushed to it goes live.
 3. **Add the beehiiv key.** Workers & Pages → rollout-funnel → Settings →
    Variables and Secrets → Add → type *Secret*, name `BEEHIIV_API_KEY`, the
    same value rollout-crm uses. Without it, signups still reach the CRM but
