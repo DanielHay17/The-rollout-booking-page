@@ -34,7 +34,7 @@ function BookedPage() {
   const state = React.useMemo(() => currentState(), []);
 
   React.useEffect(() => {
-    initPixel();
+    initPixel({ email: state.email, firstName: state.name, phone: state.phone });
     if (!readState().scheduleTracked) {
       trackPixel("Schedule");
       writeState({ scheduleTracked: true });

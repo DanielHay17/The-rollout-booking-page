@@ -37,7 +37,7 @@ function SprintPage() {
   const booking = React.useRef<HTMLElement>(null);
 
   React.useEffect(() => {
-    initPixel();
+    initPixel({ email: state.email, firstName: state.name, phone: state.phone });
     trackPixelCustom("SprintView");
     sendEvent("page_sprint");
   }, []);

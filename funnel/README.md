@@ -8,6 +8,7 @@ Four pages and a small API, deployed as one Cloudflare Worker (`rollout-funnel`)
 | `/welcome` | `src/pages/welcome.tsx` | The survey: three multiple-choice taps (AI stage, where the manual work is, team size), then name, website and mobile on one screen. |
 | `/sprint` | `src/pages/sprint.tsx` | VSL and the iClosed calendar, personalised from the survey. Works without a VSL until you add one. |
 | `/booked` | `src/pages/booked.tsx` | After booking: accept the invite, what to prepare, a few case studies to read. |
+| `/privacy` | `privacy.html` | What the site collects, and the Meta pixel notice Meta's terms require. Linked from every page's footer. |
 
 Every subscribe and answer is written straight into the **rollout-crm** database
 (same D1 database, bound as `DB`), so it shows up in the CRM within seconds.
@@ -109,6 +110,11 @@ does, so ad optimisation carries over. On top of that: `Lead` when someone
 leaves a mobile, `Schedule` on `/booked`, and custom `SprintView`, `VSLPlay`,
 `VSL50` events for retargeting. Every step is also recorded in the CRM's
 `funnel_events` table.
+
+Each page also gives the pixel what we already know about the visitor (email,
+then first name and mobile once given), the way beehiiv's page sends the
+email. Meta's script hashes them before sending. Without it, Meta can't tie
+as many signups back to the ad, and the ad sets optimise on `Subscribe`.
 
 ## Components
 

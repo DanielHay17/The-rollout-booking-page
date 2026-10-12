@@ -73,7 +73,7 @@ function WelcomePage() {
   const pickTimer = React.useRef<number | undefined>(undefined);
 
   React.useEffect(() => {
-    initPixel();
+    initPixel({ email: initial.email, firstName: initial.name });
     if (readState().pendingSubscribeEvent) {
       trackPixel("Subscribe");
       writeState({ pendingSubscribeEvent: false });

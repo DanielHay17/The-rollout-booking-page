@@ -72,4 +72,4 @@ window.addEventListener("pageshow", () => setBusy(false));
 rememberTouch();
 
 if (document.readyState === "complete") initPixel();
-else window.addEventListener("load", initPixel, { once: true });
+else window.addEventListener("load", () => initPixel(), { once: true });

@@ -49,7 +49,10 @@ export function SiteFooter() {
           businesses are actually rolling AI out, every week.
         </p>
         <small className="text-[0.8125rem] tracking-wide">
-          &copy; PHLOING PTY LTD. All rights reserved.
+          &copy; PHLOING PTY LTD. All rights reserved. &middot;{" "}
+          <a href="/privacy" className="underline">
+            Privacy
+          </a>
         </small>
       </div>
     </footer>

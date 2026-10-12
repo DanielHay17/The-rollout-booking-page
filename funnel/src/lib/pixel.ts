@@ -30,7 +30,32 @@ function enabled() {
   return host !== "localhost" && host !== "127.0.0.1" && host !== "[::1]";
 }
 
-export function initPixel() {
+/** What we already know about the visitor, for Meta's advanced matching. */
+export interface PixelUser {
+  email?: string;
+  firstName?: string;
+  /** +E.164, e.g. +61400000000 */
+  phone?: string;
+}
+
+/*
+ * beehiiv's own page sends the subscriber's email with Subscribe, which is
+ * how Meta ties a signup back to the ad. Our Subscribe fires on /welcome,
+ * where the email isn't on the page any more, so we hand it over here. The
+ * pixel hashes these in the browser; Meta never receives them in plain text.
+ */
+function matchKeys(user: PixelUser) {
+  const keys: Record<string, string> = {};
+  const email = user.email?.trim().toLowerCase();
+  if (email) keys.em = email;
+  const firstName = user.firstName?.trim().toLowerCase();
+  if (firstName) keys.fn = firstName;
+  const phone = user.phone?.replace(/\D/g, "");
+  if (phone) keys.ph = phone;
+  return keys;
+}
+
+export function initPixel(user: PixelUser = {}) {
   if (!enabled() || window.fbq) return;
   // Meta's standard bootstrap: a queue that records calls until fbevents.js arrives.
   const fbq = function (...args: unknown[]) {
@@ -49,13 +74,16 @@ export function initPixel() {
   script.src = "https://connect.facebook.net/en_US/fbevents.js";
   document.head.appendChild(script);
 
-  fbq("init", config.metaPixelId);
+  fbq("init", config.metaPixelId, matchKeys(user));
   fbq("track", "PageView");
 }
 
 export function trackPixel(event: PixelEvent, params: Record<string, unknown> = {}) {
   if (!enabled()) return;
-  window.fbq?.("track", event, params, { eventID: `${event}-${crypto.randomUUID()}` });
+  // Not crypto.randomUUID(): older in-app browsers don't have it, and a throw
+  // here would take the Subscribe event (and the page) down with it.
+  const eventID = `${event}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  window.fbq?.("track", event, params, { eventID });
 }
 
 /**
