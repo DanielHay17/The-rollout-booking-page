@@ -32,7 +32,7 @@ import {
   postJson,
   readState,
   sendEvent,
-  utmFromUrl,
+  attribution,
   writeState,
   type FunnelState,
 } from "@/lib/funnel";
@@ -263,12 +263,14 @@ function DetailsStep({
     try {
       let token = readState().token;
       if (!token && mail) {
+        const { utm, referrer } = attribution();
         const created = await postJson<{ token: string | null }>("/api/subscribe", {
           email: mail,
-          ...utmFromUrl(),
+          referrer,
+          ...utm,
         });
         token = created.token ?? undefined;
-        writeState({ token, email: mail });
+        writeState({ token, email: mail, utm });
         trackPixel("Subscribe");
       }
       if (token) {

@@ -1,7 +1,7 @@
 import "../index.css";
 
 import { cleanEmail } from "@shared/survey";
-import { ApiError, postJson, utmFromUrl, writeState } from "@/lib/funnel";
+import { ApiError, attribution, postJson, rememberTouch, writeState } from "@/lib/funnel";
 import { initPixel } from "@/lib/pixel";
 
 /*
@@ -45,12 +45,12 @@ form.addEventListener("submit", async (event) => {
 
   showError("");
   setBusy(true);
-  const utm = utmFromUrl();
+  const { utm, referrer } = attribution();
   try {
     const result = await postJson<{ token: string | null }>("/api/subscribe", {
       email,
       company_fax: honeypot.value,
-      referrer: document.referrer.slice(0, 300),
+      referrer,
       ...utm,
     });
     writeState({ token: result.token ?? undefined, email, utm, pendingSubscribeEvent: true });
@@ -68,6 +68,8 @@ form.addEventListener("submit", async (event) => {
 // Coming back with the browser's Back button restores this page as it was
 // left, button still saying "Subscribing…". Reset it.
 window.addEventListener("pageshow", () => setBusy(false));
+
+rememberTouch();
 
 if (document.readyState === "complete") initPixel();
 else window.addEventListener("load", initPixel, { once: true });

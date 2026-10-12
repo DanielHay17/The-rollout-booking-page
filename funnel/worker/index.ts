@@ -9,7 +9,17 @@ import {
   normaliseWebsite,
 } from "../shared/survey";
 import { addToBeehiiv, retryBeehiivSoon, updateBeehiivFields, type Utm } from "./beehiiv";
-import { funnelEvent, json, readJsonObject, sameOrigin, sourceFromUtm, str } from "./util";
+import { shortLinkRedirect } from "./links";
+import {
+  funnelEvent,
+  json,
+  metaCampaignId,
+  readJsonObject,
+  sameOrigin,
+  sourceFromReferrer,
+  sourceFromUtm,
+  str,
+} from "./util";
 
 /*
  * The funnel's API. Three small endpoints the pages call, all writing into
@@ -32,7 +42,10 @@ export interface Env {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(request);
+    if (!url.pathname.startsWith("/api/")) {
+      // Only paths with no matching page reach the Worker; short links are those.
+      return shortLinkRedirect(url) ?? env.ASSETS.fetch(request);
+    }
     try {
       return await handleApi(request, env, ctx, url);
     } catch (err) {
@@ -92,8 +105,16 @@ async function subscribe(request: Request, env: Env, ctx: ExecutionContext) {
     utm_term: str(body.utm_term, 200),
   };
   const referrer = str(body.referrer, 300);
+  // No tags: credit it the way beehiiv's own form does (direct, or the
+  // referring site), so beehiiv's acquisition reports read the same as before.
+  if (!utm.utm_source) {
+    const fallback = sourceFromReferrer(referrer);
+    utm.utm_source = fallback.source;
+    utm.utm_medium = utm.utm_medium ?? fallback.medium;
+  }
+  const campaignId = metaCampaignId(str(body.utm_id, 40), utm.utm_campaign);
 
-  const { leadId, created } = await upsertLead(env.DB, email, utm, referrer);
+  const { leadId, created } = await upsertLead(env.DB, email, utm, referrer, campaignId);
   const token = crypto.randomUUID();
   await env.DB.batch([
     env.DB.prepare("INSERT INTO funnel_sessions (token, lead_id, created_lead) VALUES (?, ?, ?)").bind(
@@ -109,7 +130,13 @@ async function subscribe(request: Request, env: Env, ctx: ExecutionContext) {
   return json({ ok: true, token });
 }
 
-async function upsertLead(db: D1Database, email: string, utm: Utm, referrer: string | null) {
+async function upsertLead(
+  db: D1Database,
+  email: string,
+  utm: Utm,
+  referrer: string | null,
+  campaignId: string | null,
+) {
   const findLead = () =>
     db.prepare("SELECT id FROM leads WHERE lower(email) = ?").bind(email).first<{ id: number }>();
 
@@ -117,7 +144,6 @@ async function upsertLead(db: D1Database, email: string, utm: Utm, referrer: str
   if (existing) return { leadId: existing.id, created: false };
 
   const source = sourceFromUtm(utm.utm_source, utm.utm_medium) ?? "funnel";
-  const campaignId = utm.utm_campaign && /^\d{6,}$/.test(utm.utm_campaign) ? utm.utm_campaign : null;
   try {
     // Same shape as a lead the CRM creates from beehiiv: new, top of the board.
     const inserted = await db

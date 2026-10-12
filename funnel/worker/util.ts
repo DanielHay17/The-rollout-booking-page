@@ -78,3 +78,33 @@ export function funnelEvent(db: D1Database, leadId: number | null, name: string,
     .prepare("INSERT INTO funnel_events (lead_id, event, detail) VALUES (?, ?, ?)")
     .bind(leadId, name, detail === null || detail === undefined ? null : JSON.stringify(detail).slice(0, 2000));
 }
+
+/**
+ * What beehiiv's own subscribe form records when a visit has no UTM tags:
+ * "direct" with no referrer, otherwise the referring site with medium
+ * "organic" for search engines and "referral" for everything else
+ * (e.g. facebook.com / referral, google.com / organic).
+ */
+export function sourceFromReferrer(referrer: string | null): { source: string; medium: string | null } {
+  if (!referrer) return { source: "direct", medium: null };
+  let host: string;
+  try {
+    host = new URL(referrer).hostname.toLowerCase();
+  } catch {
+    return { source: "direct", medium: null };
+  }
+  // In-app browsers send their link-shim hosts; credit the network itself.
+  host = host.replace(/^(www|m|l|lm|mobile)\./, "");
+  if (host === "lnkd.in") host = "linkedin.com";
+  if (host === "t.co") host = "x.com";
+  const search = /(^|\.)(google|bing|duckduckgo|yahoo|ecosia|brave|baidu|yandex)\.[a-z.]+$/.test(host);
+  return { source: host, medium: search ? "organic" : "referral" };
+}
+
+/** The Meta campaign ID: utm_id={{campaign.id}} if the ad sends it, else a numeric utm_campaign. */
+export function metaCampaignId(utmId: string | null, utmCampaign: string | null): string | null {
+  for (const candidate of [utmId, utmCampaign]) {
+    if (candidate && /^\d{6,}$/.test(candidate.trim())) return candidate.trim();
+  }
+  return null;
+}

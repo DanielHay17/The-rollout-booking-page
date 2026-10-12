@@ -6,7 +6,7 @@ import { ArrowRight, ArrowUpRight, Check, Star, Volume2 } from "lucide-react";
 import type { AiStage, Bottleneck } from "@shared/survey";
 import { CtaLink, PageColumn, SiteFooter, SiteHeader, mountPage } from "@/components/site";
 import { config } from "@/config";
-import { currentState, sendEvent, type FunnelEvent, type FunnelState } from "@/lib/funnel";
+import { attribution, currentState, sendEvent, type FunnelEvent, type FunnelState } from "@/lib/funnel";
 import { initPixel, trackPixelCustom } from "@/lib/pixel";
 import { cn } from "@/lib/utils";
 
@@ -418,7 +418,8 @@ function BookingEmbed({ state }: { state: FunnelState }) {
     if (state.name) target.searchParams.set("iclosedName", state.name);
     if (state.email) target.searchParams.set("iclosedEmail", state.email);
     if (state.phone) target.searchParams.set("iclosedPhone", state.phone);
-    for (const [key, value] of Object.entries(state.utm ?? {})) {
+    const utm = state.utm && Object.keys(state.utm).length ? state.utm : attribution().utm;
+    for (const [key, value] of Object.entries(utm)) {
       target.searchParams.set(key, value);
     }
     return target.toString();

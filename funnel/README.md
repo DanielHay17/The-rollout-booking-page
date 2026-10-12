@@ -53,6 +53,44 @@ ad ─▶ /  ──POST /api/subscribe──▶ lead in the CRM + added to beehi
 7. **Point the ads** at the new `/` URL. Keep the same `utm_*` tags; they are
    carried through to the CRM and to iClosed.
 
+## Links and tracking
+
+Every signup is credited to where it came from, in **beehiiv** (source, medium,
+campaign, term, content and referring site, the same fields its own form
+fills; the "channel" shows `api`), in the **CRM** (source label plus the Meta
+campaign ID) and in **iClosed** (the tags ride along to the booking).
+
+**Short links for bios** redirect to the subscribe page with tags added:
+
+| Link | Use it in | Tags |
+| ---- | --------- | ---- |
+| `/ig` | Instagram bio | `ig` / `social` / `bio` (what Instagram has always used) |
+| `/li` | LinkedIn bio | `linkedin` / `social` / `bio` |
+| `/yt`, `/x`, `/fb` | YouTube, X, Facebook page | `<network>` / `social` / `bio` |
+| `/call` | links inside the newsletter | goes to `/sprint`, tagged `the-rollout` / `email` / `newsletter` |
+
+For a one-off, add a tag to any short link: `/li?utm_campaign=post-xero`
+tracks that one LinkedIn post. New short links live in `worker/links.ts`.
+
+**Meta ads**: in each ad, Destination → URL parameters:
+
+```
+utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&utm_id={{campaign.id}}
+```
+
+beehiiv shows the readable names; `utm_id` gives the CRM the campaign ID, so
+cost per lead and per booking work per campaign.
+
+**No tags at all?** The funnel records it the way beehiiv's own form does:
+`direct`, or the referring site with `referral` (or `organic` for search
+engines). And a tagged visit is remembered for 30 days in that browser, so
+someone who clicks an ad and comes back later by typing the address still
+counts for the ad.
+
+**Meta pixel**: one pixel ("The rollout") for every domain. Don't make a new
+one: the ad sets' learning and audiences live on this one. Do verify each new
+domain in Meta Business Settings → Brand safety → Domains (one DNS record).
+
 ## Filling things in later
 
 Everything optional lives in `src/config.ts`. Leave a value empty and that part

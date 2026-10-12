@@ -88,9 +88,11 @@ function stripEmpty(state: FunnelState): FunnelState {
   ) as FunnelState;
 }
 
-const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
+// utm_id is the Meta campaign ID ({{campaign.id}} in the ad's URL parameters).
+// beehiiv has no field for it; the CRM uses it to tie the lead to ad spend.
+const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "utm_id"] as const;
 
-/** The ad's tracking tags from the current URL, so the CRM can attribute the lead. */
+/** The tracking tags on the current URL. */
 export function utmFromUrl(): Record<string, string> {
   const params = new URLSearchParams(window.location.search);
   const out: Record<string, string> = {};
@@ -99,6 +101,60 @@ export function utmFromUrl(): Record<string, string> {
     if (value) out[key] = value.slice(0, 200);
   }
   return out;
+}
+
+/** Where the visitor came from, if it was another site (not a page of ours). */
+function externalReferrer(): string | null {
+  if (!document.referrer) return null;
+  try {
+    return new URL(document.referrer).host === window.location.host ? null : document.referrer.slice(0, 300);
+  } catch {
+    return null;
+  }
+}
+
+/*
+ * Attribution that survives a second visit. Someone who clicks an ad, leaves,
+ * and comes back a few days later by typing the address should still count
+ * for the ad. So every visit that arrives with tags or from another site is
+ * remembered for 30 days (in this browser's localStorage), and a plain direct
+ * visit falls back to it. The newest tagged visit wins.
+ */
+const TOUCH_KEY = "rollout-touch";
+const TOUCH_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
+interface Touch {
+  utm: Record<string, string>;
+  referrer: string | null;
+  at: number;
+}
+
+/** Call once per page load. */
+export function rememberTouch() {
+  const utm = utmFromUrl();
+  const referrer = externalReferrer();
+  if (!Object.keys(utm).length && !referrer) return;
+  try {
+    window.localStorage.setItem(TOUCH_KEY, JSON.stringify({ utm, referrer, at: Date.now() } satisfies Touch));
+  } catch {
+    // Storage blocked: this visit's own tags still go through.
+  }
+}
+
+/** The tags and referrer to credit this signup or booking to. */
+export function attribution(): { utm: Record<string, string>; referrer: string | null } {
+  const utm = utmFromUrl();
+  const referrer = externalReferrer();
+  if (Object.keys(utm).length || referrer) return { utm, referrer };
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(TOUCH_KEY) ?? "null") as Touch | null;
+    if (stored && Date.now() - stored.at < TOUCH_MAX_AGE_MS) {
+      return { utm: stored.utm ?? {}, referrer: stored.referrer ?? null };
+    }
+  } catch {
+    // fall through
+  }
+  return { utm: {}, referrer: null };
 }
 
 export class ApiError extends Error {

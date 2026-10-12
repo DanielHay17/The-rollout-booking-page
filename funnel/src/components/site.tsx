@@ -1,10 +1,12 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 
+import { rememberTouch } from "@/lib/funnel";
 import { cn } from "@/lib/utils";
 
 /** Mount a page component into #root. */
 export function mountPage(Page: React.ComponentType) {
+  rememberTouch();
   const root = document.getElementById("root");
   if (!root) throw new Error("missing #root");
   createRoot(root).render(
