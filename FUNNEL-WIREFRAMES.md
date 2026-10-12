@@ -109,22 +109,42 @@ four changes.
 **Fires:** `Lead` when the phone is submitted. Every answer is saved as soon as it's tapped,
 so partial answers aren't lost (the email is already known).
 
-One question per screen. Taps advance automatically. Progress bar at the top.
-Easy taps come first, typing comes later, and the phone comes last, once they're invested.
+To the visitor it feels like two parts:
 
-### Screen 2.0 (above the first question)
+- **Part A, a quick tap quiz.** Three multiple-choice questions, one at a time. Tapping an
+  answer moves straight to the next question, so there's no Next button and no scrolling.
+  All three take about five seconds.
+- **Part B, one details screen.** Name, website and phone together, so the phone keyboard
+  opens once rather than three times.
+
+It's all one page at one URL. The questions swap in place instantly, with no page loads, and
+there's a progress bar (no "1 of 5" count) and a back arrow.
+
+**Why this split**
+- **Not one long form:** on a phone, five questions plus a phone field reads as homework, and
+  the phone field is visible before they've given you anything. That's the moment people leave.
+- **Not one typed field per screen:** the keyboard closing and reopening between name, website
+  and phone is friction, and each extra Next tap is a chance to quit.
+- **Taps first:** the tap answers are almost effortless and get them invested, so the typed
+  screen feels like the last small step rather than the whole ask.
+
+If building it as literally two screens is easier (all three taps stacked as compact buttons,
+then details), that's fine too. The difference will be small. What matters is taps before
+typing, the phone last, and saving each answer as it comes in.
+
+### Screen 2.0 (Part A starts: intro and first tap question)
 
 ```
 ┌──────────────────────────────────────┐
 │ ◎ THE Rollout        [Claude Partner]│
 ├──────────────────────────────────────┤
-│ ▓▓▓▓░░░░░░░░░░░░░░░░  1 of 5         │  progress bar
+│ ←  ▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░░░░░░    │  back arrow + progress bar
 │                                      │
 │  ┌────┐  You're in. Now let me       │  small round photo of Daniel
 │  │ 🙂 │  actually help.              │  H2 Playfair
 │  └────┘                              │
 │  I read every one of these myself.   │  your current copy, which works
-│  Four quick taps and I'll send you   │
+│  Three quick taps and I'll send you  │
 │  the automations I'd build first.    │
 │                                      │
 │  Where are you with AI right now?    │  Q1
@@ -142,9 +162,11 @@ Easy taps come first, typing comes later, and the phone comes last, once they're
 └──────────────────────────────────────┘
 ```
 
-### Screens 2.1 to 2.4
+### Screens 2.1 to 2.3
 
 ```
+ PART A (continued): taps, auto-advance
+
  2.1 (Q2) Where's the most manual           2.2 (Q3) How big is the team?
      work in your business?
  ┌────────────────────────────────┐        ┌────────────────────────────────┐
@@ -155,18 +177,27 @@ Easy taps come first, typing comes later, and the phone comes last, once they're
  │ Not sure yet, that's the point │        └────────────────────────────────┘
  └────────────────────────────────┘
 
- 2.3 (Q4) Nice. Who am I talking to?        2.4 (Q5) Where should I text your
-                                                 ideas?
- ┌────────────────────────────────┐        ┌────────────────────────────────┐
- │ First name                     │        │ [🇦🇺 +61 ▾] Mobile number       │
- └────────────────────────────────┘        └────────────────────────────────┘
- ┌────────────────────────────────┐        I'll only reach out if I spot
- │ Company website                │        something worth a quick chat.
- └────────────────────────────────┘        No spam, reply STOP anytime.
- I'll have a look before we talk.          ┌────────────────────────────────┐
- ┌────────────────────────────────┐        │    Show me what you'd build →  │
- │            Next →              │        └────────────────────────────────┘
- └────────────────────────────────┘                 Skip for now   (small, muted)
+ PART B: one details screen
+
+ 2.3 Last bit. Where should I send
+     your ideas?
+ ┌────────────────────────────────┐
+ │ First name                     │  autocomplete="given-name"
+ └────────────────────────────────┘
+ ┌────────────────────────────────┐
+ │ Company website                │  type="url", autocomplete="url"
+ └────────────────────────────────┘
+ ┌────────────────────────────────┐
+ │ [🇦🇺 +61 ▾] Mobile number       │  type="tel", autocomplete="tel"
+ └────────────────────────────────┘  (phone autofill means most people
+ I'll look at your site before we     tap once instead of typing)
+ talk, and only text if I spot
+ something worth a quick chat.
+ No spam, reply STOP anytime.
+ ┌────────────────────────────────┐
+ │    Show me what you'd build →  │  Fires Lead when the phone is given
+ └────────────────────────────────┘
+      Continue without my number      small, muted link
 ```
 
 **What changed from the current survey, and why**
@@ -176,8 +207,8 @@ Easy taps come first, typing comes later, and the phone comes last, once they're
 | "What would you like The Rollout to help you with?" (content preference) | "Where's the most manual work in your business?" | Content preference doesn't help sell a build. The bottleneck answer drives the VSL headline, the call and your follow-up text. |
 | No qualifier | Team size | Tells you who to text first. Later, once the calendar is full, you can send "Just me" to a lighter path. |
 | Company name | Company website | You can actually look at a website. It's also what makes "I had a look at your site" true in your follow-up. |
-| Name first, then taps | Taps first, then name, then phone | Taps feel effortless and build momentum, so typing feels like a smaller ask by then. |
-| Phone required, framed as "reach out" | Phone last, framed as where the ideas go, with "Skip for now" | Those who skip still reach the VSL and can book (iClosed asks for the phone anyway). A hard wall loses people you could have booked. Track the skip rate. |
+| All five questions on one long screen, name first | Three taps first, then name, website and phone on one screen | Taps feel effortless and build momentum, so the typed screen feels like a small last step. The phone isn't visible until they've already answered three questions. |
+| Phone required, framed as "reach out" | Phone on the last screen, framed as where the ideas go, with "Continue without my number" | Those who skip still reach the VSL and can book (iClosed asks for the phone anyway). A hard wall loses people you could have booked. Track the skip rate. |
 | beehiiv chrome (Log in, Subscribe, search) | No nav | Someone who just subscribed shouldn't see a Subscribe button and a way out. |
 
 **Notes**
@@ -468,6 +499,8 @@ Fix the step with the biggest drop first.
 ## A/B tests, in order
 
 1. VSL above the calendar vs no VSL (does the video earn its place?)
-2. Phone required vs "Skip for now"
-3. Headline personalised by bottleneck vs generic
-4. Calendar always visible vs revealed at 50% of the VSL
+2. Phone required vs "Continue without my number"
+3. Survey as tap quiz plus details screen vs everything on one screen (only if survey
+   completion looks low)
+4. Headline personalised by bottleneck vs generic
+5. Calendar always visible vs revealed at 50% of the VSL
