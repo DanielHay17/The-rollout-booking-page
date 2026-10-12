@@ -195,9 +195,8 @@ typing, the phone last, and saving each answer as it comes in.
  something worth a quick chat.
  No spam, reply STOP anytime.
  ┌────────────────────────────────┐
- │    Show me what you'd build →  │  Fires Lead when the phone is given
+ │    Show me what you'd build →  │  Fires Lead (the mobile is required)
  └────────────────────────────────┘
-      Continue without my number      small, muted link
 ```
 
 **What changed from the current survey, and why**
@@ -208,7 +207,7 @@ typing, the phone last, and saving each answer as it comes in.
 | No qualifier | Team size | Tells you who to text first. Later, once the calendar is full, you can send "Just me" to a lighter path. |
 | Company name | Company website | You can actually look at a website. It's also what makes "I had a look at your site" true in your follow-up. |
 | All five questions on one long screen, name first | Three taps first, then name, website and phone on one screen | Taps feel effortless and build momentum, so the typed screen feels like a small last step. The phone isn't visible until they've already answered three questions. |
-| Phone required, framed as "reach out" | Phone on the last screen, framed as where the ideas go, with "Continue without my number" | Those who skip still reach the VSL and can book (iClosed asks for the phone anyway). A hard wall loses people you could have booked. Track the skip rate. |
+| Phone required, framed as "reach out" | Phone required on the last screen, framed as where the ideas go | Launched with a "Continue without my number" link; the first two real signups both used it, so as of 13 Oct the mobile is required. They're already subscribed by then, so anyone who won't give one still gets the newsletter. Watch how many stop at this screen. |
 | beehiiv chrome (Log in, Subscribe, search) | No nav | Someone who just subscribed shouldn't see a Subscribe button and a way out. |
 
 **Notes**
@@ -499,7 +498,7 @@ Fix the step with the biggest drop first.
 ## A/B tests, in order
 
 1. VSL above the calendar vs no VSL (does the video earn its place?)
-2. Phone required vs "Continue without my number"
+2. Phone required (live since 13 Oct) vs "Continue without my number" (launch version)
 3. Survey as tap quiz plus details screen vs everything on one screen (only if survey
    completion looks low)
 4. Headline personalised by bottleneck vs generic

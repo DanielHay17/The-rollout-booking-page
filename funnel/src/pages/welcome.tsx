@@ -227,31 +227,34 @@ function DetailsStep({
   const needsEmail = !initial.token;
   const { email, name, website, country, phone } = values;
   const [errors, setErrors] = React.useState<Partial<Record<FieldName, string>>>({});
-  const [submitting, setSubmitting] = React.useState<"phone" | "skip" | null>(null);
+  const [submitting, setSubmitting] = React.useState(false);
   const formRef = React.useRef<HTMLFormElement>(null);
 
   const clearError = (field: FieldName) =>
     setErrors((current) => (current[field] ? { ...current, [field]: undefined } : current));
 
-  async function finish(withPhone: boolean) {
+  // The mobile is required: the booking page is only for people who'll take
+  // a call, and the CRM's call list runs on it. They're already subscribed
+  // by now, so anyone who won't give one still gets the newsletter.
+  async function finish() {
     if (submitting) return;
 
     const firstName = cleanName(name);
     const site = website.trim() ? normaliseWebsite(website) : null;
-    const fullPhone = withPhone ? normalisePhone(phone, country === "other" ? null : country) : null;
+    const fullPhone = normalisePhone(phone, country === "other" ? null : country);
     const typedEmail = email.trim();
     const mail = needsEmail ? cleanEmail(typedEmail) : (initial.email ?? null);
 
     const found: Partial<Record<FieldName, string>> = {};
-    if (needsEmail && (withPhone || typedEmail) && !mail) {
+    if (needsEmail && !mail) {
       found.email = "That email doesn't look quite right.";
     }
-    if (withPhone && !firstName) found.name = "What should I call you?";
+    if (!firstName) found.name = "What should I call you?";
     if (website.trim() && !site) found.website = "That doesn't look like a website. Try something like acme.com.au";
-    if (withPhone && !fullPhone) {
+    if (!fullPhone) {
       found.phone = phone.trim()
         ? "That number doesn't look right. Check the digits?"
-        : "Pop your mobile in, or continue without it below.";
+        : "Pop your mobile in to see what I'd build.";
     }
     setErrors(found);
     const firstProblem = (["email", "name", "website", "phone"] as const).find((key) => found[key]);
@@ -260,7 +263,7 @@ function DetailsStep({
       return;
     }
 
-    setSubmitting(withPhone ? "phone" : "skip");
+    setSubmitting(true);
     writeState({
       ...answers,
       name: firstName ?? undefined,
@@ -312,7 +315,7 @@ function DetailsStep({
       noValidate
       onSubmit={(event) => {
         event.preventDefault();
-        finish(true);
+        finish();
       }}
     >
       <StepHeading>Last bit. Where should I send your ideas?</StepHeading>
@@ -423,10 +426,10 @@ function DetailsStep({
       <Button
         type="submit"
         size="lg"
-        disabled={submitting !== null}
+        disabled={submitting}
         className="mt-7 h-12 w-full gap-2 text-base font-semibold hover:bg-primary-hover"
       >
-        {submitting === "phone" ? (
+        {submitting ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" /> One sec…
           </>
@@ -436,14 +439,6 @@ function DetailsStep({
           </>
         )}
       </Button>
-      <button
-        type="button"
-        onClick={() => finish(false)}
-        disabled={submitting !== null}
-        className="mx-auto mt-4 block cursor-pointer text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground disabled:cursor-wait"
-      >
-        {submitting === "skip" ? "One sec…" : "Continue without my number"}
-      </button>
     </form>
   );
 }
