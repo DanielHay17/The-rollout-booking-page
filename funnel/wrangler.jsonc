@@ -27,10 +27,14 @@
     }
   ],
 
-  // Every 10 minutes, retry adding to beehiiv anyone whose signup didn't reach it.
-  "triggers": {
-    "crons": ["*/10 * * * *"]
-  },
+  // No cron here on purpose: the free Workers plan allows 5 per account and
+  // the other Workers use them all. Failed beehiiv signups are retried as
+  // visitors come through instead (worker/beehiiv.ts, retryBeehiivSoon).
+
+  // Served at rollout-funnel.<account>.workers.dev. Said explicitly so deploys
+  // don't warn about the defaults.
+  "workers_dev": true,
+  "preview_urls": true,
 
   // Identifiers, not credentials. The one secret, BEEHIIV_API_KEY, is set in
   // the dashboard (Settings > Variables and Secrets), never in this file.

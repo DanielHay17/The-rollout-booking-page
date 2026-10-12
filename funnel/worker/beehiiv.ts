@@ -4,8 +4,8 @@ import { funnelEvent } from "./util";
 /*
  * beehiiv is where the newsletter goes out, so every funnel signup must reach
  * it. The subscribe request adds them straight away; if that fails (beehiiv
- * down, key missing), the cron in wrangler.jsonc retries every 10 minutes for
- * a day. The CRM is the source of truth either way.
+ * down, key missing), later funnel requests retry it, at most every 10
+ * minutes, for a day. The CRM is the source of truth either way.
  */
 
 export interface Utm {
@@ -97,8 +97,34 @@ export async function addToBeehiiv(
   }
 }
 
+const RETRY_EVERY_MINUTES = 10;
+
+/**
+ * Retries failed signups off the back of normal traffic, no more than once
+ * every 10 minutes across all visitors. The first request past the 10 minutes
+ * claims the slot in sync_state (an upsert that only succeeds when the last
+ * run is old enough), so two visitors at once can't both run it.
+ */
+export async function retryBeehiivSoon(env: Env) {
+  if (!beehiivConfig(env)) return;
+  try {
+    const claimed = await env.DB.prepare(
+      `INSERT INTO sync_state (key, value, updated_at)
+       VALUES ('funnel_beehiiv_retry', 'claimed', datetime('now'))
+       ON CONFLICT (key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+        WHERE sync_state.updated_at <= datetime('now', ?)`,
+    )
+      .bind(`-${RETRY_EVERY_MINUTES} minutes`)
+      .run();
+    if ((claimed.meta.changes ?? 0) === 0) return;
+    await retryBeehiiv(env);
+  } catch (err) {
+    console.error("beehiiv: retry sweep failed", err instanceof Error ? err.message : err);
+  }
+}
+
 /** Funnel signups from the last day that haven't reached beehiiv yet. */
-export async function retryBeehiiv(env: Env) {
+async function retryBeehiiv(env: Env) {
   if (!beehiivConfig(env)) return;
   const { results } = await env.DB.prepare(
     `SELECT l.id, l.email, l.utm_source, l.utm_medium, l.utm_campaign, l.referral_url

@@ -8,7 +8,7 @@ import {
   normalisePhone,
   normaliseWebsite,
 } from "../shared/survey";
-import { addToBeehiiv, retryBeehiiv, updateBeehiivFields, type Utm } from "./beehiiv";
+import { addToBeehiiv, retryBeehiivSoon, updateBeehiivFields, type Utm } from "./beehiiv";
 import { funnelEvent, json, readJsonObject, sameOrigin, sourceFromUtm, str } from "./util";
 
 /*
@@ -39,10 +39,6 @@ export default {
       console.error("api error", url.pathname, err instanceof Error ? err.message : String(err));
       return json({ error: "server error" }, 500);
     }
-  },
-
-  async scheduled(_controller, env, ctx) {
-    ctx.waitUntil(retryBeehiiv(env));
   },
 } satisfies ExportedHandler<Env>;
 
@@ -109,6 +105,7 @@ async function subscribe(request: Request, env: Env, ctx: ExecutionContext) {
   ]);
 
   ctx.waitUntil(addToBeehiiv(env, { leadId, email, utm, referrer }));
+  ctx.waitUntil(retryBeehiivSoon(env));
   return json({ ok: true, token });
 }
 
@@ -255,6 +252,7 @@ async function answers(request: Request, env: Env, ctx: ExecutionContext) {
   if (firstCompletion) {
     ctx.waitUntil(updateBeehiivFields(env, session.email, { firstName, stage }));
   }
+  ctx.waitUntil(retryBeehiivSoon(env));
   return json({ ok: true });
 }
 
