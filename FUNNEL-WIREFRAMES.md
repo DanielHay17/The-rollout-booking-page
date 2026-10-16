@@ -114,7 +114,7 @@ To the visitor it feels like two parts:
 - **Part A, a quick tap quiz.** Three multiple-choice questions, one at a time. Tapping an
   answer moves straight to the next question, so there's no Next button and no scrolling.
   All three take about five seconds.
-- **Part B, one details screen.** Name, website and phone together, so the phone keyboard
+- **Part B, one details screen.** Name, company and phone together, so the phone keyboard
   opens once rather than three times.
 
 It's all one page at one URL. The questions swap in place instantly, with no page loads, and
@@ -123,7 +123,7 @@ there's a progress bar (no "1 of 5" count) and a back arrow.
 **Why this split**
 - **Not one long form:** on a phone, five questions plus a phone field reads as homework, and
   the phone field is visible before they've given you anything. That's the moment people leave.
-- **Not one typed field per screen:** the keyboard closing and reopening between name, website
+- **Not one typed field per screen:** the keyboard closing and reopening between name, company
   and phone is friction, and each extra Next tap is a chance to quit.
 - **Taps first:** the tap answers are almost effortless and get them invested, so the typed
   screen feels like the last small step rather than the whole ask.
@@ -185,7 +185,7 @@ typing, the phone last, and saving each answer as it comes in.
  │ First name                     │  autocomplete="given-name"
  └────────────────────────────────┘
  ┌────────────────────────────────┐
- │ Company website                │  type="url", autocomplete="url"
+ │ Company name (required)        │  autocomplete="organization"
  └────────────────────────────────┘
  ┌────────────────────────────────┐
  │ [🇦🇺 +61 ▾] Mobile number       │  type="tel", autocomplete="tel"
@@ -205,8 +205,8 @@ typing, the phone last, and saving each answer as it comes in.
 |---|---|---|
 | "What would you like The Rollout to help you with?" (content preference) | "Where's the most manual work in your business?" | Content preference doesn't help sell a build. The bottleneck answer drives the VSL headline, the call and your follow-up text. |
 | No qualifier | Team size | Tells you who to text first. Later, once the calendar is full, you can send "Just me" to a lighter path. |
-| Company name | Company website | You can actually look at a website. It's also what makes "I had a look at your site" true in your follow-up. |
-| All five questions on one long screen, name first | Three taps first, then name, website and phone on one screen | Taps feel effortless and build momentum, so the typed screen feels like a small last step. The phone isn't visible until they've already answered three questions. |
+| Company name | Company name, required | Launched as an optional website; switched on 16 Oct to a required company name, since it's what the team actually uses to research a lead before calling. It also fills the same "Company Name" field in beehiiv as beehiiv's own survey. |
+| All five questions on one long screen, name first | Three taps first, then name, company and phone on one screen | Taps feel effortless and build momentum, so the typed screen feels like a small last step. The phone isn't visible until they've already answered three questions. |
 | Phone required, framed as "reach out" | Phone required on the last screen, framed as where the ideas go | Launched with a "Continue without my number" link; the first two real signups both used it, so as of 13 Oct the mobile is required. They're already subscribed by then, so anyone who won't give one still gets the newsletter. Watch how many stop at this screen. |
 | beehiiv chrome (Log in, Subscribe, search) | No nav | Someone who just subscribed shouldn't see a Subscribe button and a way out. |
 
@@ -410,7 +410,7 @@ Set this as the iClosed post-booking redirect.
 ```
 
 **Reminders** (set up in iClosed or your SMS tool): email and SMS at 24 hours, a text from you
-at 2 hours ("Looking forward to it, had a look at [website] already"), and an SMS with the link
+at 2 hours ("Looking forward to it, had a look at [company] already"), and an SMS with the link
 10 minutes before.
 
 ---

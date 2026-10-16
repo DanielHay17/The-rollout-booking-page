@@ -112,6 +112,23 @@ export function cleanName(raw: unknown): string | null {
   return name === "" ? null : name;
 }
 
+/**
+ * Company name as typed. Looser than a person's name: "Smith & Co.",
+ * "4 Pines", "ACME (Aust) Pty Ltd" are all real. Markup and control
+ * characters go, spaces collapse.
+ */
+export function cleanCompany(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const company = raw
+    .replace(/<[^>]*>/g, "")
+    .replace(/[^\p{L}\p{M}\p{N}&'’.,()/+@#: -]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 80)
+    .trim();
+  return company === "" ? null : company;
+}
+
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function cleanEmail(raw: unknown): string | null {

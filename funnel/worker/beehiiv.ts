@@ -170,7 +170,7 @@ async function retryBeehiiv(env: Env) {
 export async function updateBeehiivFields(
   env: Env,
   email: string,
-  answers: { firstName: string | null; stage: string | null },
+  answers: { firstName: string | null; stage: string | null; company: string | null },
 ) {
   const config = beehiivConfig(env);
   if (!config) return;
@@ -185,6 +185,14 @@ export async function updateBeehiivFields(
     fields.push(
       { name: "Where are you with AI right now?", value: answers.stage },
       { name: "where_are_you_with_ai_right_now?", value: answers.stage },
+    );
+  }
+  if (answers.company) {
+    // The same field beehiiv's own signup survey fills ("What's the name of
+    // your company?"), so both kinds of subscriber read the same in beehiiv.
+    fields.push(
+      { name: "Company Name", value: answers.company },
+      { name: "company_name", value: answers.company },
     );
   }
   if (!fields.length) return;

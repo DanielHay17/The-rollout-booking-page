@@ -6,7 +6,7 @@ Four pages and a small API, deployed as one Cloudflare Worker (`rollout-funnel`)
 | ---- | ---- | ------------ |
 | `/` | `index.html` + `src/pages/subscribe.ts` | Email-only subscribe page, a copy of the-rollout.co/subscribe. Plain HTML so it paints instantly from an ad. |
 | `/xero` | `xero.html` + `src/pages/subscribe.ts` | The same form, worded for the "Free: the Claude + Xero setup" ads, with the real Claude-in-Xero footage. Point those ads here. |
-| `/welcome` | `src/pages/welcome.tsx` | The survey: three multiple-choice taps (AI stage, where the manual work is, team size), then name, website and mobile on one screen. |
+| `/welcome` | `src/pages/welcome.tsx` | The survey: three multiple-choice taps (AI stage, where the manual work is, team size), then first name, company name and mobile (all required) on one screen. |
 | `/sprint` | `src/pages/sprint.tsx` | VSL and the iClosed calendar, personalised from the survey. Until there's a VSL, real footage of a build plays in its place. Nothing on it links off the page except the calendar. |
 | `/booked` | `src/pages/booked.tsx` | After booking: accept the invite, what to prepare, a few case studies to read. |
 | `/privacy` | `privacy.html` | What the site collects, and the Meta pixel notice Meta's terms require. Linked from every page's footer. |

@@ -291,7 +291,7 @@ const FAQS = [
   },
   {
     q: "What do I need to prepare?",
-    a: "Nothing. I'll have read your answers and had a look at your website before we talk.",
+    a: "Nothing. I'll have read your answers and looked up your company before we talk.",
   },
 ];
 

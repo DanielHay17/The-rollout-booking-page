@@ -2,6 +2,7 @@ import {
   AI_STAGES,
   BOTTLENECKS,
   TEAM_SIZES,
+  cleanCompany,
   cleanEmail,
   cleanName,
   labelFor,
@@ -212,6 +213,7 @@ async function answers(request: Request, env: Env, ctx: ExecutionContext) {
   const bottleneck = labelFor(BOTTLENECKS, given.bottleneck);
   const team = labelFor(TEAM_SIZES, given.team);
   const firstName = cleanName(given.first_name);
+  const company = cleanCompany(given.company);
   const website = normaliseWebsite(given.website);
   const phone = normalisePhone(given.phone, null);
   const complete = body.complete === true;
@@ -236,6 +238,7 @@ async function answers(request: Request, env: Env, ctx: ExecutionContext) {
   // gaps, so nobody can overwrite a known lead's phone by typing their email.
   for (const [column, value] of [
     ["first_name", firstName],
+    ["company", company],
     ["website", website],
     ["phone", phone],
   ] as const) {
@@ -256,7 +259,7 @@ async function answers(request: Request, env: Env, ctx: ExecutionContext) {
     );
   }
 
-  const fields = Object.entries({ stage, bottleneck, team, first_name: firstName, website, phone })
+  const fields = Object.entries({ stage, bottleneck, team, first_name: firstName, company, website, phone })
     .filter(([, value]) => value)
     .map(([key]) => key);
   if (!complete && fields.length) {
@@ -265,7 +268,7 @@ async function answers(request: Request, env: Env, ctx: ExecutionContext) {
   if (firstCompletion) {
     statements.push(funnelEvent(env.DB, session.lead_id, "survey_complete", { phone: Boolean(phone) }));
     if (phone) statements.push(funnelEvent(env.DB, session.lead_id, "phone_given", null));
-    const summary = [stage, bottleneck, team && `team ${team}`, phone ? "left a mobile" : "no mobile"]
+    const summary = [company, stage, bottleneck, team && `team ${team}`, phone ? "left a mobile" : "no mobile"]
       .filter(Boolean)
       .join(" · ");
     statements.push(
@@ -277,7 +280,7 @@ async function answers(request: Request, env: Env, ctx: ExecutionContext) {
   if (statements.length) await env.DB.batch(statements);
 
   if (firstCompletion) {
-    ctx.waitUntil(updateBeehiivFields(env, session.email, { firstName, stage }));
+    ctx.waitUntil(updateBeehiivFields(env, session.email, { firstName, stage, company }));
   }
   ctx.waitUntil(retryBeehiivSoon(env));
   return json({ ok: true });

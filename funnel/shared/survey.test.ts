@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   AI_STAGES,
+  cleanCompany,
   cleanEmail,
   cleanName,
   isOption,
@@ -56,6 +57,20 @@ describe("cleanName", () => {
     expect(cleanName("<script>alert(1)</script>Sam")).toBe("alertSam");
     expect(cleanName("{{first name}}")).toBe("first name");
     expect(cleanName("   ")).toBeNull();
+  });
+});
+
+describe("cleanCompany", () => {
+  it("keeps real company names, punctuation and digits included", () => {
+    expect(cleanCompany("  Smith & Co.  ")).toBe("Smith & Co.");
+    expect(cleanCompany("ACME (Aust) Pty Ltd")).toBe("ACME (Aust) Pty Ltd");
+    expect(cleanCompany("4 Pines")).toBe("4 Pines");
+  });
+
+  it("drops markup, collapses spaces and rejects blanks", () => {
+    expect(cleanCompany("<b>Real</b>   Balance")).toBe("Real Balance");
+    expect(cleanCompany("   ")).toBeNull();
+    expect(cleanCompany(42)).toBeNull();
   });
 });
 

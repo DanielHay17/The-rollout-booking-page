@@ -22,7 +22,7 @@ export interface FunnelState {
   stage?: AiStage;
   bottleneck?: Bottleneck;
   team?: TeamSize;
-  website?: string;
+  company?: string;
   phone?: string;
   utm?: Record<string, string>;
   /** Set on subscribe, cleared once /welcome has told Meta about it. */

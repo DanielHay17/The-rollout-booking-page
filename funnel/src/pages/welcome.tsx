@@ -8,10 +8,10 @@ import {
   BOTTLENECKS,
   PHONE_COUNTRIES,
   TEAM_SIZES,
+  cleanCompany,
   cleanEmail,
   cleanName,
   normalisePhone,
-  normaliseWebsite,
   type AiStage,
   type Bottleneck,
   type TeamSize,
@@ -43,7 +43,7 @@ import { cn } from "@/lib/utils";
 
 /*
  * Step 2: the survey. Three multiple-choice taps, then one screen for name,
- * website and mobile. Every answer is saved the moment it's given, so even a
+ * company and mobile. Every answer is saved the moment it's given, so even a
  * half-finished survey tells the CRM something.
  */
 
@@ -68,7 +68,7 @@ function WelcomePage() {
   const [details, setDetails] = React.useState<DetailsValues>({
     email: initial.email ?? "",
     name: initial.name ?? "",
-    website: initial.website ?? "",
+    company: initial.company ?? "",
     country: PHONE_COUNTRIES[0].value,
     phone: "",
   });
@@ -203,12 +203,12 @@ function Intro() {
   );
 }
 
-type FieldName = "email" | "name" | "website" | "phone";
+type FieldName = "email" | "name" | "company" | "phone";
 
 interface DetailsValues {
   email: string;
   name: string;
-  website: string;
+  company: string;
   country: string;
   phone: string;
 }
@@ -225,7 +225,7 @@ function DetailsStep({
   onValues: (patch: Partial<DetailsValues>) => void;
 }) {
   const needsEmail = !initial.token;
-  const { email, name, website, country, phone } = values;
+  const { email, name, company, country, phone } = values;
   const [errors, setErrors] = React.useState<Partial<Record<FieldName, string>>>({});
   const [submitting, setSubmitting] = React.useState(false);
   const formRef = React.useRef<HTMLFormElement>(null);
@@ -240,7 +240,7 @@ function DetailsStep({
     if (submitting) return;
 
     const firstName = cleanName(name);
-    const site = website.trim() ? normaliseWebsite(website) : null;
+    const companyName = cleanCompany(company);
     const fullPhone = normalisePhone(phone, country === "other" ? null : country);
     const typedEmail = email.trim();
     const mail = needsEmail ? cleanEmail(typedEmail) : (initial.email ?? null);
@@ -250,14 +250,14 @@ function DetailsStep({
       found.email = "That email doesn't look quite right.";
     }
     if (!firstName) found.name = "What should I call you?";
-    if (website.trim() && !site) found.website = "That doesn't look like a website. Try something like acme.com.au";
+    if (!companyName) found.company = "What's your company called?";
     if (!fullPhone) {
       found.phone = phone.trim()
         ? "That number doesn't look right. Check the digits?"
         : "Pop your mobile in to see what I'd build.";
     }
     setErrors(found);
-    const firstProblem = (["email", "name", "website", "phone"] as const).find((key) => found[key]);
+    const firstProblem = (["email", "name", "company", "phone"] as const).find((key) => found[key]);
     if (firstProblem) {
       formRef.current?.querySelector<HTMLInputElement>(`[name="${firstProblem}"]`)?.focus();
       return;
@@ -267,7 +267,7 @@ function DetailsStep({
     writeState({
       ...answers,
       name: firstName ?? undefined,
-      website: site ?? undefined,
+      company: companyName ?? undefined,
       phone: fullPhone ?? undefined,
     });
 
@@ -293,7 +293,7 @@ function DetailsStep({
             answers: {
               ...answers,
               first_name: firstName ?? undefined,
-              website: site ?? undefined,
+              company: companyName ?? undefined,
               phone: fullPhone ?? undefined,
             },
           },
@@ -357,30 +357,18 @@ function DetailsStep({
           />
         </Field>
 
-        <Field
-          id="website"
-          label={
-            <>
-              Company website <span className="font-normal text-muted-foreground">(optional)</span>
-            </>
-          }
-          error={errors.website}
-        >
+        <Field id="company" label="Company name" error={errors.company}>
           <Input
-            id="website"
-            name="website"
-            inputMode="url"
-            autoComplete="url"
-            autoCapitalize="none"
-            spellCheck={false}
-            placeholder="acme.com.au"
-            value={website}
+            id="company"
+            name="company"
+            autoComplete="organization"
+            value={company}
             onChange={(event) => {
-              onValues({ website: event.target.value });
-              clearError("website");
+              onValues({ company: event.target.value });
+              clearError("company");
             }}
-            aria-invalid={Boolean(errors.website)}
-            aria-describedby={errors.website ? "website-error" : undefined}
+            aria-invalid={Boolean(errors.company)}
+            aria-describedby={errors.company ? "company-error" : undefined}
             className={fieldClass}
           />
         </Field>
@@ -417,7 +405,7 @@ function DetailsStep({
             />
           </div>
           <p id="phone-note" className="mt-2 text-sm text-muted-foreground">
-            I&apos;ll look at your site before we talk, and only text if I spot something worth a
+            I&apos;ll look up your company before we talk, and only text if I spot something worth a
             quick chat. No spam, reply STOP anytime.
           </p>
         </Field>
