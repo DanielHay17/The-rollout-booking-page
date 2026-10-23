@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book a call | The Rollout</title>
+  <meta name="description" content="AI tutoring for finance, admin and operations teams. Book a free call with Daniel, founder of The Rollout, and see Claude doing a real job from your week.">
+  <meta name="robots" content="noindex">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    // Option B of the booking page (option A is index.html).
+    // Add ?draft to the URL to see dashed boxes where assets still need to go.
+    // Without it, empty boxes stay hidden, so the page is safe to push as-is.
+    if (/[?&]draft\b/.test(location.search)) document.documentElement.classList.add('draft');
+  </script>
+
+  <style>
+    :root {
+      --bg: #F8F4F0;          /* page background, warm cream */
+      --primary: #7BB5A8;     /* sage: buttons, accents */
+      --primary-hover: #6AA396;
+      --primary-deep: #2F5F55;
+      --primary-tint: #EEF6F3;
+      --text: #000000;        /* text on background */
+      --text-on-primary: #FFFFFF;
+      --text-muted: #4B4B4B;
+      --border: #E5E7EB;
+      --radius: 6px;
+      --card: #FFFFFF;
+      --slot: #B4531A;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, Arial, sans-serif;
+      font-size: 1.0625rem;
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    h1, h2 {
+      font-family: 'Playfair Display', Georgia, serif;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 0;
+    }
+
+    section {
+      margin-bottom: 3.5rem;
+    }
+
+    /* Asset boxes: hidden on the live page, shown with ?draft */
+    .slot {
+      display: none;
+    }
+
+    .draft .slot {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 0.25rem;
+      border: 2px dashed var(--slot);
+      border-radius: var(--radius);
+      background: #FDF3EC;
+      color: var(--slot);
+      padding: 1rem;
+      text-align: center;
+      font-size: 0.8125rem;
+      font-weight: 600;
+    }
+
+    .draft .slot small {
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    /* Top bar */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.25rem;
+      gap: 1rem;
+    }
+
+    .brand-logo {
+      height: 38px;
+      width: auto;
+    }
+
+    .partner-logo {
+      height: 34px;
+      width: auto;
+    }
+
+    /* 1. Hero */
+    .hero {
+      margin-bottom: 2.5rem;
+    }
+
+    .hero .eyebrow {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 0.625rem;
+    }
+
+    .hero h1 {
+      font-size: 1.875rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero .sub {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .without {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      font-size: 0.9375rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .without li::before,
+    .assurances li::before {
+      content: "\2713  ";
+      color: var(--primary-hover);
+      font-weight: 700;
+    }
+
+    .vsl {
+      aspect-ratio: 16 / 9;
+      max-width: 100%;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero .btn {
+      width: 100%;
+      text-align: center;
+    }
+
+    .assurances {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem 1rem;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .partner-note {
+      margin-top: 1rem;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+    }
+
+    /* Reviews: swipeable row that auto-cycles until the visitor touches it */
+    .reviews-scroller {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      margin-bottom: 1.25rem;
+    }
+
+    .reviews-scroller::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Review cards are the actual LinkedIn screenshots */
+    .review-card {
+      flex: 0 0 85%;
+      scroll-snap-align: start;
+      display: block;
+      height: auto;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .review-slots {
+      display: grid;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .press-line {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+      margin-bottom: 0.625rem;
+    }
+
+    .press-line .press {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 700;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .stat-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: baseline;
+      gap: 0.5rem 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+    }
+
+    .stat-row strong {
+      color: var(--text);
+      font-size: 1.25rem;
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+
+    .stat-row .dot {
+      color: var(--primary);
+    }
+
+    /* Walkaway list */
+    .walkaway-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .walkaway-list li {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.125rem;
+      font-size: 0.9375rem;
+    }
+
+    /* The pitch, now with a face */
+    .pitch blockquote {
+      border-left: 3px solid var(--primary);
+      padding-left: 1.25rem;
+    }
+
+    .pitch blockquote p {
+      margin-bottom: 1rem;
+    }
+
+    .pitch blockquote p:last-of-type {
+      margin-bottom: 1.25rem;
+    }
+
+    .pitch .signature {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+    }
+
+    .pitch .headshot {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex: 0 0 auto;
+    }
+
+    .pitch cite {
+      font-style: normal;
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+      display: block;
+    }
+
+    .pitch cite strong {
+      color: var(--text);
+    }
+
+    /* Shared section headings */
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.875rem;
+    }
+
+    .section-sub {
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Education: the system, drawn */
+    .teach p {
+      margin-bottom: 1rem;
+    }
+
+    .flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 1.25rem 0;
+    }
+
+    .flow .node {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.875rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .flow .node strong {
+      display: block;
+      font-size: 0.9375rem;
+    }
+
+    .flow .node span {
+      color: var(--text-muted);
+    }
+
+    .flow .node.you {
+      border-color: var(--primary);
+      background: var(--primary-tint);
+    }
+
+    .flow .arrow {
+      text-align: center;
+      color: var(--primary-hover);
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .flow .arrow::before {
+      content: "\2193";
+    }
+
+    /* Things I've built, with real screen recordings */
+    .built-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .built-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      font-size: 0.9375rem;
+    }
+
+    .built-card video,
+    .built-card .shot {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      background: #E9EEEC;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .draft .built-card .shot {
+      border-radius: 0;
+      border-width: 0 0 2px 0;
+    }
+
+    .built-card .body {
+      padding: 1rem 1.125rem;
+    }
+
+    .built-card h3 {
+      margin-bottom: 0.25rem;
+    }
+
+    .built-card p {
+      color: var(--text-muted);
+    }
+
+    .built-card .result {
+      margin-top: 0.5rem;
+      color: var(--primary-deep);
+      font-weight: 600;
+    }
+
+    .built-card .shot-img {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .group-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--primary-deep);
+      margin: 1.25rem 0 0.75rem;
+    }
+
+    .demo-note {
+      margin-top: 0.75rem;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+    }
+
+    /* How it works */
+    .steps {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .steps li {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.125rem;
+      font-size: 0.9375rem;
+      display: grid;
+      grid-template-columns: 2rem 1fr;
+      gap: 0.5rem;
+    }
+
+    .steps .n {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--primary-hover);
+      line-height: 1.3;
+    }
+
+    .steps strong {
+      display: block;
+    }
+
+    .steps span {
+      color: var(--text-muted);
+    }
+
+    /* Alternatives */
+    .alts {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .alt {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.125rem;
+      font-size: 0.9375rem;
+    }
+
+    .alt h3 {
+      margin-bottom: 0.25rem;
+    }
+
+    .alt p {
+      color: var(--text-muted);
+    }
+
+    .alt.pick {
+      border: 2px solid var(--primary);
+      background: var(--primary-tint);
+    }
+
+    .alt.pick p {
+      color: var(--text);
+    }
+
+    /* Who it's for */
+    .fit {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.9375rem;
+    }
+
+    .fit li {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem 0.75rem 2.25rem;
+      position: relative;
+    }
+
+    .fit li::before {
+      position: absolute;
+      left: 0.875rem;
+      font-weight: 700;
+    }
+
+    .fit .yes::before {
+      content: "\2713";
+      color: var(--primary-hover);
+    }
+
+    .fit .no::before {
+      content: "\2715";
+      color: var(--slot);
+    }
+
+    /* Price */
+    .price-card {
+      background: var(--card);
+      border: 2px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.25rem;
+    }
+
+    .price {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 2.25rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .price small {
+      font-family: 'Inter', -apple-system, Arial, sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    .includes {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 1rem 0 1.25rem;
+      font-size: 0.9375rem;
+    }
+
+    .includes li {
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    .includes li::before {
+      content: "\2713";
+      position: absolute;
+      left: 0;
+      color: var(--primary-hover);
+      font-weight: 700;
+    }
+
+    .price-card .slot {
+      margin-bottom: 1rem;
+    }
+
+    .price-card .btn {
+      width: 100%;
+      text-align: center;
+    }
+
+    /* 4. Booking */
+    .booking .sub {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .booking-embed {
+      width: 100%;
+    }
+
+    .booking-embed .iclosed-widget {
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .booking-embed iframe {
+      display: block;
+      width: 100%;
+      border: 0;
+      border-radius: var(--radius);
+    }
+
+    .ps {
+      margin-top: 1.25rem;
+      font-size: 0.9375rem;
+      color: var(--text-muted);
+    }
+
+    /* FAQ */
+    .faq {
+      display: flex;
+      flex-direction: column;
+      gap: 1.125rem;
+    }
+
+    .faq h3 {
+      margin-bottom: 0.25rem;
+    }
+
+    .faq p {
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+    }
+
+    /* Selected work */
+    .work-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .work-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.125rem;
+      font-size: 0.9375rem;
+    }
+
+    .work-card strong {
+      display: block;
+      margin-bottom: 0.125rem;
+    }
+
+    .work-card span {
+      color: var(--text-muted);
+    }
+
+    /* Final CTA band */
+    .final {
+      background: var(--primary-deep);
+      color: #FFFFFF;
+      text-align: center;
+      padding: 3rem 1.25rem;
+      margin: 1rem 0 0;
+    }
+
+    .final h2 {
+      color: #FFFFFF;
+      max-width: 34rem;
+      margin: 0 auto 1.25rem;
+    }
+
+    .final .btn {
+      background: #FFFFFF;
+      color: var(--primary-deep);
+    }
+
+    .final .btn:hover {
+      background: var(--primary-tint);
+    }
+
+    .final p {
+      margin-top: 0.875rem;
+      font-size: 0.875rem;
+      color: #D9EAE5;
+    }
+
+    /* 6. Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 1.25rem 2.5rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+    }
+
+    footer .footer-inner {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    footer p:first-child {
+      margin-bottom: 1rem;
+    }
+
+    footer small {
+      font-size: 0.8125rem;
+      letter-spacing: 0.02em;
+    }
+
+    /* Links and focus states */
+    a {
+      color: var(--primary-hover);
+      text-underline-offset: 2px;
+    }
+
+    a:focus-visible,
+    button:focus-visible {
+      outline: 3px solid var(--primary);
+      outline-offset: 2px;
+      border-radius: var(--radius);
+    }
+
+    .btn {
+      display: inline-block;
+      background: var(--primary);
+      color: var(--text-on-primary);
+      border: 0;
+      border-radius: var(--radius);
+      padding: 0.875rem 1.5rem;
+      min-height: 44px;
+      font-family: 'Inter', -apple-system, Arial, sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Desktop: same single column, just more breathing room */
+    @media (min-width: 640px) {
+      main {
+        padding-top: 4rem;
+      }
+
+      .hero .eyebrow {
+        font-size: 1.125rem;
+      }
+
+      .hero h1 {
+        font-size: 2.625rem;
+      }
+
+      .hero .sub {
+        font-size: 1.125rem;
+        max-width: 34rem;
+      }
+
+      .hero .btn {
+        width: auto;
+      }
+
+      h2 {
+        font-size: 1.75rem;
+      }
+
+      .walkaway-list {
+        flex-direction: row;
+      }
+
+      .walkaway-list li {
+        flex: 1;
+      }
+
+      .flow {
+        flex-direction: row;
+      }
+
+      .flow .node {
+        flex: 1;
+      }
+
+      .flow .arrow {
+        align-self: center;
+      }
+
+      .flow .arrow::before {
+        content: "\2192";
+      }
+
+      .built-grid,
+      .alts,
+      .review-slots {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .work-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .review-card {
+        flex-basis: 320px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <img class="brand-logo" src="assets/rollout-logo.png" alt="The Rollout" width="600" height="200">
+      <img class="partner-logo" src="assets/claude-partner-logo.svg" alt="Claude Partner Network" width="365" height="115">
+    </div>
+
+    <!-- 1. Hero -->
+    <section class="hero">
+      <p class="eyebrow" id="greeting">Hey <span aria-hidden="true">👋</span></p>
+      <h1 id="headline">Get Claude doing the job that eats your week, starting this month.</h1>
+      <p class="sub"><span id="stage-note"></span><strong>If your kids have ever had a tutor, it's like that, for AI.</strong> I tutor business owners, accountants and operations teams on the back-office admin, reporting and scheduling that eats their week. Two 1-on-1 calls a month with me: we build it together on your own files, and you learn to do the next one yourself.</p>
+      <ul class="without">
+        <li>No coding, and no developer to hire</li>
+        <li>No paying an agency thousands for a build</li>
+        <li>Nothing goes live without your OK</li>
+      </ul>
+
+      <div class="slot vsl">VIDEO: your VSL, 2 to 4 minutes<small>Screen-share the doc and narrate it. Replace this box with the YouTube or Loom embed.</small></div>
+
+      <a class="btn" href="#book">Book your free call <span aria-hidden="true">&rarr;</span></a>
+      <ul class="assurances">
+        <li>Free 30-minute call</li>
+        <li>Then two 1-on-1 calls a month with me, $300</li>
+        <li>Cancel any time</li>
+      </ul>
+      <p class="partner-note">We're part of the Claude Partner Network, so the first call is free for Rollout readers.</p>
+    </section>
+
+    <!-- Reviews -->
+    <section class="reviews" aria-label="Reviews">
+      <h2>Reviews</h2>
+      <div class="reviews-scroller" id="reviews-scroller">
+        <img class="review-card" src="assets/review-moushumi.jpg" width="767" height="301" loading="lazy"
+             alt="LinkedIn review from Moushumi Sikand, CFO for Purpose-Driven Businesses, rated 5.0 stars: Daniel is very knowledgeable and passionate about providing great outcomes when it comes to automations and efficiency projects leveraging technology and AI. Strongly recommend.">
+        <img class="review-card" src="assets/review-justin.jpg" width="766" height="294" loading="lazy"
+             alt="LinkedIn review from Justin Rigby, Consultant, Corrosion Technologist and Senior Coatings Inspector, rated 5.0 stars: Daniel has a great grasp on task management and how automation can be achieved. He is helpful and inquisitive, I expect he will soon be an industry leader. Grab him now while he is still available.">
+        <img class="review-card" src="assets/review-craig.jpg" width="764" height="342" loading="lazy"
+             alt="LinkedIn review from Craig Whitton, Consulting CFO at Real Balance Business Consulting, rated 5.0 stars: Incredibly knowledgeable about apps and development. Has a clear strategic foresight of the project, not just its development. Easy to talk with and communicates tech matters in an easy to understand manner. Thanks mate for your support.">
+      </div>
+      <div class="review-slots">
+        <div class="slot">VIDEO TESTIMONIAL: a tutoring client, 30 seconds<small>Phone selfie is fine. Before, and what Claude does for them now.</small></div>
+        <div class="slot">CLIENT MESSAGE: a thank-you or result<small>Screenshot with permission, blur anything private</small></div>
+      </div>
+      <p class="press-line">As featured in <span class="press">The Australian Business Journal</span></p>
+      <p class="stat-row">
+        <span><strong>3+ hrs</strong> saved per client per month at Real Balance</span>
+        <span class="dot" aria-hidden="true">&middot;</span>
+        <span><strong>700+</strong> readers of The Rollout</span>
+      </p>
+    </section>
+
+    <!-- 2. What you'll walk away with -->
+    <section class="walkaway">
+      <h2>What you'll walk away with from the call</h2>
+      <ul class="walkaway-list">
+        <li>The one to three jobs I'd get Claude doing in your business first</li>
+        <li>A rough read on the time and money each would save</li>
+        <li>An honest answer on whether it's even worth doing</li>
+      </ul>
+    </section>
+
+    <!-- 3. The pitch -->
+    <section class="pitch" aria-label="Why this call exists">
+      <blockquote>
+        <p>I started The Rollout because most founders I talk to are sitting on 10+ hours of manual work a week that could be automated. They just don't know where to start.</p>
+        <p>Every issue I publish is a real case study of a business that found that bottleneck and fixed it. The tutoring is the same thing, pointed straight at your business, and you learn how to do it yourself along the way.</p>
+        <div class="signature">
+          <img class="headshot" src="assets/daniel-headshot.jpg" width="400" height="400" alt="Daniel Hay">
+          <cite><strong>Daniel, founder of The Rollout</strong> (and Phlo, the team that builds this stuff)</cite>
+        </div>
+      </blockquote>
+    </section>
+
+    <!-- Teach one useful thing, and draw the system -->
+    <section class="teach">
+      <h2>Claude isn't saving you hours yet because it's missing three things</h2>
+      <p>Most people use Claude like a search box. It works better if you treat it like a very smart new starter who knows nothing about your business. It needs <strong>logins</strong> to your tools, a <strong>filing cabinet</strong> to look things up in, and <strong>your procedures</strong> written down once. Here's what that looks like when it's set up:</p>
+      <div class="flow" aria-label="How the system works">
+        <div class="node"><strong>Your tools</strong><span>Xero, your inbox, your job or ERP software, Drive</span></div>
+        <div class="arrow" aria-hidden="true"></div>
+        <div class="node"><strong>Claude + your procedures</strong><span>Written once as "skills"</span></div>
+        <div class="arrow" aria-hidden="true"></div>
+        <div class="node"><strong>Work prepared</strong><span>Bank lines coded, schedules checked, reports drafted</span></div>
+        <div class="arrow" aria-hidden="true"></div>
+        <div class="node you"><strong>You approve</strong><span>Nothing posts without you</span></div>
+      </div>
+      <p>Setting it up yourself means picking the right way to connect each system, getting permissions right and writing procedures Claude actually follows. It's easy to get wrong and give up, which is why a tutor helps.</p>
+    </section>
+
+    <!-- Visual proof: real screen recordings -->
+    <section class="built">
+      <h2>Here's Claude doing the work, right now</h2>
+      <p class="section-sub">Real builds for finance teams and operations teams.</p>
+      <p class="group-label">Finance and admin</p>
+      <div class="built-grid">
+        <div class="built-card">
+          <video src="assets/clip-bank-rec.mp4" poster="assets/clip-bank-rec.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Claude preparing a Xero bank reconciliation, with a person left to approve each line"></video>
+          <div class="body">
+            <h3>Bank rec with the paperwork attached</h3>
+            <p>Claude matches what it can, codes the rest with a reason, and leaves anything it isn't sure about blank.</p>
+            <p class="result">The same approach we built for Ethical CFO's bookkeeping rescue jobs.</p>
+          </div>
+        </div>
+        <div class="built-card">
+          <video src="assets/clip-expense-claims.mp4" poster="assets/clip-expense-claims.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Claude checking staff expense claims in Xero before they are approved"></video>
+          <div class="body">
+            <h3>Expense claims checked before you approve</h3>
+            <p>Claude checks each claim's account and GST, flags the wrong ones, and lines the rest up for the next pay run.</p>
+            <p class="result">Built with a bookkeeper doing 40 to 50 a month.</p>
+          </div>
+        </div>
+      </div>
+      <p class="demo-note">Recordings use Xero's demo company, so no real client data is shown.</p>
+
+      <p class="group-label">Operations</p>
+      <div class="built-grid">
+        <div class="built-card">
+          <img class="shot-img" src="assets/ops-before-after.jpg" width="1024" height="578" loading="lazy" alt="Before: a hand-built Excel inspection schedule. After: one live national calendar of every inspector by day. Details blurred.">
+          <div class="body">
+            <h3>Five spreadsheets turned into one live schedule</h3>
+            <p>A national inspection team's schedule came out of their job software as five exports, one per state, rebuilt by hand every week. Now an AI agent reads the exports, checks every job and draws the whole country on one screen.</p>
+            <p class="result">About two hours a week back, and it flags scheduling clashes before they happen.</p>
+          </div>
+        </div>
+        <div class="built-card">
+          <div class="slot shot">SCREENSHOT: mining dashboard, numbers blurred<small>Check with the client first: the original is marked Confidential.</small></div>
+          <div class="body">
+            <h3>A dashboard that finds money in the ERP</h3>
+            <p>A WA mining equipment company's AI command centre reads their ERP across sites. It spotted parts being ordered weeks before they were needed, tying up cash.</p>
+            <p class="result">Procurement and equipment insights, refreshed without anyone building a report.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="how">
+      <h2>Here's how the tutoring works</h2>
+      <ol class="steps">
+        <li><span class="n">1</span><div><strong>A free 30-minute call</strong><span>I'll have read your answers before we talk, so we skip the small talk. You show me the job that eats your week, and I show you what I've built for people doing the same job.</span></div></li>
+        <li><span class="n">2</span><div><strong>Session one: we build it on your files</strong><span>We start on test data, then your real files. You leave with that job working.</span></div></li>
+        <li><span class="n">3</span><div><strong>Every fortnight: a 1-on-1 call with me on the next job</strong><span>Two calls a month, just you and me. I research between calls and bring back what's worked for other firms. Email me any time in between.</span></div></li>
+      </ol>
+    </section>
+
+    <!-- Sell against the alternatives -->
+    <section class="alternatives">
+      <h2>Cheaper than an agency, faster than working it out alone</h2>
+      <div class="alts">
+        <div class="alt">
+          <h3>Work it out yourself</h3>
+          <p>Free, but weeks of YouTube and trial and error, and most people stall before it saves real hours.</p>
+        </div>
+        <div class="alt">
+          <h3>Hire an agency</h3>
+          <p>Usually thousands per build. You don't learn how it works, so you're stuck when something changes.</p>
+        </div>
+        <div class="alt">
+          <h3>Buy a course or prompt library</h3>
+          <p>Generic examples that aren't your processes, and they go out of date as the tools change.</p>
+        </div>
+        <div class="alt pick">
+          <h3>AI tutoring</h3>
+          <p>Built on your own files, you learn as we go, and it's $300 a month, cancel any time.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Who it's for -->
+    <section class="who">
+      <h2>This is for you if you already use AI but it hasn't saved real hours</h2>
+      <ul class="fit">
+        <li class="yes">You run a business, or manage its finance, admin or operations</li>
+        <li class="yes">Someone on your team rebuilds the same spreadsheet, report or schedule by hand every week</li>
+        <li class="yes">You've tried ChatGPT or Claude and want it doing actual work</li>
+        <li class="yes">You're happy to share your screen and try things between sessions</li>
+        <li class="no">Not for you if you want it all done for you without being involved. For that, my team at Phlo builds it for you.</li>
+      </ul>
+    </section>
+
+    <!-- Price -->
+    <section class="pricing">
+      <h2>Two 1-on-1 calls a month with me, for $300</h2>
+      <p class="section-sub">If it saves you three hours a month, it's paid for itself.</p>
+      <div class="price-card">
+        <p class="price">$300 <small>a month, month to month</small></p>
+        <ul class="includes">
+          <li>Two 1-on-1 calls a month with me, screen-sharing your real work</li>
+          <li>Research between sessions on whatever is blocking you</li>
+          <li>Every skill, prompt and template we build stays in your Claude account</li>
+          <li>Email questions any time between calls</li>
+          <li>Guidance on your own ideas, so you don't go down the wrong path</li>
+        </ul>
+        <div class="slot">GUARANTEE (optional)<small>e.g. "If month one doesn't save you time, I'll refund it." Only if you'll honour it.</small></div>
+        <a class="btn" href="#book">Book your free call <span aria-hidden="true">&rarr;</span></a>
+        <ul class="assurances">
+          <li>No lock-in</li>
+          <li>Cancel any time</li>
+          <li>The call is free</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 4. Booking -->
+    <section class="booking" id="book">
+      <h2>Book your free call</h2>
+      <p class="sub">Pick a slot below. I read every response myself, so I'll know your business before we hop on. If a business partner or practice manager makes the call with you, bring them.</p>
+
+      <div class="booking-embed" id="booking-embed">
+        <!-- iClosed inline widget begin -->
+        <div class="iclosed-widget" data-url="https://app.iclosed.io/e/Phlo/the-rollout" title="Find what to automate first" style="width: 100%; height: 620px"></div>
+        <!-- widget.js is loaded by the script at the bottom of the page, AFTER the
+             visitor's name/email from the URL are appended to data-url as
+             iclosedName / iclosedEmail, so the iClosed form arrives prefilled. -->
+        <!-- iClosed inline widget end -->
+      </div>
+      <p class="ps"><strong>P.S.</strong> Not sure what to bring? Bring the one job you'd most like to never do again.</p>
+    </section>
+
+    <!-- Objections, answered -->
+    <section class="questions">
+      <h2>Questions people ask before booking</h2>
+      <div class="faq">
+        <div>
+          <h3>Is my data safe?</h3>
+          <p>Claude gets its own limited login to each system, can't approve anything, and every action is logged. We start on test data, like Xero's demo company, before touching anything real.</p>
+        </div>
+        <div>
+          <h3>Do I need to be technical?</h3>
+          <p>No. If you can share your screen and describe how you do a job today, that's enough.</p>
+        </div>
+        <div>
+          <h3>I'm flat out at the moment.</h3>
+          <p>That's usually the best time. The call is 30 minutes, and the first thing we build is the job taking the most hours off you.</p>
+        </div>
+        <div>
+          <h3>Can it handle our odd cases?</h3>
+          <p>Some, not all yet. We start with what it does well and test the tricky ones on a single file. I'll tell you straight if something isn't ready.</p>
+        </div>
+        <div>
+          <h3>What if it's not for us?</h3>
+          <p>It's month to month, so you can stop any time. And if tutoring isn't right, you still leave the call knowing the first thing to automate.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Selected work, from phloing.com/works -->
+    <section class="work">
+      <h2>What my team at Phlo has built</h2>
+      <p class="section-sub">The bigger custom builds. Tutoring clients get the same know-how, in a form they can run themselves.</p>
+      <div class="work-grid">
+        <div class="work-card">
+          <strong>Real Balance</strong>
+          <span>Live Xero dashboard and AI CFO assistant. 3+ hours saved per client per month.</span>
+        </div>
+        <div class="work-card">
+          <strong>Ethical CFO</strong>
+          <span>AI Xero reconciliation and an email invoice finder for bookkeeping rescue jobs.</span>
+        </div>
+        <div class="work-card">
+          <strong>Plantman Mining</strong>
+          <span>AI command centre on their ERP, surfacing procurement and equipment insights across WA sites.</span>
+        </div>
+        <div class="work-card">
+          <strong>Remedy Asset Protection</strong>
+          <span>Five Deltek exports merged into one live, self-updating national inspection schedule.</span>
+        </div>
+        <div class="work-card">
+          <strong>HFG Financial Services</strong>
+          <span>Automated KYC and investor onboarding, plus an AI sales agent behind 227,000+ brokers.</span>
+        </div>
+        <div class="work-card">
+          <strong>Saig</strong>
+          <span>Private AI that runs on a company's own infrastructure, at 80% lower cost.</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Final CTA band -->
+  <section class="final" aria-label="Book a call">
+    <h2>Bring the one job you'd most like to never do again</h2>
+    <a class="btn" href="#book">Book your free call <span aria-hidden="true">&rarr;</span></a>
+    <p>After the call: two 1-on-1 calls a month with me for $300. Cancel any time.</p>
+  </section>
+
+  <!-- 6. Footer -->
+  <footer>
+    <div class="footer-inner">
+      <p>The builds are done by Phlo, the team I run. The Rollout is where I write about how businesses are actually rolling AI out, every week.</p>
+      <small>&copy; PHLOING PTY LTD. All rights reserved.</small>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+
+      // beehiiv only substitutes {{email}} in form redirect URLs; other merge
+      // tags arrive as literal text like "{{first name}}". Treat any value that
+      // still contains braces as absent so the page falls back gracefully.
+      function getParam(key) {
+        var v = params.get(key) || '';
+        return (v.indexOf('{') > -1 || v.indexOf('}') > -1) ? '' : v;
+      }
+
+      // Sanitise the name: strip anything that isn't a plain name character, cap at 30 chars.
+      function cleanName(raw) {
+        if (!raw) return '';
+        var name = raw.replace(/<[^>]*>/g, '');          // strip HTML tags
+        name = name.replace(/[^\p{L}\p{M}' .-]/gu, '');  // letters, apostrophes, spaces, dots, hyphens only
+        name = name.trim().slice(0, 30).trim();
+        return name;
+      }
+
+      var name = cleanName(getParam('name'));
+      var stage = getParam('stage').toLowerCase().trim();
+      var email = getParam('email').trim().slice(0, 254);
+
+      // Eyebrow greeting. Built with createTextNode, so nothing in the URL can inject markup.
+      if (name) {
+        var eyebrow = document.getElementById('greeting');
+        eyebrow.textContent = '';
+        eyebrow.appendChild(document.createTextNode('Hey ' + name + ' '));
+        var wave = document.createElement('span');
+        wave.setAttribute('aria-hidden', 'true');
+        wave.textContent = '👋';
+        eyebrow.appendChild(wave);
+      }
+
+      // Stage-based lead-in: a short, friendly first sentence for the sub-headline.
+      var stageNotes = {
+        live: "You're already live with AI, so we'd go straight to your next win.",
+        pilots: "You're already piloting AI, so let's turn a pilot into hours saved.",
+        stuck: "You've already had a crack at AI, so let's make it pay off this time.",
+        tinkering: "You're already tinkering with AI, so let's point it at a real job.",
+        researching: "You're still weighing AI up, which is exactly the right time for this."
+      };
+      if (stageNotes[stage]) {
+        document.getElementById('stage-note').textContent = stageNotes[stage] + ' ';
+      }
+
+      // Reviews auto-cycle: advance one card every few seconds until the visitor
+      // interacts, then hand over control (it stays a normal swipeable row).
+      var scroller = document.getElementById('reviews-scroller');
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (scroller && !reduceMotion) {
+        var userTookOver = false;
+        ['pointerdown', 'wheel', 'touchstart'].forEach(function (ev) {
+          scroller.addEventListener(ev, function () { userTookOver = true; }, { passive: true });
+        });
+        setInterval(function () {
+          if (userTookOver) return;
+          var card = scroller.querySelector('.review-card');
+          if (!card) return;
+          var step = card.offsetWidth + 16;
+          var max = scroller.scrollWidth - scroller.clientWidth;
+          var next = scroller.scrollLeft + step;
+          scroller.scrollTo({ left: next > max + 8 ? 0 : Math.min(next, max), behavior: 'smooth' });
+        }, 4000);
+      }
+
+      // Respect reduced motion: stop the demo clips on their poster frame.
+      if (reduceMotion) {
+        document.querySelectorAll('.built-card video').forEach(function (v) {
+          v.removeAttribute('autoplay');
+          v.pause();
+        });
+      }
+
+      // Prefill the iClosed widget: append the visitor's sanitised name and email
+      // to the event URL as iclosedName / iclosedEmail before the widget loads.
+      // (iClosed reads these params and prefils the matching form fields.)
+      var widget = document.querySelector('.iclosed-widget');
+      if (widget) {
+        var prefill = [];
+        if (name) prefill.push('iclosedName=' + encodeURIComponent(name));
+        if (email) prefill.push('iclosedEmail=' + encodeURIComponent(email));
+        if (prefill.length) {
+          var base = widget.getAttribute('data-url');
+          widget.setAttribute('data-url', base + (base.indexOf('?') > -1 ? '&' : '?') + prefill.join('&'));
+        }
+      }
+
+      // Load the iClosed widget script now that data-url is final.
+      var s = document.createElement('script');
+      s.src = 'https://app.iclosed.io/assets/widget.js';
+      s.async = true;
+      document.body.appendChild(s);
+
+      // Expose sanitised values in case anything else needs them.
+      window.rolloutPrefill = { name: name, email: email };
+    })();
+  </script>
+</body>
+</html>
