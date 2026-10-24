@@ -15,9 +15,9 @@ export const config = {
    * optional poster image and .vtt captions. Empty = the page runs without it.
    */
   vsl: {
-    src: "",
-    poster: "",
-    captions: "",
+    src: "/assets/vsl/vsl-v1.mp4",
+    poster: "/assets/vsl/vsl-v1-poster.jpg",
+    captions: "/assets/vsl/vsl-v1.vtt",
   },
 
   /** The 90-second "what to expect on the call" video on /booked. */

@@ -78,37 +78,29 @@ function SprintPage() {
         <section className="mt-9 sm:mt-12">
           <p className="mb-2.5 font-medium sm:text-lg">{eyebrow}</p>
           <h1 className="text-[1.875rem] font-bold sm:max-w-[46rem] sm:text-[2.625rem]">{headline}</h1>
-          {showVsl ? (
-            // The video explains the tutoring, so keep it high on the screen:
-            // just the one personal line between the headline and play.
-            stageNote ? (
-              <p className="mt-3 text-muted-foreground sm:text-lg">{stageNote.trim()}</p>
-            ) : null
-          ) : (
-            <>
-              <p className="mt-3 text-muted-foreground sm:max-w-[34rem] sm:text-lg">
-                {stageNote}
-                <strong className="text-foreground">
-                  If your kids have ever had a tutor, it&apos;s like that, for AI.
-                </strong>{" "}
-                I tutor business owners, accountants and operations teams on the back-office admin,
-                reporting and scheduling that eats their week. Two 1-on-1 calls a month with me: we
-                build it together on your own files, and you learn to do the next one yourself.
-              </p>
-              <ul className="mt-4 space-y-1.5">
-                {[
-                  "No coding, and no developer to hire",
-                  "No paying an agency thousands for a build",
-                  "Nothing goes live without your OK",
-                ].map((item) => (
-                  <li key={item} className="flex gap-2.5 text-[0.9375rem]">
-                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
+          {/* The tutor offer in a few lines, with or without the video: most
+              people read this before they decide whether to press play. */}
+          <p className="mt-3 text-muted-foreground sm:max-w-[34rem] sm:text-lg">
+            {stageNote}
+            <strong className="text-foreground">
+              If your kids have ever had a tutor, it&apos;s like that, for AI.
+            </strong>{" "}
+            I tutor business owners, accountants and operations teams on the back-office admin,
+            reporting and scheduling that eats their week. Two 1-on-1 calls a month with me: we
+            build it together on your own files, and you learn to do the next one yourself.
+          </p>
+          <ul className="mt-4 space-y-1.5">
+            {[
+              "No coding, and no developer to hire",
+              "No paying an agency thousands for a build",
+              "Nothing goes live without your OK",
+            ].map((item) => (
+              <li key={item} className="flex gap-2.5 text-[0.9375rem]">
+                <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                {item}
+              </li>
+            ))}
+          </ul>
 
           <div className="mt-6">
             {showVsl ? (
@@ -295,14 +287,16 @@ function SprintPage() {
         <section className="mt-14">
           <SectionHeading>Two 1-on-1 calls a month with me, for $300</SectionHeading>
           <p className="mb-4 text-muted-foreground">If it saves you three hours a month, it&apos;s paid for itself.</p>
-          <div className="rounded-md border-2 border-primary bg-card px-5 py-5 sm:max-w-[40rem]">
+          {/* Full column width like everything else: on desktop the price and
+              button sit on the left, what's included on the right. */}
+          <div className="grid rounded-md border-2 border-primary bg-card px-5 py-5 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-x-10 sm:px-7 sm:py-7">
             <p className="font-serif text-4xl leading-none font-bold">
               $300{" "}
               <span className="font-sans text-base font-normal text-muted-foreground">
                 a month, month to month
               </span>
             </p>
-            <ul className="mt-4 mb-5 space-y-2">
+            <ul className="mt-4 mb-5 space-y-2 sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:my-0">
               {[
                 "Two 1-on-1 calls a month with me, screen-sharing your real work",
                 "Research between calls on whatever is blocking you",
@@ -316,12 +310,14 @@ function SprintPage() {
                 </li>
               ))}
             </ul>
-            <CtaLink href="#book" onClick={onBookClick}>
-              Book my free call <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </CtaLink>
-            <p className="mt-2.5 text-sm text-muted-foreground">
-              No lock-in <Dot /> Cancel any time <Dot /> The first call is free
-            </p>
+            <div className="sm:col-start-1 sm:row-start-2 sm:self-end">
+              <CtaLink href="#book" onClick={onBookClick}>
+                Book my free call <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </CtaLink>
+              <p className="mt-2.5 text-sm text-muted-foreground">
+                No lock-in <Dot /> Cancel any time <Dot /> The first call is free
+              </p>
+            </div>
           </div>
         </section>
 
@@ -501,7 +497,8 @@ type Project = {
 /*
  * Every build we can point to, two to a row on desktop, each with a
  * screenshot, a few rotating screenshots, or a short looping recording.
- * Reviews line up across a row (see ProjectCard). Quotes are word for word: LinkedIn
+ * Reviews line up across a row (see ProjectCard), so the two still waiting on
+ * a review share the last row and it closes up neatly. Quotes are word for word: LinkedIn
  * recommendations, the testimonials published on phloing.com, or wording a
  * client has approved (pending until they do). Clients we don't yet have
  * permission to name are described, not named. Personal details are blurred
@@ -576,20 +573,6 @@ const PROJECTS: Project[] = [
     },
   },
   {
-    client: "A Sydney bookkeeping practice",
-    who: "Xero bookkeeping",
-    title: "40 to 50 expense claims a month, checked for you",
-    detail:
-      "Claude checks each claim's account and GST, flags the wrong ones and lines the rest up as reimbursements on the next pay run.",
-    image: {
-      src: "/assets/work/expense-claims.jpg",
-      width: 900,
-      height: 506,
-      alt: "Claude checking staff expense claims in Xero's demo company before they're approved.",
-    },
-    todo: "Ask Raff for a review, a photo and the OK to name First Class Accounts.",
-  },
-  {
     client: "Hash Financial Group",
     who: "private credit",
     title: "Investor onboarding and KYC, automated",
@@ -655,6 +638,20 @@ const PROJECTS: Project[] = [
         "Phlo brings structure and pace to complex AI and automation projects. That makes delivery far more predictable.",
     },
     todo: "Check the project wording, and add the month Victor gave this review.",
+  },
+  {
+    client: "A Sydney bookkeeping practice",
+    who: "Xero bookkeeping",
+    title: "40 to 50 staff expense claims a month, checked and reimbursed",
+    detail:
+      "Two jobs off the bookkeeper's desk: Claude checks every claim's account and GST and flags the wrong ones, then files the rest in payroll as employee reimbursements for the next pay run.",
+    image: {
+      src: "/assets/work/expense-claims.jpg",
+      width: 900,
+      height: 506,
+      alt: "Claude checking staff expense claims in Xero's demo company before they're approved.",
+    },
+    todo: "Ask Raff for a review, a photo and the OK to name First Class Accounts.",
   },
   {
     client: "A national car dealership group",
