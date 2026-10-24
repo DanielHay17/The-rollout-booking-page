@@ -476,6 +476,8 @@ type ProjectReview = {
   date?: string;
   /** A LinkedIn recommendation, rather than a testimonial sent to us. */
   linkedin?: boolean;
+  /** Wording drafted for the reviewer to approve. Only shows with ?preview until they do. */
+  pending?: boolean;
 };
 
 type Project = {
@@ -484,6 +486,8 @@ type Project = {
   title: string;
   detail: string;
   image?: { src: string; width: number; height: number; alt: string };
+  /** Several 16:9 (1280x720) screenshots that take turns, in place of one image. */
+  slides?: { src: string; alt: string }[];
   review?: ProjectReview;
   /** What's still missing. Only shown with ?preview, so the live page stays clean. */
   todo?: string;
@@ -491,11 +495,13 @@ type Project = {
 
 /*
  * Every build we can point to, two to a row on desktop. The four with
- * screenshots come first so the rows line up. Quotes are word for word:
- * LinkedIn recommendations, or the testimonials published on phloing.com.
- * Clients we don't yet have permission to name are described, not named.
- * Personal details in screenshots (a name and mobile in Remedy's sheet) are
- * blurred.
+ * screenshots come first so the rows line up; the dealership build, with its
+ * rotating screenshots, closes the grid. Quotes are word for word: LinkedIn
+ * recommendations, the testimonials published on phloing.com, or wording a
+ * client has approved (pending until they do). Clients we don't yet have
+ * permission to name are described, not named. Personal details in
+ * screenshots (a name and mobile in Remedy's sheet, customer and rep names in
+ * the dealership's) are blurred.
  */
 const PROJECTS: Project[] = [
   {
@@ -629,26 +635,58 @@ const PROJECTS: Project[] = [
   {
     client: "A national car dealership group",
     who: "fleet sales",
-    title: "A fleet sales CRM for every dealership",
+    title: "From one spreadsheet to a fleet sales platform",
     detail:
-      "Tracks contracts, vehicles sold and follow-ups, so sales teams call fleet customers at the right time.",
+      "Shows which fleet customers are due to replace vehicles, who each rep should call next, and the whole team's pipeline. Now rolled out to multiple dealerships.",
+    slides: [
+      {
+        src: "/assets/work/fleet-overview.jpg",
+        alt: "Fleet overview: 100 accounts, 1,276 vehicles, 223 overdue for replacement, with charts by lifecycle, fleet size and industry.",
+      },
+      {
+        src: "/assets/work/fleet-customers.jpg",
+        alt: "Customer ranking by fleet size, with call status, vehicles over five years old and each fleet's mix of utes, SUVs, cars and vans. Names blurred.",
+      },
+      {
+        src: "/assets/work/fleet-map.jpg",
+        alt: "Coverage map of customers and prospects across Melbourne inside the dealership's primary market area. Names blurred.",
+      },
+      {
+        src: "/assets/work/fleet-dashboard.jpg",
+        alt: "Sales dashboard: pipeline by call status, activity by channel and week, and each rep's open and overdue actions. Rep names blurred.",
+      },
+      {
+        src: "/assets/work/fleet-planner.jpg",
+        alt: "Contact planner board with accounts in columns from Not Started to Contract Secured. Names blurred.",
+      },
+      {
+        src: "/assets/work/fleet-actions.jpg",
+        alt: "Calendar of every rep's next action for the month. Names blurred.",
+      },
+    ],
     review: {
       name: "Adrian Richards",
       role: "Founder & Managing Director, Forth",
       photo: "/assets/reviewer-adrian.jpg",
+      quote:
+        "Daniel helped turn our spreadsheet into software, and added functionality we never had before. It's let us roll the platform out to multiple dealerships under the Eagers Automotive brand. I highly recommend working with Phlo.",
+      pending: true,
     },
-    todo: "Paste in Adrian's review word for word, and its date. Then this card can be named Forth.",
+    todo: "Waiting on Adrian's OK for this wording. Once he's happy: remove pending, add the date, and rename the card to Forth.",
   },
 ];
 
 /** Reviews the live page shows; ones still waiting on their words don't count. */
-const REVIEW_COUNT = PROJECTS.filter((project) => project.review?.quote).length;
+const REVIEW_COUNT = PROJECTS.filter((project) => project.review?.quote && !project.review.pending).length;
 
 function ProjectCard({ project, preview }: { project: Project; preview: boolean }) {
-  const { image, review } = project;
+  const { image, slides, review } = project;
+  const showReview = review && ((review.quote && !review.pending) || preview);
   return (
     <article className="flex flex-col overflow-hidden rounded-md border bg-card">
-      {image ? (
+      {slides ? (
+        <ProjectSlides slides={slides} />
+      ) : image ? (
         <img
           src={image.src}
           width={image.width}
@@ -667,7 +705,7 @@ function ProjectCard({ project, preview }: { project: Project; preview: boolean 
         </p>
         <h3 className="mt-1.5 font-serif text-[1.375rem] leading-tight font-bold">{project.title}</h3>
         <p className="mt-1.5 text-[0.9375rem] text-muted-foreground">{project.detail}</p>
-        {review && (review.quote || preview) ? (
+        {showReview ? (
           <ProjectReviewCard review={review} />
         ) : preview ? (
           <ReviewSlot />
@@ -677,6 +715,49 @@ function ProjectCard({ project, preview }: { project: Project; preview: boolean 
         ) : null}
       </div>
     </article>
+  );
+}
+
+/**
+ * A build's screenshots taking turns, crossfading every few seconds, like a
+ * GIF but sharp. Holds on the first one for people who ask for less motion.
+ */
+function ProjectSlides({ slides }: { slides: NonNullable<Project["slides"]> }) {
+  const [index, setIndex] = React.useState(0);
+  React.useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = window.setInterval(() => setIndex((current) => (current + 1) % slides.length), 3500);
+    return () => window.clearInterval(timer);
+  }, [slides.length]);
+  return (
+    <div className="relative aspect-video w-full overflow-hidden border-b bg-white">
+      {slides.map((slide, i) => (
+        <img
+          key={slide.src}
+          src={slide.src}
+          width={1280}
+          height={720}
+          alt={slide.alt}
+          aria-hidden={i !== index}
+          loading="lazy"
+          className={cn(
+            "absolute inset-0 h-full w-full object-cover transition-opacity duration-700",
+            i === index ? "opacity-100" : "opacity-0",
+          )}
+        />
+      ))}
+      <span
+        aria-hidden="true"
+        className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/40 px-2 py-1"
+      >
+        {slides.map((slide, i) => (
+          <span
+            key={slide.src}
+            className={cn("h-1.5 w-1.5 rounded-full", i === index ? "bg-white" : "bg-white/45")}
+          />
+        ))}
+      </span>
+    </div>
   );
 }
 
