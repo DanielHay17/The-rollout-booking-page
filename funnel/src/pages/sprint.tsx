@@ -48,6 +48,8 @@ function SprintPage() {
   }, []);
 
   const previewVsl = new URLSearchParams(window.location.search).has("preview");
+  // ?preview also shows the empty slots in the project grid (photos, reviews).
+  const preview = previewVsl || import.meta.env.DEV;
   const showVsl = Boolean(config.vsl.src) || previewVsl || import.meta.env.DEV;
   const area = state.bottleneck ? FOCUS_AREAS[state.bottleneck] : undefined;
 
@@ -67,13 +69,15 @@ function SprintPage() {
 
   return (
     <>
-      <PageColumn>
+      {/* Wider than the other pages on desktop so the project grid gets two
+          real columns; running text keeps its own max widths below. */}
+      <PageColumn className="sm:max-w-[960px]">
         <SiteHeader />
 
         {/* Hero */}
         <section className="mt-9 sm:mt-12">
           <p className="mb-2.5 font-medium sm:text-lg">{eyebrow}</p>
-          <h1 className="text-[1.875rem] font-bold sm:text-[2.625rem]">{headline}</h1>
+          <h1 className="text-[1.875rem] font-bold sm:max-w-[46rem] sm:text-[2.625rem]">{headline}</h1>
           {showVsl ? (
             // The video explains the tutoring, so keep it high on the screen:
             // just the one personal line between the headline and play.
@@ -152,7 +156,7 @@ function SprintPage() {
         {/* Booking */}
         <section ref={booking} id="book" className="mt-14 scroll-mt-6">
           <SectionHeading>Book your free call</SectionHeading>
-          <p className="mb-6 text-muted-foreground">
+          <p className="mb-6 max-w-[44rem] text-muted-foreground">
             Pick a slot below. I read every response myself, so I&apos;ll know your business before we
             hop on. If a business partner or practice manager makes the call with you, bring them.
           </p>
@@ -168,40 +172,14 @@ function SprintPage() {
             off the page; the only way on is the calendar. */}
         <section className="mt-14">
           <SectionHeading>What we&apos;ve built for businesses like yours</SectionHeading>
-          <div className="space-y-4">
-            {CASE_STUDIES.map((study) => (
-              <figure key={study.client} className="overflow-hidden rounded-md border bg-card">
-                <img
-                  src={study.image}
-                  width={study.width}
-                  height={study.height}
-                  alt={study.alt}
-                  loading="lazy"
-                  className="h-auto w-full border-b bg-white"
-                />
-                <figcaption className="px-4 py-4 sm:px-5">
-                  <p className="font-serif text-[1.625rem] leading-tight font-bold">{study.result}</p>
-                  <p className="mt-1.5 text-[0.9375rem] text-muted-foreground">{study.detail}</p>
-                  {study.quote ? (
-                    <blockquote className="mt-3 border-l-[3px] border-primary pl-3 text-[0.9375rem]">
-                      <p>&ldquo;{study.quote}&rdquo;</p>
-                      <footer className="mt-1 text-sm text-muted-foreground">{study.quoteBy}</footer>
-                    </blockquote>
-                  ) : null}
-                  <p className="mt-3 text-sm">
-                    <strong>{study.client}</strong>
-                    <span className="text-muted-foreground">, {study.who}</span>
-                  </p>
-                </figcaption>
-              </figure>
+          <p className="mb-5 max-w-[44rem] text-muted-foreground">
+            Real builds, from bookkeeping practices to mining sites, in the clients&apos; own words.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {PROJECTS.map((project) => (
+              <ProjectCard key={project.title} project={project} preview={preview} />
             ))}
           </div>
-          <p className="mt-4 text-[0.9375rem] text-muted-foreground">
-            Also built for <strong className="text-foreground">Saig</strong> (−80% on AI operations
-            costs), <strong className="text-foreground">Hash Financial Group</strong> (investor
-            onboarding and KYC) and <strong className="text-foreground">Studyfin</strong> (seven
-            products on one platform).
-          </p>
         </section>
 
         {/* How it works, and what they leave with */}
@@ -241,7 +219,7 @@ function SprintPage() {
         {/* Teach one useful thing: why Claude isn't saving them hours yet */}
         <section className="mt-14">
           <SectionHeading>Claude isn&apos;t saving you hours yet because it&apos;s missing three things</SectionHeading>
-          <p className="text-[0.9375rem] sm:text-base">
+          <p className="max-w-[44rem] text-[0.9375rem] sm:text-base">
             Most people use Claude like a search box. It works better if you treat it like a very smart
             new starter who knows nothing about your business. It needs <strong>logins</strong> to your
             tools, a <strong>filing cabinet</strong> to look things up in, and{" "}
@@ -269,7 +247,7 @@ function SprintPage() {
               </React.Fragment>
             ))}
           </div>
-          <p className="mt-5 text-[0.9375rem] text-muted-foreground">
+          <p className="mt-5 max-w-[44rem] text-[0.9375rem] text-muted-foreground">
             Setting it up yourself means picking the right way to connect each system, getting
             permissions right and writing procedures Claude actually follows. It&apos;s easy to get
             wrong and give up, which is why a tutor helps.
@@ -319,7 +297,7 @@ function SprintPage() {
         <section className="mt-14">
           <SectionHeading>Two 1-on-1 calls a month with me, for $300</SectionHeading>
           <p className="mb-4 text-muted-foreground">If it saves you three hours a month, it&apos;s paid for itself.</p>
-          <div className="rounded-md border-2 border-primary bg-card px-5 py-5">
+          <div className="rounded-md border-2 border-primary bg-card px-5 py-5 sm:max-w-[40rem]">
             <p className="font-serif text-4xl leading-none font-bold">
               $300{" "}
               <span className="font-sans text-base font-normal text-muted-foreground">
@@ -492,49 +470,309 @@ const FIT = [
   "You're happy to share your screen and try things between calls",
 ];
 
+type ProjectReview = {
+  /** Leave out until we have it; the role then stands in for the name. */
+  name?: string;
+  role: string;
+  photo?: string;
+  quote: string;
+  /** Set for LinkedIn recommendations, which carry a date and stars. */
+  linkedin?: { date: string };
+};
+
+type Project = {
+  client: string;
+  who: string;
+  title: string;
+  detail: string;
+  image?: { src: string; width: number; height: number; alt: string };
+  review?: ProjectReview;
+  /** What's still missing. Only shown with ?preview, so the live page stays clean. */
+  todo?: string;
+};
+
 /*
- * Real screenshots from the builds, each already published in The Rollout.
- * Accounting and finance first: that's who the ads reach. Personal details
- * in the screenshots (a name and mobile in Remedy's sheet) are blurred.
+ * Every build we can point to, two to a row on desktop. The four with
+ * screenshots come first so the rows line up. Quotes are word for word:
+ * LinkedIn recommendations, or the testimonials published on phloing.com.
+ * Clients we don't yet have permission to name are described, not named.
+ * Personal details in screenshots (a name and mobile in Remedy's sheet) are
+ * blurred.
  */
-const CASE_STUDIES = [
+const PROJECTS: Project[] = [
   {
-    result: "3+ hours saved per client, every month",
-    detail:
-      "A live dashboard synced with Xero that clients log into, plus an AI that answers questions about their numbers in plain English.",
-    quote:
-      "Phlo moved our clients from monthly reporting to daily engagement using a live dashboard and an internal AI built on their financial data. It's transformed how clients interact with their numbers.",
-    quoteBy: "Craig Whitton, Managing Director",
     client: "Real Balance",
     who: "accounting and CFO advisory",
-    image: "/assets/work/realbalance-dashboard.webp",
-    width: 900,
-    height: 816,
-    alt: "Real Balance's client dashboard: revenue, expenses, net profit and cash at bank, with recent activity and upcoming BAS and tax deadlines.",
+    title: "3+ hours saved per client, every month",
+    detail:
+      "A live Xero dashboard clients log into, plus an AI that answers questions about their numbers in plain English.",
+    image: {
+      src: "/assets/work/realbalance-dashboard.webp",
+      width: 900,
+      height: 816,
+      alt: "Real Balance's client dashboard: revenue, expenses, net profit and cash at bank, with recent activity and upcoming BAS and tax deadlines.",
+    },
+    review: {
+      name: "Craig Whitton",
+      role: "Managing Director, Real Balance",
+      photo: "/assets/reviewer-craig.webp",
+      quote:
+        "Phlo moved our clients from monthly reporting to daily engagement using a live dashboard and an internal AI built on their financial data. It's transformed how clients interact with their numbers.",
+    },
   },
   {
-    result: "5 years of bank lines, reconciled in Xero",
-    detail:
-      "Claude works down the reconciliation screen coding each line and writing the why. A bookkeeper approves every page.",
     client: "Ethical CFO",
     who: "Xero Sole Practitioner of the Year",
-    image: "/assets/work/ethicalcfo-xero.webp",
-    width: 800,
-    height: 446,
-    alt: "Claude running beside Xero's bank reconciliation screen, prompted to work as an experienced Australian bookkeeper.",
+    title: "5 years of bank lines, reconciled in Xero",
+    detail:
+      "Claude works down the reconciliation screen coding each line and writing the why. A bookkeeper approves every page.",
+    image: {
+      src: "/assets/work/ethicalcfo-xero.webp",
+      width: 800,
+      height: 446,
+      alt: "Claude running beside Xero's bank reconciliation screen, prompted to work as an experienced Australian bookkeeper.",
+    },
+    review: {
+      name: "Moushumi Sikand",
+      role: "CFO for Purpose-Driven Businesses | Winner of Xero Sole Practitioner of the year",
+      photo: "/assets/reviewer-moushumi.webp",
+      quote:
+        "Daniel is very knowledgeable and passionate about providing great outcomes when it comes to automations and efficiency projects leveraging technology and Ai. Strongly recommend.",
+      linkedin: { date: "May 19, 2026" },
+    },
+    todo: "Confirm Moushumi is the right person for Ethical CFO, or swap in who is.",
   },
   {
-    result: "6 new jobs and 11 changes, caught from one upload",
-    detail:
-      "The spreadsheet that ran a national inspection team, turned into a live calendar of every inspector and job.",
     client: "Remedy Asset Protection",
     who: "asset inspection, nationwide",
-    image: "/assets/work/remedy-before-after.webp",
-    width: 1000,
-    height: 563,
-    alt: "Before and after: a colour-coded roster spreadsheet on the left, the same jobs in Remedy's live inspector calendar on the right.",
+    title: "6 new jobs and 11 changes, caught from one upload",
+    detail:
+      "The spreadsheet that ran a national inspection team, turned into a live calendar of every inspector and job.",
+    image: {
+      src: "/assets/work/remedy-before-after.webp",
+      width: 1000,
+      height: 563,
+      alt: "Before and after: a colour-coded roster spreadsheet on the left, the same jobs in Remedy's live inspector calendar on the right.",
+    },
+    review: {
+      name: "Justin Rigby",
+      role: "Consultant - Corrosion Technologist & Senior Coatings Inspector (AMPP)",
+      photo: "/assets/reviewer-justin.webp",
+      quote:
+        "Daniel has a great grasp on task management and how automation can be achieved. His is helpful and inquisitive - I expect he will soon be an industry leader. Grab him now while he is still available.",
+      linkedin: { date: "May 11, 2026" },
+    },
+  },
+  {
+    client: "A Sydney bookkeeping practice",
+    who: "Xero bookkeeping",
+    title: "40 to 50 expense claims a month, checked for you",
+    detail:
+      "Claude checks each claim's account and GST, flags the wrong ones and lines the rest up as reimbursements on the next pay run.",
+    image: {
+      src: "/assets/work/expense-claims.jpg",
+      width: 900,
+      height: 506,
+      alt: "Claude checking staff expense claims in Xero's demo company before they're approved.",
+    },
+    todo: "Ask Raff for a review, a photo and the OK to name First Class Accounts.",
+  },
+  {
+    client: "Plantman",
+    who: "mining equipment, WA",
+    title: "An AI command centre across WA mining sites",
+    detail:
+      "Connects their ERP so procurement and equipment insights surface on their own, without anyone building a report.",
+    todo: "Add a review, and a blurred dashboard screenshot (the original is marked Confidential).",
+  },
+  {
+    client: "Hash Financial Group",
+    who: "private credit",
+    title: "Investor onboarding and KYC, automated",
+    detail: "KYC, AML and SMSF investor onboarding for HFG's private credit fund, so deals move faster.",
+    review: {
+      role: "Head of Operations, Hash Financial Group",
+      quote:
+        "The system Phlo built streamlined our investor onboarding and internal operations. What used to require manual coordination is now structured, trackable, and far easier to manage.",
+    },
+    todo: "Add the Head of Operations' name and photo.",
+  },
+  {
+    client: "Hash Financial Group",
+    who: "broker network",
+    title: "227,000+ brokers, $3.6B in loans settled",
+    detail: "A broker marketplace with an AI sales agent behind it.",
+    todo: "Add a review.",
+  },
+  {
+    client: "Studyfin",
+    who: "fintech for international students",
+    title: "Seven products on one platform",
+    detail: "A full-stack platform for international students: payments, housing, jobs and savings.",
+    review: {
+      role: "Founder, Studyfin",
+      quote:
+        "Phlo has been our development partner from day one, building the platform from the ground up and managing seven distinct products and features with different requirements.",
+    },
+    todo: "Add the founder's name and photo.",
+  },
+  {
+    client: "Saig",
+    who: "enterprise AI",
+    title: "Private AI at 80% lower cost",
+    detail: "A private AI grid so companies can run large language models on their own infrastructure.",
+    todo: "Add a review.",
+  },
+  {
+    client: "Sapien Group",
+    who: "renewables",
+    title: "AI and automation, delivered to a plan",
+    detail: "The architecture and delivery plan for Sapien's AI and automation projects.",
+    review: {
+      role: "Managing Director, Sapien Group",
+      quote:
+        "Phlo brings structure and pace to complex AI and automation projects. That makes delivery far more predictable.",
+    },
+    todo: "Check the project wording, and add the Managing Director's name and photo.",
+  },
+  {
+    client: "A Perth strata management firm",
+    who: "strata management",
+    title: "Documents that sound like the firm wrote them",
+    detail: "A Claude skill that writes reports and letters in the firm's own voice and template.",
+    todo: "Ask Peter for a review, a photo and the OK to name Ikon SM.",
+  },
+  {
+    client: "A national car dealership group",
+    who: "fleet sales",
+    title: "A fleet sales CRM for every dealership",
+    detail:
+      "Tracks contracts, vehicles sold and follow-ups, so sales teams call fleet customers at the right time.",
+    todo: "Ask for a review, and check we can name the group.",
   },
 ];
+
+function ProjectCard({ project, preview }: { project: Project; preview: boolean }) {
+  const { image, review } = project;
+  return (
+    <article className="flex flex-col overflow-hidden rounded-md border bg-card">
+      {image ? (
+        <img
+          src={image.src}
+          width={image.width}
+          height={image.height}
+          alt={image.alt}
+          loading="lazy"
+          className="aspect-video h-auto w-full border-b bg-white object-cover object-top"
+        />
+      ) : preview ? (
+        <Slot className="aspect-video rounded-none border-0 border-b-2">Screenshot goes here</Slot>
+      ) : null}
+      <div className="flex flex-1 flex-col px-4 py-4 sm:px-5">
+        <p className="text-sm">
+          <strong>{project.client}</strong>
+          <span className="text-muted-foreground"> &middot; {project.who}</span>
+        </p>
+        <h3 className="mt-1.5 font-serif text-[1.375rem] leading-tight font-bold">{project.title}</h3>
+        <p className="mt-1.5 text-[0.9375rem] text-muted-foreground">{project.detail}</p>
+        {review ? <ProjectReviewCard review={review} /> : preview ? <ReviewSlot /> : null}
+        {preview && project.todo ? (
+          <p className="mt-3 text-xs font-medium text-primary">To do: {project.todo}</p>
+        ) : null}
+      </div>
+    </article>
+  );
+}
+
+/** A review in LinkedIn's layout: face, name and title, stars, the words. */
+function ProjectReviewCard({ review }: { review: ProjectReview }) {
+  return (
+    <figure className="mt-4 flex flex-1 flex-col rounded-md border bg-background px-3.5 py-3.5">
+      <figcaption className="flex gap-3">
+        <ReviewerAvatar label={review.name ?? review.role} photo={review.photo} />
+        <span className="min-w-0">
+          {review.name ? (
+            <>
+              <strong className="block text-[0.9375rem] leading-snug">{review.name}</strong>
+              <span className="line-clamp-2 text-xs leading-snug text-muted-foreground">{review.role}</span>
+            </>
+          ) : (
+            <strong className="block text-[0.9375rem] leading-snug">{review.role}</strong>
+          )}
+        </span>
+      </figcaption>
+      {review.linkedin ? (
+        <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Stars small /> <strong className="text-foreground">5.0</strong> &middot; {review.linkedin.date}
+        </p>
+      ) : null}
+      <blockquote className="mt-2 flex-1 text-[0.9375rem] leading-relaxed">&ldquo;{review.quote}&rdquo;</blockquote>
+      <p className="mt-3 flex items-center gap-1.5 border-t pt-2.5 text-xs text-muted-foreground">
+        {review.linkedin ? (
+          <>
+            <LinkedInMark /> Recommendation on LinkedIn
+          </>
+        ) : (
+          "Client testimonial"
+        )}
+      </p>
+    </figure>
+  );
+}
+
+/** The reviewer's photo, or their initials until we have one. */
+function ReviewerAvatar({ label, photo }: { label: string; photo?: string }) {
+  if (photo) {
+    return (
+      <img src={photo} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-full object-cover" />
+    );
+  }
+  const initials = label
+    .split(/[\s,]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase())
+    .join("");
+  return (
+    <span
+      aria-hidden="true"
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-muted-foreground"
+    >
+      {initials}
+    </span>
+  );
+}
+
+/** Where a review will go, shown only with ?preview. */
+function ReviewSlot() {
+  return (
+    <Slot className="mt-4 flex-1 items-start text-left">
+      <span className="flex items-center gap-3">
+        <span className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-dashed border-primary/60 text-[0.625rem]">
+          Photo
+        </span>
+        <span>
+          <strong className="block">Name</strong>
+          <span className="text-xs text-muted-foreground">Role at company</span>
+        </span>
+      </span>
+      <span className="mt-3 block text-sm text-muted-foreground">Their review goes here, word for word.</span>
+    </Slot>
+  );
+}
+
+function Slot({ className, children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center rounded-md border-2 border-dashed border-primary/60 bg-card px-4 py-4 text-center text-sm",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
 
 function DanielPhoto({ className }: { className?: string }) {
   if (!config.danielPhoto) return null;
