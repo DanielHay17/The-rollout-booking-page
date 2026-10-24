@@ -574,9 +574,9 @@ const PROJECTS: Project[] = [
   {
     client: "A Sydney bookkeeping practice",
     who: "Xero bookkeeping",
-    title: "40 to 50 expense claims a month, checked for you",
+    title: "40 to 50 staff expense claims a month, checked and reimbursed",
     detail:
-      "Claude checks each claim's account and GST, flags the wrong ones and lines the rest up as reimbursements on the next pay run.",
+      "Two jobs off the bookkeeper's desk: Claude checks every claim's account and GST and flags the wrong ones, then files the rest in payroll as employee reimbursements for the next pay run.",
     image: {
       src: "/assets/work/expense-claims.jpg",
       width: 900,
