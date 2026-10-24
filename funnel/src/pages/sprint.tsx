@@ -287,14 +287,16 @@ function SprintPage() {
         <section className="mt-14">
           <SectionHeading>Two 1-on-1 calls a month with me, for $300</SectionHeading>
           <p className="mb-4 text-muted-foreground">If it saves you three hours a month, it&apos;s paid for itself.</p>
-          <div className="rounded-md border-2 border-primary bg-card px-5 py-5 sm:max-w-[40rem]">
+          {/* Full column width like everything else: on desktop the price and
+              button sit on the left, what's included on the right. */}
+          <div className="grid rounded-md border-2 border-primary bg-card px-5 py-5 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-x-10 sm:px-7 sm:py-7">
             <p className="font-serif text-4xl leading-none font-bold">
               $300{" "}
               <span className="font-sans text-base font-normal text-muted-foreground">
                 a month, month to month
               </span>
             </p>
-            <ul className="mt-4 mb-5 space-y-2">
+            <ul className="mt-4 mb-5 space-y-2 sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:my-0">
               {[
                 "Two 1-on-1 calls a month with me, screen-sharing your real work",
                 "Research between calls on whatever is blocking you",
@@ -308,12 +310,14 @@ function SprintPage() {
                 </li>
               ))}
             </ul>
-            <CtaLink href="#book" onClick={onBookClick}>
-              Book my free call <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </CtaLink>
-            <p className="mt-2.5 text-sm text-muted-foreground">
-              No lock-in <Dot /> Cancel any time <Dot /> The first call is free
-            </p>
+            <div className="sm:col-start-1 sm:row-start-2 sm:self-end">
+              <CtaLink href="#book" onClick={onBookClick}>
+                Book my free call <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </CtaLink>
+              <p className="mt-2.5 text-sm text-muted-foreground">
+                No lock-in <Dot /> Cancel any time <Dot /> The first call is free
+              </p>
+            </div>
           </div>
         </section>
 
