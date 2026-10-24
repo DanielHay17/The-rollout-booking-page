@@ -154,7 +154,7 @@ function SprintPage() {
           </p>
           <p className="mt-2 mb-5 flex items-center gap-2 text-sm">
             <Stars small /> <strong>5.0</strong>
-            <span className="text-muted-foreground">on LinkedIn</span>
+            <span className="text-muted-foreground">from {REVIEW_COUNT} client reviews</span>
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
             {PROJECTS.map((project) => (
@@ -470,9 +470,12 @@ type ProjectReview = {
   name?: string;
   role: string;
   photo?: string;
-  quote: string;
-  /** Set for LinkedIn recommendations, which carry a date and stars. */
-  linkedin?: { date: string };
+  /** Word for word. Until we have it the review only shows with ?preview. */
+  quote?: string;
+  /** When it was given. Only set when we know it. */
+  date?: string;
+  /** A LinkedIn recommendation, rather than a testimonial sent to us. */
+  linkedin?: boolean;
 };
 
 type Project = {
@@ -512,7 +515,9 @@ const PROJECTS: Project[] = [
       role: "Managing Director, Real Balance",
       photo: "/assets/reviewer-craig.webp",
       quote:
-        "Phlo moved our clients from monthly reporting to daily engagement using a live dashboard and an internal AI built on their financial data. It's transformed how clients interact with their numbers.",
+        "Incredibly knowledgeable about apps and development. Has a clear strategic foresight of the project, not just its development. Easy to talk with and communicates tech matters in an easy to understand manner. Thanks mate for your support",
+      date: "January 24, 2026",
+      linkedin: true,
     },
   },
   {
@@ -533,9 +538,9 @@ const PROJECTS: Project[] = [
       photo: "/assets/reviewer-moushumi.webp",
       quote:
         "Daniel is very knowledgeable and passionate about providing great outcomes when it comes to automations and efficiency projects leveraging technology and Ai. Strongly recommend.",
-      linkedin: { date: "May 19, 2026" },
+      date: "May 19, 2026",
+      linkedin: true,
     },
-    todo: "Confirm Moushumi is the right person for Ethical CFO, or swap in who is.",
   },
   {
     client: "Remedy Asset Protection",
@@ -555,7 +560,8 @@ const PROJECTS: Project[] = [
       photo: "/assets/reviewer-justin.webp",
       quote:
         "Daniel has a great grasp on task management and how automation can be achieved. His is helpful and inquisitive - I expect he will soon be an industry leader. Grab him now while he is still available.",
-      linkedin: { date: "May 11, 2026" },
+      date: "May 11, 2026",
+      linkedin: true,
     },
   },
   {
@@ -586,11 +592,13 @@ const PROJECTS: Project[] = [
     title: "Investor onboarding and KYC, automated",
     detail: "KYC, AML and SMSF investor onboarding for HFG's private credit fund, so deals move faster.",
     review: {
+      name: "Sheetal Jiang",
       role: "Head of Operations, Hash Financial Group",
+      photo: "/assets/reviewer-sheetal.jpg",
       quote:
         "The system Phlo built streamlined our investor onboarding and internal operations. What used to require manual coordination is now structured, trackable, and far easier to manage.",
     },
-    todo: "Add the Head of Operations' name and photo.",
+    todo: "Add the month Sheetal gave this review.",
   },
   {
     client: "Studyfin",
@@ -610,11 +618,13 @@ const PROJECTS: Project[] = [
     title: "AI and automation, delivered to a plan",
     detail: "The architecture and delivery plan for Sapien's AI and automation projects.",
     review: {
+      name: "Victor Jiang",
       role: "Managing Director, Sapien Group",
+      photo: "/assets/reviewer-victor.jpg",
       quote:
         "Phlo brings structure and pace to complex AI and automation projects. That makes delivery far more predictable.",
     },
-    todo: "Check the project wording, and add the Managing Director's name and photo.",
+    todo: "Check the project wording, and add the month Victor gave this review.",
   },
   {
     client: "A national car dealership group",
@@ -622,9 +632,17 @@ const PROJECTS: Project[] = [
     title: "A fleet sales CRM for every dealership",
     detail:
       "Tracks contracts, vehicles sold and follow-ups, so sales teams call fleet customers at the right time.",
-    todo: "Ask for a review, and check we can name the group.",
+    review: {
+      name: "Adrian Richards",
+      role: "Founder & Managing Director, Forth",
+      photo: "/assets/reviewer-adrian.jpg",
+    },
+    todo: "Paste in Adrian's review word for word, and its date. Then this card can be named Forth.",
   },
 ];
+
+/** Reviews the live page shows; ones still waiting on their words don't count. */
+const REVIEW_COUNT = PROJECTS.filter((project) => project.review?.quote).length;
 
 function ProjectCard({ project, preview }: { project: Project; preview: boolean }) {
   const { image, review } = project;
@@ -649,7 +667,11 @@ function ProjectCard({ project, preview }: { project: Project; preview: boolean 
         </p>
         <h3 className="mt-1.5 font-serif text-[1.375rem] leading-tight font-bold">{project.title}</h3>
         <p className="mt-1.5 text-[0.9375rem] text-muted-foreground">{project.detail}</p>
-        {review ? <ProjectReviewCard review={review} /> : preview ? <ReviewSlot /> : null}
+        {review && (review.quote || preview) ? (
+          <ProjectReviewCard review={review} />
+        ) : preview ? (
+          <ReviewSlot />
+        ) : null}
         {preview && project.todo ? (
           <p className="mt-3 text-xs font-medium text-primary">To do: {project.todo}</p>
         ) : null}
@@ -658,7 +680,10 @@ function ProjectCard({ project, preview }: { project: Project; preview: boolean 
   );
 }
 
-/** A review in LinkedIn's layout: face, name and title, stars, the words. */
+/**
+ * A review in LinkedIn's layout: face, name and title, stars, the words, and
+ * where it came from. Every review gets the same card, LinkedIn or not.
+ */
 function ProjectReviewCard({ review }: { review: ProjectReview }) {
   return (
     <figure className="mt-4 flex flex-1 flex-col rounded-md border bg-background px-3.5 py-3.5">
@@ -675,12 +700,15 @@ function ProjectReviewCard({ review }: { review: ProjectReview }) {
           )}
         </span>
       </figcaption>
-      {review.linkedin ? (
-        <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Stars small /> <strong className="text-foreground">5.0</strong> &middot; {review.linkedin.date}
-        </p>
-      ) : null}
-      <blockquote className="mt-2 flex-1 text-[0.9375rem] leading-relaxed">&ldquo;{review.quote}&rdquo;</blockquote>
+      <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+        <Stars small /> <strong className="text-foreground">5.0</strong>
+        {review.date ? <> &middot; {review.date}</> : null}
+      </p>
+      {review.quote ? (
+        <blockquote className="mt-2 flex-1 text-[0.9375rem] leading-relaxed">&ldquo;{review.quote}&rdquo;</blockquote>
+      ) : (
+        <Slot className="mt-2 flex-1 items-start text-left text-sm">Their review goes here, word for word.</Slot>
+      )}
       <p className="mt-3 flex items-center gap-1.5 border-t pt-2.5 text-xs text-muted-foreground">
         {review.linkedin ? (
           <>
