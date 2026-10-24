@@ -1,0 +1,5 @@
+# go.the-rollout.co is retired. Every path, including old email and
+# sign-up links, now lands on the booking page at therollout.ai/sprint.
+# The ! makes it apply even though index.html still exists, and 302 keeps
+# it easy to undo. Query strings (?email= and the rest) are passed through.
+/*  https://therollout.ai/sprint  302!
