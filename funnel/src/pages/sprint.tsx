@@ -144,13 +144,23 @@ function SprintPage() {
           </p>
         </section>
 
-        {/* The LinkedIn reviews, right before the ask */}
-        <section className="mt-10" aria-label="Reviews on LinkedIn">
-          <p className="mb-3 flex items-center gap-2 text-sm">
+        {/* Proof right before the ask: every build we can point to, each in the
+            client's own words. Nothing here links off the page; the only way on
+            is the calendar (or the sticky button on phones). */}
+        <section className="mt-12">
+          <SectionHeading>What we&apos;ve built for businesses like yours</SectionHeading>
+          <p className="max-w-[44rem] text-muted-foreground">
+            Real builds, from bookkeeping practices to mining sites, in the clients&apos; own words.
+          </p>
+          <p className="mt-2 mb-5 flex items-center gap-2 text-sm">
             <Stars small /> <strong>5.0</strong>
             <span className="text-muted-foreground">on LinkedIn</span>
           </p>
-          <Reviews />
+          <div className="grid gap-4 sm:grid-cols-2">
+            {PROJECTS.map((project) => (
+              <ProjectCard key={project.title} project={project} preview={preview} />
+            ))}
+          </div>
         </section>
 
         {/* Booking */}
@@ -165,21 +175,6 @@ function SprintPage() {
             <strong className="text-foreground">P.S.</strong> Not sure what to bring? Bring the one job
             you&apos;d most like to never do again.
           </p>
-        </section>
-
-        {/* Proof straight after the calendar, for anyone who scrolled past it
-            unconvinced: the work itself, number first. Nothing here links
-            off the page; the only way on is the calendar. */}
-        <section className="mt-14">
-          <SectionHeading>What we&apos;ve built for businesses like yours</SectionHeading>
-          <p className="mb-5 max-w-[44rem] text-muted-foreground">
-            Real builds, from bookkeeping practices to mining sites, in the clients&apos; own words.
-          </p>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {PROJECTS.map((project) => (
-              <ProjectCard key={project.title} project={project} preview={preview} />
-            ))}
-          </div>
         </section>
 
         {/* How it works, and what they leave with */}
@@ -963,110 +958,6 @@ function VslPlaceholder() {
       <span className="text-sm text-muted-foreground">
         Preview only. Set <code>vsl.src</code> in src/config.ts and it replaces this box.
       </span>
-    </div>
-  );
-}
-
-/*
- * LinkedIn recommendations, word for word as posted, rebuilt as cards so
- * they're readable on a phone (a screenshot shrinks to ~6px text there).
- * Moushumi first: a CFO and Xero award winner speaks to who the ads reach.
- */
-const REVIEWS = [
-  {
-    name: "Moushumi Sikand",
-    photo: "/assets/reviewer-moushumi.webp",
-    headline:
-      "CFO for Purpose-Driven Businesses | 20+ Yrs Experience | Helping Founders Gain Financial Clarity, Confidence & Sustainable Profit | Winner of Xero Sole Practitioner of the year",
-    service: "IT Consulting",
-    date: "May 19, 2026",
-    text: "Daniel is very knowledgeable and passionate about providing great outcomes when it comes to automations and efficiency projects leveraging technology and Ai. Strongly recommend.",
-  },
-  {
-    name: "Craig Whitton",
-    photo: "/assets/reviewer-craig.webp",
-    headline:
-      "Growth & Leadership Consulting Partner; Wingman; Mentor; Accountability Partner; Organisational Consulting; Outsourced Consulting CFO at Real Balance Business Consulting, Vocalist and Band Manager/Roadie",
-    service: "Custom Software Development",
-    date: "January 24, 2026",
-    text: "Incredibly knowledgeable about apps and development. Has a clear strategic foresight of the project, not just its development. Easy to talk with and communicates tech matters in an easy to understand manner. Thanks mate for your support",
-  },
-  {
-    name: "Justin Rigby",
-    photo: "/assets/reviewer-justin.webp",
-    headline: "Consultant - Corrosion Technologist & Senior Coatings Inspector (AMPP)",
-    service: "Custom Software Development",
-    date: "May 11, 2026",
-    text: "Daniel has a great grasp on task management and how automation can be achieved. His is helpful and inquisitive - I expect he will soon be an industry leader. Grab him now while he is still available.",
-  },
-];
-
-/** Swipeable row that moves on its own every few seconds until it's touched. */
-function Reviews() {
-  const scroller = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    const element = scroller.current;
-    if (!element || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let tookOver = false;
-    const stop = () => {
-      tookOver = true;
-    };
-    const events = ["pointerdown", "wheel", "touchstart", "focusin"] as const;
-    for (const name of events) element.addEventListener(name, stop, { passive: true });
-    const timer = window.setInterval(() => {
-      if (tookOver) return;
-      const card = element.querySelector<HTMLElement>("[data-review]");
-      if (!card) return;
-      const step = card.offsetWidth + 16;
-      const max = element.scrollWidth - element.clientWidth;
-      const next = element.scrollLeft + step;
-      element.scrollTo({ left: next > max + 8 ? 0 : Math.min(next, max), behavior: "smooth" });
-    }, 4000);
-    return () => {
-      window.clearInterval(timer);
-      for (const name of events) element.removeEventListener(name, stop);
-    };
-  }, []);
-
-  return (
-    <div
-      ref={scroller}
-      className="flex snap-x snap-mandatory gap-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-    >
-      {REVIEWS.map((review) => (
-        <figure
-          key={review.name}
-          data-review
-          className="flex w-[85%] shrink-0 snap-start flex-col rounded-md border bg-card px-4 py-4 sm:w-[340px]"
-        >
-          <figcaption className="flex gap-3">
-            <img
-              src={review.photo}
-              alt=""
-              width={44}
-              height={44}
-              className="h-11 w-11 shrink-0 rounded-full object-cover"
-            />
-            <span className="min-w-0">
-              <strong className="block text-[0.9375rem] leading-snug">{review.name}</strong>
-              <span className="line-clamp-2 text-xs leading-snug text-muted-foreground">
-                {review.headline}
-              </span>
-            </span>
-          </figcaption>
-          <span className="mt-3 self-start rounded-sm bg-muted px-2 py-0.5 text-xs font-medium">
-            {review.service}
-          </span>
-          <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Stars small /> <strong className="text-foreground">5.0</strong> &middot; {review.date}
-          </p>
-          <blockquote className="mt-2 flex-1 text-[0.9375rem] leading-relaxed">{review.text}</blockquote>
-          <p className="mt-3 flex items-center gap-1.5 border-t pt-3 text-xs text-muted-foreground">
-            <LinkedInMark /> Recommendation on LinkedIn
-          </p>
-        </figure>
-      ))}
     </div>
   );
 }
