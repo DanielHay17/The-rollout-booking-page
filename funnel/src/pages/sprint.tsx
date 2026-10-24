@@ -1,7 +1,7 @@
 import "../index.css";
 
 import * as React from "react";
-import { ArrowRight, Check, Star, Volume2 } from "lucide-react";
+import { ArrowRight, Check, Star, Volume2, X } from "lucide-react";
 
 import type { AiStage, Bottleneck } from "@shared/survey";
 import { CtaLink, PageColumn, SiteFooter, SiteHeader, mountPage } from "@/components/site";
@@ -14,7 +14,11 @@ import { cn } from "@/lib/utils";
 /*
  * Step 3: the VSL and the calendar. Personalised from the survey (or from
  * ?name=&stage=&email= on links from emails), and it works without the VSL:
- * until config.vsl.src is set, the page is the original booking page.
+ * until config.vsl.src is set, real footage of a build plays in its place.
+ *
+ * The offer is AI tutoring: a free 30-minute call, then two 1-on-1 calls a
+ * month with Daniel for $300. The price is on the page on purpose, so nobody
+ * is surprised by it on the call.
  */
 
 const STAGE_NOTES: Record<AiStage, string> = {
@@ -55,8 +59,8 @@ function SprintPage() {
       ? `Hey ${state.name} 👋`
       : "Hey 👋";
   const headline = area
-    ? `Let's find the hours hiding in your ${area}.`
-    : "I think your business is a great fit for our free System Sprint.";
+    ? `Let's get Claude doing your ${area}, starting this month.`
+    : "Get Claude doing the job that eats your week, starting this month.";
   const stageNote = state.stage ? `${STAGE_NOTES[state.stage]} ` : "";
 
   const onBookClick = () => sendEvent("book_click");
@@ -71,18 +75,35 @@ function SprintPage() {
           <p className="mb-2.5 font-medium sm:text-lg">{eyebrow}</p>
           <h1 className="text-[1.875rem] font-bold sm:text-[2.625rem]">{headline}</h1>
           {showVsl ? (
-            // The video explains the Sprint, so keep it high on the screen:
+            // The video explains the tutoring, so keep it high on the screen:
             // just the one personal line between the headline and play.
             stageNote ? (
               <p className="mt-3 text-muted-foreground sm:text-lg">{stageNote.trim()}</p>
             ) : null
           ) : (
-            <p className="mt-3 text-muted-foreground sm:max-w-[34rem] sm:text-lg">
-              {stageNote}
-              The System Sprint is two free calls. On the first, we diagnose your business and find
-              where the hours are hiding. On the second, we show you the solutions we&apos;d build
-              and what they&apos;d save you. No hard sell, and you keep the plan either way.
-            </p>
+            <>
+              <p className="mt-3 text-muted-foreground sm:max-w-[34rem] sm:text-lg">
+                {stageNote}
+                <strong className="text-foreground">
+                  If your kids have ever had a tutor, it&apos;s like that, for AI.
+                </strong>{" "}
+                I tutor business owners, accountants and operations teams on the back-office admin,
+                reporting and scheduling that eats their week. Two 1-on-1 calls a month with me: we
+                build it together on your own files, and you learn to do the next one yourself.
+              </p>
+              <ul className="mt-4 space-y-1.5">
+                {[
+                  "No coding, and no developer to hire",
+                  "No paying an agency thousands for a build",
+                  "Nothing goes live without your OK",
+                ].map((item) => (
+                  <li key={item} className="flex gap-2.5 text-[0.9375rem]">
+                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
 
           <div className="mt-6">
@@ -106,16 +127,16 @@ function SprintPage() {
 
           <div className="mt-6">
             <CtaLink ref={heroCta} href="#book" onClick={onBookClick}>
-              Book my free System Sprint <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              Book my free call <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </CtaLink>
             <p className="mt-2.5 text-sm text-muted-foreground">
-              Free <Dot /> 20 minutes <Dot /> You keep the plan either way
+              Free 30-minute call <Dot /> Then two 1-on-1 calls a month with me, $300 <Dot /> Cancel
+              any time
             </p>
           </div>
 
           <p className="mt-4 text-[0.8125rem] text-muted-foreground">
-            We&apos;ve just joined the Claude Partner Network, so the System Sprint is free for Rollout
-            readers right now.
+            We&apos;re part of the Claude Partner Network, so the first call is free for Rollout readers.
           </p>
         </section>
 
@@ -130,12 +151,16 @@ function SprintPage() {
 
         {/* Booking */}
         <section ref={booking} id="book" className="mt-14 scroll-mt-6">
-          <SectionHeading>Book call one</SectionHeading>
+          <SectionHeading>Book your free call</SectionHeading>
           <p className="mb-6 text-muted-foreground">
             Pick a slot below. I read every response myself, so I&apos;ll know your business before we
-            hop on.
+            hop on. If a business partner or practice manager makes the call with you, bring them.
           </p>
           <BookingEmbed state={state} />
+          <p className="mt-5 text-[0.9375rem] text-muted-foreground">
+            <strong className="text-foreground">P.S.</strong> Not sure what to bring? Bring the one job
+            you&apos;d most like to never do again.
+          </p>
         </section>
 
         {/* Proof straight after the calendar, for anyone who scrolled past it
@@ -181,9 +206,9 @@ function SprintPage() {
 
         {/* How it works, and what they leave with */}
         <section className="mt-14">
-          <SectionHeading>Here&apos;s how the Sprint works</SectionHeading>
+          <SectionHeading>Here&apos;s how the tutoring works</SectionHeading>
           <ol className="space-y-3">
-            {SPRINT_STEPS.map((step, index) => (
+            {TUTOR_STEPS.map((step, index) => (
               <li key={step.title} className="flex gap-4 rounded-md border bg-card px-4 py-4">
                 <span
                   aria-hidden="true"
@@ -198,10 +223,10 @@ function SprintPage() {
               </li>
             ))}
           </ol>
-          <h3 className="mt-8 mb-3 text-xl font-semibold">What you&apos;ll walk away with</h3>
+          <h3 className="mt-8 mb-3 text-xl font-semibold">What you&apos;ll walk away with from the call</h3>
           <ul className="space-y-2.5">
             {[
-              "The one to three automations I'd build in your business first",
+              "The one to three jobs I'd get Claude doing in your business first",
               "A rough read on the time and money each would save",
               "An honest answer on whether it's even worth doing",
             ].map((item) => (
@@ -211,6 +236,117 @@ function SprintPage() {
               </li>
             ))}
           </ul>
+        </section>
+
+        {/* Teach one useful thing: why Claude isn't saving them hours yet */}
+        <section className="mt-14">
+          <SectionHeading>Claude isn&apos;t saving you hours yet because it&apos;s missing three things</SectionHeading>
+          <p className="text-[0.9375rem] sm:text-base">
+            Most people use Claude like a search box. It works better if you treat it like a very smart
+            new starter who knows nothing about your business. It needs <strong>logins</strong> to your
+            tools, a <strong>filing cabinet</strong> to look things up in, and{" "}
+            <strong>your procedures</strong> written down once. Here&apos;s what that looks like when
+            it&apos;s set up:
+          </p>
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-stretch" aria-label="How the system works">
+            {SYSTEM_FLOW.map((node, index) => (
+              <React.Fragment key={node.title}>
+                {index > 0 ? (
+                  <span aria-hidden="true" className="self-center font-bold text-primary">
+                    <span className="sm:hidden">&darr;</span>
+                    <span className="hidden sm:inline">&rarr;</span>
+                  </span>
+                ) : null}
+                <div
+                  className={cn(
+                    "flex-1 rounded-md border bg-card px-4 py-3 text-sm",
+                    index === SYSTEM_FLOW.length - 1 && "border-primary",
+                  )}
+                >
+                  <strong className="block text-[0.9375rem]">{node.title}</strong>
+                  <span className="text-muted-foreground">{node.body}</span>
+                </div>
+              </React.Fragment>
+            ))}
+          </div>
+          <p className="mt-5 text-[0.9375rem] text-muted-foreground">
+            Setting it up yourself means picking the right way to connect each system, getting
+            permissions right and writing procedures Claude actually follows. It&apos;s easy to get
+            wrong and give up, which is why a tutor helps.
+          </p>
+        </section>
+
+        {/* Sell against the alternatives */}
+        <section className="mt-14">
+          <SectionHeading>Cheaper than an agency, faster than working it out alone</SectionHeading>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {ALTERNATIVES.map((option) => (
+              <div
+                key={option.title}
+                className={cn(
+                  "rounded-md border bg-card px-4 py-4",
+                  option.pick && "border-2 border-primary",
+                )}
+              >
+                <h3 className="font-sans text-base font-semibold tracking-normal">{option.title}</h3>
+                <p className={cn("mt-1 text-[0.9375rem]", option.pick ? "text-foreground" : "text-muted-foreground")}>
+                  {option.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Who it's for, and who it isn't */}
+        <section className="mt-14">
+          <SectionHeading>This is for you if you already use AI but it hasn&apos;t saved real hours</SectionHeading>
+          <ul className="space-y-2">
+            {FIT.map((item) => (
+              <li key={item} className="flex gap-3 rounded-md border bg-card px-4 py-3 text-[0.9375rem]">
+                <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                {item}
+              </li>
+            ))}
+            <li className="flex gap-3 rounded-md border bg-card px-4 py-3 text-[0.9375rem]">
+              <X className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+              Not for you if you want it all done for you without being involved. For that, my team at
+              Phlo builds it for you.
+            </li>
+          </ul>
+        </section>
+
+        {/* The price, said plainly */}
+        <section className="mt-14">
+          <SectionHeading>Two 1-on-1 calls a month with me, for $300</SectionHeading>
+          <p className="mb-4 text-muted-foreground">If it saves you three hours a month, it&apos;s paid for itself.</p>
+          <div className="rounded-md border-2 border-primary bg-card px-5 py-5">
+            <p className="font-serif text-4xl leading-none font-bold">
+              $300{" "}
+              <span className="font-sans text-base font-normal text-muted-foreground">
+                a month, month to month
+              </span>
+            </p>
+            <ul className="mt-4 mb-5 space-y-2">
+              {[
+                "Two 1-on-1 calls a month with me, screen-sharing your real work",
+                "Research between calls on whatever is blocking you",
+                "Every skill, prompt and template we build stays in your Claude account",
+                "Email questions any time between calls",
+                "Guidance on your own ideas, so you don't go down the wrong path",
+              ].map((item) => (
+                <li key={item} className="flex gap-3 text-[0.9375rem]">
+                  <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <CtaLink href="#book" onClick={onBookClick}>
+              Book my free call <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </CtaLink>
+            <p className="mt-2.5 text-sm text-muted-foreground">
+              No lock-in <Dot /> Cancel any time <Dot /> The first call is free
+            </p>
+          </div>
         </section>
 
         {/* Why this exists, from Daniel */}
@@ -223,7 +359,8 @@ function SprintPage() {
               </p>
               <p>
                 Every issue I publish is a real case study of a business that found that bottleneck and
-                fixed it. This call is the same thing, pointed straight at your business.
+                fixed it. The tutoring is the same thing, pointed straight at your business, and you
+                learn how to do it yourself along the way.
               </p>
             </blockquote>
             <figcaption className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3">
@@ -263,10 +400,13 @@ function SprintPage() {
 
         {/* Last call to action */}
         <section className="mt-14 text-center">
-          <SectionHeading>Ready when you are</SectionHeading>
+          <SectionHeading>Bring the one job you&apos;d most like to never do again</SectionHeading>
           <CtaLink href="#book" onClick={onBookClick}>
-            Pick a time for call one <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            Pick a time for your free call <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </CtaLink>
+          <p className="mt-2.5 text-sm text-muted-foreground">
+            After the call: two 1-on-1 calls a month with me for $300. Cancel any time.
+          </p>
         </section>
       </PageColumn>
 
@@ -278,36 +418,78 @@ function SprintPage() {
 
 const FAQS = [
   {
-    q: "Why is it free?",
-    a: "We've just joined the Claude Partner Network, and I want more real rollouts to write about in The Rollout. If your business ends up as a case study, that's only ever with your OK.",
+    q: "Why is the first call free?",
+    a: "We're part of the Claude Partner Network, and I want more real rollouts to write about in The Rollout. If your business ends up as a case study, that's only ever with your OK.",
   },
   {
     q: "Is this a sales call?",
-    a: "Call one is a diagnosis. If there's something worth building, I'll tell you what it'd cost on call two. Plenty of people just take the plan and run it themselves.",
+    a: "Call one is a look at your business and the first job I'd get Claude doing. If tutoring's a fit, I'll explain how it works at the end: two 1-on-1 calls a month for $300, cancel any time. No pressure either way.",
   },
   {
     q: "Who's on the call?",
     a: "Me, Daniel. Not a sales rep.",
   },
   {
+    q: "Is my data safe?",
+    a: "Claude gets its own limited login to each system, can't approve anything, and every action is logged. We start on test data, like Xero's demo company, before touching anything real.",
+  },
+  {
+    q: "Do I need to be technical?",
+    a: "No. If you can share your screen and describe how you do a job today, that's enough.",
+  },
+  {
     q: "What do I need to prepare?",
-    a: "Nothing. I'll have read your answers and looked up your company before we talk.",
+    a: "Nothing. I'll have read your answers and looked up your company before we talk. If you like, bring the one job you'd most like to never do again.",
   },
 ];
 
-const SPRINT_STEPS = [
+const TUTOR_STEPS = [
   {
-    title: "Call one · 20 minutes",
-    body: "I'll have read your answers before we talk, so we skip the small talk, look at your business and find where the hours are hiding.",
+    title: "A free 30-minute call",
+    body: "I'll have read your answers before we talk, so we skip the small talk. You show me the job that eats your week, and I show you what I've built for people doing the same job.",
   },
   {
-    title: "We map it",
-    body: "My team scopes the one to three automations worth building first, and roughly what each would save you.",
+    title: "Session one: we build it on your files",
+    body: "We start on test data, then your real files. You leave with that job working.",
   },
   {
-    title: "Call two",
-    body: "We walk you through what we'd build and what it'd save. If it's a fit to build together, great. If not, you keep the plan and run it yourself.",
+    title: "Every fortnight: a 1-on-1 call on the next job",
+    body: "Two calls a month, just you and me. I research between calls and bring back what's worked for other firms. Email me any time in between.",
   },
+];
+
+const SYSTEM_FLOW = [
+  { title: "Your tools", body: "Xero, your inbox, your job or ERP software, Drive" },
+  { title: "Claude + your procedures", body: 'Written once as "skills"' },
+  { title: "Work prepared", body: "Bank lines coded, schedules checked, reports drafted" },
+  { title: "You approve", body: "Nothing posts without you" },
+];
+
+const ALTERNATIVES = [
+  {
+    title: "Work it out yourself",
+    body: "Free, but weeks of YouTube and trial and error, and most people stall before it saves real hours.",
+  },
+  {
+    title: "Hire an agency",
+    body: "Usually thousands per build. You don't learn how it works, so you're stuck when something changes.",
+  },
+  {
+    title: "Buy a course or prompt library",
+    body: "Generic examples that aren't your processes, and they go out of date as the tools change.",
+  },
+  {
+    title: "AI tutoring",
+    body: "Built on your own files, you learn as we go, and it's $300 a month, cancel any time.",
+    pick: true,
+  },
+];
+
+const FIT = [
+  "You run a business, or manage its finance, admin or operations",
+  "Someone on your team rebuilds the same spreadsheet, report or schedule by hand every week",
+  "You've tried ChatGPT or Claude and want it doing actual work",
+  "You're happy to share your screen and try things between calls",
 ];
 
 /*
