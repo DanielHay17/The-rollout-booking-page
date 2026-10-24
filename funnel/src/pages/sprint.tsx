@@ -491,21 +491,22 @@ type Project = {
   image?: { src: string; width: number; height: number; alt: string };
   /** Several 16:9 (1280x720) screenshots that take turns, in place of one image. */
   slides?: { src: string; alt: string }[];
+  /** A short silent screen recording that loops, in place of a GIF. */
+  video?: { src: string; poster: string; width: number; height: number; alt: string };
   review?: ProjectReview;
   /** What's still missing. Only shown with ?preview, so the live page stays clean. */
   todo?: string;
 };
 
 /*
- * Every build we can point to, two to a row on desktop. The four with
- * screenshots come first so the rows line up; the dealership build, with its
- * rotating screenshots, closes the grid. Reviews line up across a row (see
- * ProjectCard). Quotes are word for word: LinkedIn
+ * Every build we can point to, two to a row on desktop, each with a
+ * screenshot, a few rotating screenshots, or a short looping recording.
+ * Reviews line up across a row (see ProjectCard). Quotes are word for word: LinkedIn
  * recommendations, the testimonials published on phloing.com, or wording a
  * client has approved (pending until they do). Clients we don't yet have
- * permission to name are described, not named. Personal details in Remedy's
- * screenshot (a name and mobile) are blurred; the dealership's screenshots
- * come from its demo site.
+ * permission to name are described, not named. Personal details are blurred
+ * (a name and mobile in Remedy's sheet, the login email in HFG's portal); the
+ * dealership's screenshots come from its demo site.
  */
 const PROJECTS: Project[] = [
   {
@@ -593,6 +594,12 @@ const PROJECTS: Project[] = [
     who: "private credit",
     title: "Investor onboarding and KYC, automated",
     detail: "KYC, AML and SMSF investor onboarding for HFG's private credit fund, so deals move faster.",
+    image: {
+      src: "/assets/work/hfg-portal.jpg",
+      width: 1280,
+      height: 720,
+      alt: "Hash Financial Group's client portal: borrow (property, equipment and receivables loans) and invest (property, asset-backed credit and receivables funds).",
+    },
     review: {
       name: "Sheetal Jiang",
       role: "Head of Operations, Hash Financial Group",
@@ -607,6 +614,13 @@ const PROJECTS: Project[] = [
     who: "fintech for international students",
     title: "Seven products on one platform",
     detail: "A full-stack platform for international students: payments, housing, jobs and savings.",
+    video: {
+      src: "/assets/work/studyfin-jobs.mp4",
+      poster: "/assets/work/studyfin-jobs-poster.jpg",
+      width: 800,
+      height: 540,
+      alt: "Screen recording of Studyfin's jobs board: searching for jobs, browsing featured roles and opening a job to apply.",
+    },
     review: {
       role: "Founder, Studyfin",
       quote:
@@ -616,9 +630,23 @@ const PROJECTS: Project[] = [
   },
   {
     client: "Sapien Group",
-    who: "renewables",
+    who: "venture capital",
     title: "AI and automation, delivered to a plan",
     detail: "The architecture and delivery plan for Sapien's AI and automation projects.",
+    slides: [
+      {
+        src: "/assets/work/sapien-numbers.jpg",
+        alt: "Sapien Ventures' site: over A$100M in venture capital under management, 35+ companies, 46% IRR, 10+ countries and 100 projects.",
+      },
+      {
+        src: "/assets/work/sapien-map.jpg",
+        alt: "Sapien Ventures' site: a world map marking the markets it invests in.",
+      },
+      {
+        src: "/assets/work/sapien-portfolio.jpg",
+        alt: "Sapien Ventures' portfolio page, with Hash Financial Group, Studyfin and other fintech companies.",
+      },
+    ],
     review: {
       name: "Victor Jiang",
       role: "Managing Director, Sapien Group",
@@ -677,7 +705,7 @@ const REVIEW_COUNT = PROJECTS.filter((project) => project.review?.quote && !proj
 
 /** Whether a card opens with a picture (or, with ?preview, the slot for one). */
 function hasMedia(project: Project, preview: boolean) {
-  return Boolean(project.slides || project.image || preview);
+  return Boolean(project.slides || project.video || project.image || preview);
 }
 
 /**
@@ -688,7 +716,7 @@ function hasMedia(project: Project, preview: boolean) {
  * review.
  */
 function ProjectCard({ project, preview, align }: { project: Project; preview: boolean; align: boolean }) {
-  const { image, slides, review } = project;
+  const { image, slides, video, review } = project;
   const showReview = review && ((review.quote && !review.pending) || preview);
   return (
     <article
@@ -699,6 +727,8 @@ function ProjectCard({ project, preview, align }: { project: Project; preview: b
     >
       {slides ? (
         <ProjectSlides slides={slides} />
+      ) : video ? (
+        <ProjectVideo video={video} />
       ) : image ? (
         <img
           src={image.src}
@@ -730,6 +760,43 @@ function ProjectCard({ project, preview, align }: { project: Project; preview: b
         ) : null}
       </div>
     </article>
+  );
+}
+
+/**
+ * A short screen recording on a silent loop, like a GIF at a tenth of the
+ * weight. It only loads and plays while it's on screen, and holds on its first
+ * frame for people who ask for less motion.
+ */
+function ProjectVideo({ video }: { video: NonNullable<Project["video"]> }) {
+  const ref = React.useRef<HTMLVideoElement>(null);
+
+  React.useEffect(() => {
+    const element = ref.current;
+    if (!element || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    element.muted = true;
+    element.setAttribute("muted", "");
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry?.isIntersecting) element.play().catch(() => {});
+      else element.pause();
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <video
+      ref={ref}
+      src={video.src}
+      poster={video.poster}
+      width={video.width}
+      height={video.height}
+      aria-label={video.alt}
+      playsInline
+      loop
+      preload="none"
+      className="aspect-video h-auto w-full border-b bg-white object-cover object-top"
+    />
   );
 }
 
