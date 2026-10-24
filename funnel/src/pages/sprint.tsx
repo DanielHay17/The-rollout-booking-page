@@ -497,7 +497,8 @@ type Project = {
 /*
  * Every build we can point to, two to a row on desktop, each with a
  * screenshot, a few rotating screenshots, or a short looping recording.
- * Reviews line up across a row (see ProjectCard). Quotes are word for word: LinkedIn
+ * Reviews line up across a row (see ProjectCard), so the two still waiting on
+ * a review share the last row and it closes up neatly. Quotes are word for word: LinkedIn
  * recommendations, the testimonials published on phloing.com, or wording a
  * client has approved (pending until they do). Clients we don't yet have
  * permission to name are described, not named. Personal details are blurred
@@ -572,20 +573,6 @@ const PROJECTS: Project[] = [
     },
   },
   {
-    client: "A Sydney bookkeeping practice",
-    who: "Xero bookkeeping",
-    title: "40 to 50 staff expense claims a month, checked and reimbursed",
-    detail:
-      "Two jobs off the bookkeeper's desk: Claude checks every claim's account and GST and flags the wrong ones, then files the rest in payroll as employee reimbursements for the next pay run.",
-    image: {
-      src: "/assets/work/expense-claims.jpg",
-      width: 900,
-      height: 506,
-      alt: "Claude checking staff expense claims in Xero's demo company before they're approved.",
-    },
-    todo: "Ask Raff for a review, a photo and the OK to name First Class Accounts.",
-  },
-  {
     client: "Hash Financial Group",
     who: "private credit",
     title: "Investor onboarding and KYC, automated",
@@ -651,6 +638,20 @@ const PROJECTS: Project[] = [
         "Phlo brings structure and pace to complex AI and automation projects. That makes delivery far more predictable.",
     },
     todo: "Check the project wording, and add the month Victor gave this review.",
+  },
+  {
+    client: "A Sydney bookkeeping practice",
+    who: "Xero bookkeeping",
+    title: "40 to 50 staff expense claims a month, checked and reimbursed",
+    detail:
+      "Two jobs off the bookkeeper's desk: Claude checks every claim's account and GST and flags the wrong ones, then files the rest in payroll as employee reimbursements for the next pay run.",
+    image: {
+      src: "/assets/work/expense-claims.jpg",
+      width: 900,
+      height: 506,
+      alt: "Claude checking staff expense claims in Xero's demo company before they're approved.",
+    },
+    todo: "Ask Raff for a review, a photo and the OK to name First Class Accounts.",
   },
   {
     client: "A national car dealership group",
