@@ -48,6 +48,8 @@ function SprintPage() {
   }, []);
 
   const previewVsl = new URLSearchParams(window.location.search).has("preview");
+  // ?preview also shows the empty slots in the project grid (photos, reviews).
+  const preview = previewVsl || import.meta.env.DEV;
   const showVsl = Boolean(config.vsl.src) || previewVsl || import.meta.env.DEV;
   const area = state.bottleneck ? FOCUS_AREAS[state.bottleneck] : undefined;
 
@@ -67,13 +69,15 @@ function SprintPage() {
 
   return (
     <>
-      <PageColumn>
+      {/* Wider than the other pages on desktop so the project grid gets two
+          real columns; running text keeps its own max widths below. */}
+      <PageColumn className="sm:max-w-[960px]">
         <SiteHeader />
 
         {/* Hero */}
         <section className="mt-9 sm:mt-12">
           <p className="mb-2.5 font-medium sm:text-lg">{eyebrow}</p>
-          <h1 className="text-[1.875rem] font-bold sm:text-[2.625rem]">{headline}</h1>
+          <h1 className="text-[1.875rem] font-bold sm:max-w-[46rem] sm:text-[2.625rem]">{headline}</h1>
           {showVsl ? (
             // The video explains the tutoring, so keep it high on the screen:
             // just the one personal line between the headline and play.
@@ -140,19 +144,32 @@ function SprintPage() {
           </p>
         </section>
 
-        {/* The LinkedIn reviews, right before the ask */}
-        <section className="mt-10" aria-label="Reviews on LinkedIn">
-          <p className="mb-3 flex items-center gap-2 text-sm">
-            <Stars small /> <strong>5.0</strong>
-            <span className="text-muted-foreground">on LinkedIn</span>
+        {/* Proof right before the ask: every build we can point to, each in the
+            client's own words. Nothing here links off the page; the only way on
+            is the calendar (or the sticky button on phones). */}
+        <section className="mt-12">
+          <SectionHeading>What we&apos;ve built for businesses like yours</SectionHeading>
+          <p className="max-w-[44rem] text-muted-foreground">
+            Real builds, from bookkeeping practices to car dealerships, in the clients&apos; own words.
           </p>
-          <Reviews />
+          <p className="mt-2 mb-5 flex items-center gap-2 text-sm">
+            <Stars small /> <strong>5.0</strong>
+            <span className="text-muted-foreground">from {REVIEW_COUNT} client reviews</span>
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {PROJECTS.map((project, i) => {
+              // The card beside this one on desktop, two to a row.
+              const partner = PROJECTS[i % 2 === 0 ? i + 1 : i - 1];
+              const align = !partner || hasMedia(partner, preview) === hasMedia(project, preview);
+              return <ProjectCard key={project.title} project={project} preview={preview} align={align} />;
+            })}
+          </div>
         </section>
 
         {/* Booking */}
         <section ref={booking} id="book" className="mt-14 scroll-mt-6">
           <SectionHeading>Book your free call</SectionHeading>
-          <p className="mb-6 text-muted-foreground">
+          <p className="mb-6 max-w-[44rem] text-muted-foreground">
             Pick a slot below. I read every response myself, so I&apos;ll know your business before we
             hop on. If a business partner or practice manager makes the call with you, bring them.
           </p>
@@ -160,47 +177,6 @@ function SprintPage() {
           <p className="mt-5 text-[0.9375rem] text-muted-foreground">
             <strong className="text-foreground">P.S.</strong> Not sure what to bring? Bring the one job
             you&apos;d most like to never do again.
-          </p>
-        </section>
-
-        {/* Proof straight after the calendar, for anyone who scrolled past it
-            unconvinced: the work itself, number first. Nothing here links
-            off the page; the only way on is the calendar. */}
-        <section className="mt-14">
-          <SectionHeading>What we&apos;ve built for businesses like yours</SectionHeading>
-          <div className="space-y-4">
-            {CASE_STUDIES.map((study) => (
-              <figure key={study.client} className="overflow-hidden rounded-md border bg-card">
-                <img
-                  src={study.image}
-                  width={study.width}
-                  height={study.height}
-                  alt={study.alt}
-                  loading="lazy"
-                  className="h-auto w-full border-b bg-white"
-                />
-                <figcaption className="px-4 py-4 sm:px-5">
-                  <p className="font-serif text-[1.625rem] leading-tight font-bold">{study.result}</p>
-                  <p className="mt-1.5 text-[0.9375rem] text-muted-foreground">{study.detail}</p>
-                  {study.quote ? (
-                    <blockquote className="mt-3 border-l-[3px] border-primary pl-3 text-[0.9375rem]">
-                      <p>&ldquo;{study.quote}&rdquo;</p>
-                      <footer className="mt-1 text-sm text-muted-foreground">{study.quoteBy}</footer>
-                    </blockquote>
-                  ) : null}
-                  <p className="mt-3 text-sm">
-                    <strong>{study.client}</strong>
-                    <span className="text-muted-foreground">, {study.who}</span>
-                  </p>
-                </figcaption>
-              </figure>
-            ))}
-          </div>
-          <p className="mt-4 text-[0.9375rem] text-muted-foreground">
-            Also built for <strong className="text-foreground">Saig</strong> (−80% on AI operations
-            costs), <strong className="text-foreground">Hash Financial Group</strong> (investor
-            onboarding and KYC) and <strong className="text-foreground">Studyfin</strong> (seven
-            products on one platform).
           </p>
         </section>
 
@@ -241,7 +217,7 @@ function SprintPage() {
         {/* Teach one useful thing: why Claude isn't saving them hours yet */}
         <section className="mt-14">
           <SectionHeading>Claude isn&apos;t saving you hours yet because it&apos;s missing three things</SectionHeading>
-          <p className="text-[0.9375rem] sm:text-base">
+          <p className="max-w-[44rem] text-[0.9375rem] sm:text-base">
             Most people use Claude like a search box. It works better if you treat it like a very smart
             new starter who knows nothing about your business. It needs <strong>logins</strong> to your
             tools, a <strong>filing cabinet</strong> to look things up in, and{" "}
@@ -269,7 +245,7 @@ function SprintPage() {
               </React.Fragment>
             ))}
           </div>
-          <p className="mt-5 text-[0.9375rem] text-muted-foreground">
+          <p className="mt-5 max-w-[44rem] text-[0.9375rem] text-muted-foreground">
             Setting it up yourself means picking the right way to connect each system, getting
             permissions right and writing procedures Claude actually follows. It&apos;s easy to get
             wrong and give up, which is why a tutor helps.
@@ -319,7 +295,7 @@ function SprintPage() {
         <section className="mt-14">
           <SectionHeading>Two 1-on-1 calls a month with me, for $300</SectionHeading>
           <p className="mb-4 text-muted-foreground">If it saves you three hours a month, it&apos;s paid for itself.</p>
-          <div className="rounded-md border-2 border-primary bg-card px-5 py-5">
+          <div className="rounded-md border-2 border-primary bg-card px-5 py-5 sm:max-w-[40rem]">
             <p className="font-serif text-4xl leading-none font-bold">
               $300{" "}
               <span className="font-sans text-base font-normal text-muted-foreground">
@@ -492,49 +468,409 @@ const FIT = [
   "You're happy to share your screen and try things between calls",
 ];
 
+type ProjectReview = {
+  /** Leave out until we have it; the role then stands in for the name. */
+  name?: string;
+  role: string;
+  photo?: string;
+  /** Word for word. Until we have it the review only shows with ?preview. */
+  quote?: string;
+  /** When it was given. Only set when we know it. */
+  date?: string;
+  /** A LinkedIn recommendation, rather than a testimonial sent to us. */
+  linkedin?: boolean;
+  /** Wording drafted for the reviewer to approve. Only shows with ?preview until they do. */
+  pending?: boolean;
+};
+
+type Project = {
+  client: string;
+  who: string;
+  title: string;
+  detail: string;
+  image?: { src: string; width: number; height: number; alt: string };
+  /** Several 16:9 (1280x720) screenshots that take turns, in place of one image. */
+  slides?: { src: string; alt: string }[];
+  review?: ProjectReview;
+  /** What's still missing. Only shown with ?preview, so the live page stays clean. */
+  todo?: string;
+};
+
 /*
- * Real screenshots from the builds, each already published in The Rollout.
- * Accounting and finance first: that's who the ads reach. Personal details
- * in the screenshots (a name and mobile in Remedy's sheet) are blurred.
+ * Every build we can point to, two to a row on desktop. The four with
+ * screenshots come first so the rows line up; the dealership build, with its
+ * rotating screenshots, closes the grid. Reviews line up across a row (see
+ * ProjectCard). Quotes are word for word: LinkedIn
+ * recommendations, the testimonials published on phloing.com, or wording a
+ * client has approved (pending until they do). Clients we don't yet have
+ * permission to name are described, not named. Personal details in Remedy's
+ * screenshot (a name and mobile) are blurred; the dealership's screenshots
+ * come from its demo site.
  */
-const CASE_STUDIES = [
+const PROJECTS: Project[] = [
   {
-    result: "3+ hours saved per client, every month",
-    detail:
-      "A live dashboard synced with Xero that clients log into, plus an AI that answers questions about their numbers in plain English.",
-    quote:
-      "Phlo moved our clients from monthly reporting to daily engagement using a live dashboard and an internal AI built on their financial data. It's transformed how clients interact with their numbers.",
-    quoteBy: "Craig Whitton, Managing Director",
     client: "Real Balance",
     who: "accounting and CFO advisory",
-    image: "/assets/work/realbalance-dashboard.webp",
-    width: 900,
-    height: 816,
-    alt: "Real Balance's client dashboard: revenue, expenses, net profit and cash at bank, with recent activity and upcoming BAS and tax deadlines.",
+    title: "3+ hours saved per client, every month",
+    detail:
+      "A live Xero dashboard clients log into, plus an AI that answers questions about their numbers in plain English.",
+    image: {
+      src: "/assets/work/realbalance-dashboard.webp",
+      width: 900,
+      height: 816,
+      alt: "Real Balance's client dashboard: revenue, expenses, net profit and cash at bank, with recent activity and upcoming BAS and tax deadlines.",
+    },
+    review: {
+      name: "Craig Whitton",
+      role: "Managing Director, Real Balance",
+      photo: "/assets/reviewer-craig.webp",
+      quote:
+        "Incredibly knowledgeable about apps and development. Has a clear strategic foresight of the project, not just its development. Easy to talk with and communicates tech matters in an easy to understand manner. Thanks mate for your support",
+      date: "January 24, 2026",
+      linkedin: true,
+    },
   },
   {
-    result: "5 years of bank lines, reconciled in Xero",
-    detail:
-      "Claude works down the reconciliation screen coding each line and writing the why. A bookkeeper approves every page.",
     client: "Ethical CFO",
     who: "Xero Sole Practitioner of the Year",
-    image: "/assets/work/ethicalcfo-xero.webp",
-    width: 800,
-    height: 446,
-    alt: "Claude running beside Xero's bank reconciliation screen, prompted to work as an experienced Australian bookkeeper.",
+    title: "5 years of bank lines, reconciled in Xero",
+    detail:
+      "Claude works down the reconciliation screen coding each line and writing the why. A bookkeeper approves every page.",
+    image: {
+      src: "/assets/work/ethicalcfo-xero.webp",
+      width: 800,
+      height: 446,
+      alt: "Claude running beside Xero's bank reconciliation screen, prompted to work as an experienced Australian bookkeeper.",
+    },
+    review: {
+      name: "Moushumi Sikand",
+      role: "CFO for Purpose-Driven Businesses | Winner of Xero Sole Practitioner of the year",
+      photo: "/assets/reviewer-moushumi.webp",
+      quote:
+        "Daniel is very knowledgeable and passionate about providing great outcomes when it comes to automations and efficiency projects leveraging technology and Ai. Strongly recommend.",
+      date: "May 19, 2026",
+      linkedin: true,
+    },
   },
   {
-    result: "6 new jobs and 11 changes, caught from one upload",
-    detail:
-      "The spreadsheet that ran a national inspection team, turned into a live calendar of every inspector and job.",
     client: "Remedy Asset Protection",
     who: "asset inspection, nationwide",
-    image: "/assets/work/remedy-before-after.webp",
-    width: 1000,
-    height: 563,
-    alt: "Before and after: a colour-coded roster spreadsheet on the left, the same jobs in Remedy's live inspector calendar on the right.",
+    title: "6 new jobs and 11 changes, caught from one upload",
+    detail:
+      "The spreadsheet that ran a national inspection team, turned into a live calendar of every inspector and job.",
+    image: {
+      src: "/assets/work/remedy-before-after.webp",
+      width: 1000,
+      height: 563,
+      alt: "Before and after: a colour-coded roster spreadsheet on the left, the same jobs in Remedy's live inspector calendar on the right.",
+    },
+    review: {
+      name: "Justin Rigby",
+      role: "Consultant - Corrosion Technologist & Senior Coatings Inspector (AMPP)",
+      photo: "/assets/reviewer-justin.webp",
+      quote:
+        "Daniel has a great grasp on task management and how automation can be achieved. His is helpful and inquisitive - I expect he will soon be an industry leader. Grab him now while he is still available.",
+      date: "May 11, 2026",
+      linkedin: true,
+    },
+  },
+  {
+    client: "A Sydney bookkeeping practice",
+    who: "Xero bookkeeping",
+    title: "40 to 50 expense claims a month, checked for you",
+    detail:
+      "Claude checks each claim's account and GST, flags the wrong ones and lines the rest up as reimbursements on the next pay run.",
+    image: {
+      src: "/assets/work/expense-claims.jpg",
+      width: 900,
+      height: 506,
+      alt: "Claude checking staff expense claims in Xero's demo company before they're approved.",
+    },
+    todo: "Ask Raff for a review, a photo and the OK to name First Class Accounts.",
+  },
+  {
+    client: "Hash Financial Group",
+    who: "private credit",
+    title: "Investor onboarding and KYC, automated",
+    detail: "KYC, AML and SMSF investor onboarding for HFG's private credit fund, so deals move faster.",
+    review: {
+      name: "Sheetal Jiang",
+      role: "Head of Operations, Hash Financial Group",
+      photo: "/assets/reviewer-sheetal.jpg",
+      quote:
+        "The system Phlo built streamlined our investor onboarding and internal operations. What used to require manual coordination is now structured, trackable, and far easier to manage.",
+    },
+    todo: "Add the month Sheetal gave this review.",
+  },
+  {
+    client: "Studyfin",
+    who: "fintech for international students",
+    title: "Seven products on one platform",
+    detail: "A full-stack platform for international students: payments, housing, jobs and savings.",
+    review: {
+      role: "Founder, Studyfin",
+      quote:
+        "Phlo has been our development partner from day one, building the platform from the ground up and managing seven distinct products and features with different requirements.",
+    },
+    todo: "Add the founder's name and photo.",
+  },
+  {
+    client: "Sapien Group",
+    who: "renewables",
+    title: "AI and automation, delivered to a plan",
+    detail: "The architecture and delivery plan for Sapien's AI and automation projects.",
+    review: {
+      name: "Victor Jiang",
+      role: "Managing Director, Sapien Group",
+      photo: "/assets/reviewer-victor.jpg",
+      quote:
+        "Phlo brings structure and pace to complex AI and automation projects. That makes delivery far more predictable.",
+    },
+    todo: "Check the project wording, and add the month Victor gave this review.",
+  },
+  {
+    client: "A national car dealership group",
+    who: "fleet sales",
+    title: "From one spreadsheet to a fleet sales platform",
+    detail:
+      "Shows which fleet customers are due to replace vehicles, who each rep should call next, and the whole team's pipeline. Now rolled out to multiple dealerships.",
+    slides: [
+      {
+        src: "/assets/work/fleet-overview.jpg",
+        alt: "Fleet overview: 100 accounts, 1,276 vehicles, 223 overdue for replacement, with charts by lifecycle, fleet size and industry.",
+      },
+      {
+        src: "/assets/work/fleet-customers.jpg",
+        alt: "Customer ranking by fleet size, with call status, vehicles over five years old and each fleet's mix of utes, SUVs, cars and vans.",
+      },
+      {
+        src: "/assets/work/fleet-map.jpg",
+        alt: "Coverage map of customers and prospects across Melbourne inside the dealership's primary market area.",
+      },
+      {
+        src: "/assets/work/fleet-dashboard.jpg",
+        alt: "Sales dashboard: pipeline by call status, activity by channel and week, and each rep's open and overdue actions.",
+      },
+      {
+        src: "/assets/work/fleet-planner.jpg",
+        alt: "Contact planner board with accounts in columns from Not Started to Contract Secured.",
+      },
+      {
+        src: "/assets/work/fleet-actions.jpg",
+        alt: "Calendar of every rep's next action for the month.",
+      },
+    ],
+    review: {
+      name: "Adrian Richards",
+      role: "Founder & Managing Director, Forth",
+      photo: "/assets/reviewer-adrian.jpg",
+      quote:
+        "Daniel helped turn our spreadsheet into software, and added functionality we never had before. It's let us roll the platform out to multiple dealerships under the Eagers Automotive brand. I highly recommend working with Phlo.",
+      pending: true,
+    },
+    todo: "Waiting on Adrian's OK for this wording. Once he's happy: remove pending, add the date, and rename the card to Forth.",
   },
 ];
+
+/** Reviews the live page shows; ones still waiting on their words don't count. */
+const REVIEW_COUNT = PROJECTS.filter((project) => project.review?.quote && !project.review.pending).length;
+
+/** Whether a card opens with a picture (or, with ?preview, the slot for one). */
+function hasMedia(project: Project, preview: boolean) {
+  return Boolean(project.slides || project.image || preview);
+}
+
+/**
+ * One build. Every card spans four grid rows: picture, text, review, to-do.
+ * When both cards in a row open the same way they share those rows as a
+ * subgrid, so their reviews start at the same height. A card beside one of a
+ * different shape keeps its own flow rather than opening a gap above its
+ * review.
+ */
+function ProjectCard({ project, preview, align }: { project: Project; preview: boolean; align: boolean }) {
+  const { image, slides, review } = project;
+  const showReview = review && ((review.quote && !review.pending) || preview);
+  return (
+    <article
+      className={cn(
+        "row-span-4 overflow-hidden rounded-md border bg-card",
+        align ? "grid grid-rows-subgrid gap-0" : "flex flex-col",
+      )}
+    >
+      {slides ? (
+        <ProjectSlides slides={slides} />
+      ) : image ? (
+        <img
+          src={image.src}
+          width={image.width}
+          height={image.height}
+          alt={image.alt}
+          loading="lazy"
+          className="aspect-video h-auto w-full border-b bg-white object-cover object-top"
+        />
+      ) : preview ? (
+        <Slot className="aspect-video rounded-none border-0 border-b-2">Screenshot goes here</Slot>
+      ) : (
+        <div aria-hidden="true" />
+      )}
+      <div className="px-4 pt-4 sm:px-5">
+        <p className="text-sm">
+          <strong>{project.client}</strong>
+          <span className="text-muted-foreground"> &middot; {project.who}</span>
+        </p>
+        <h3 className="mt-1.5 font-serif text-[1.375rem] leading-tight font-bold">{project.title}</h3>
+        <p className="mt-1.5 text-[0.9375rem] text-muted-foreground">{project.detail}</p>
+      </div>
+      <div className="flex flex-1 flex-col px-4 sm:px-5">
+        {showReview ? <ProjectReviewCard review={review} /> : preview ? <ReviewSlot /> : null}
+      </div>
+      <div className="px-4 pb-4 sm:px-5">
+        {preview && project.todo ? (
+          <p className="mt-3 text-xs font-medium text-primary">To do: {project.todo}</p>
+        ) : null}
+      </div>
+    </article>
+  );
+}
+
+/**
+ * A build's screenshots taking turns, crossfading every few seconds, like a
+ * GIF but sharp. Holds on the first one for people who ask for less motion.
+ */
+function ProjectSlides({ slides }: { slides: NonNullable<Project["slides"]> }) {
+  const [index, setIndex] = React.useState(0);
+  React.useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const timer = window.setInterval(() => setIndex((current) => (current + 1) % slides.length), 3500);
+    return () => window.clearInterval(timer);
+  }, [slides.length]);
+  return (
+    <div className="relative aspect-video w-full overflow-hidden border-b bg-white">
+      {slides.map((slide, i) => (
+        <img
+          key={slide.src}
+          src={slide.src}
+          width={1280}
+          height={720}
+          alt={slide.alt}
+          aria-hidden={i !== index}
+          loading="lazy"
+          className={cn(
+            "absolute inset-0 h-full w-full object-cover transition-opacity duration-700",
+            i === index ? "opacity-100" : "opacity-0",
+          )}
+        />
+      ))}
+      <span
+        aria-hidden="true"
+        className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/40 px-2 py-1"
+      >
+        {slides.map((slide, i) => (
+          <span
+            key={slide.src}
+            className={cn("h-1.5 w-1.5 rounded-full", i === index ? "bg-white" : "bg-white/45")}
+          />
+        ))}
+      </span>
+    </div>
+  );
+}
+
+/**
+ * A review in LinkedIn's layout: face, name and title, stars, the words, and
+ * where it came from. Every review gets the same card, LinkedIn or not.
+ */
+function ProjectReviewCard({ review }: { review: ProjectReview }) {
+  return (
+    <figure className="mt-4 flex flex-1 flex-col rounded-md border bg-background px-3.5 py-3.5">
+      <figcaption className="flex gap-3">
+        <ReviewerAvatar label={review.name ?? review.role} photo={review.photo} />
+        <span className="min-w-0">
+          {review.name ? (
+            <>
+              <strong className="block text-[0.9375rem] leading-snug">{review.name}</strong>
+              <span className="line-clamp-2 text-xs leading-snug text-muted-foreground">{review.role}</span>
+            </>
+          ) : (
+            <strong className="block text-[0.9375rem] leading-snug">{review.role}</strong>
+          )}
+        </span>
+      </figcaption>
+      <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+        <Stars small /> <strong className="text-foreground">5.0</strong>
+        {review.date ? <> &middot; {review.date}</> : null}
+      </p>
+      {review.quote ? (
+        <blockquote className="mt-2 flex-1 text-[0.9375rem] leading-relaxed">&ldquo;{review.quote}&rdquo;</blockquote>
+      ) : (
+        <Slot className="mt-2 flex-1 items-start text-left text-sm">Their review goes here, word for word.</Slot>
+      )}
+      <p className="mt-3 flex items-center gap-1.5 border-t pt-2.5 text-xs text-muted-foreground">
+        {review.linkedin ? (
+          <>
+            <LinkedInMark /> Recommendation on LinkedIn
+          </>
+        ) : (
+          "Client testimonial"
+        )}
+      </p>
+    </figure>
+  );
+}
+
+/** The reviewer's photo, or their initials until we have one. */
+function ReviewerAvatar({ label, photo }: { label: string; photo?: string }) {
+  if (photo) {
+    return (
+      <img src={photo} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-full object-cover" />
+    );
+  }
+  const initials = label
+    .split(/[\s,]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase())
+    .join("");
+  return (
+    <span
+      aria-hidden="true"
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-muted-foreground"
+    >
+      {initials}
+    </span>
+  );
+}
+
+/** Where a review will go, shown only with ?preview. */
+function ReviewSlot() {
+  return (
+    <Slot className="mt-4 flex-1 items-start text-left">
+      <span className="flex items-center gap-3">
+        <span className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-dashed border-primary/60 text-[0.625rem]">
+          Photo
+        </span>
+        <span>
+          <strong className="block">Name</strong>
+          <span className="text-xs text-muted-foreground">Role at company</span>
+        </span>
+      </span>
+      <span className="mt-3 block text-sm text-muted-foreground">Their review goes here, word for word.</span>
+    </Slot>
+  );
+}
+
+function Slot({ className, children }: { className?: string; children: React.ReactNode }) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center rounded-md border-2 border-dashed border-primary/60 bg-card px-4 py-4 text-center text-sm",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
 
 function DanielPhoto({ className }: { className?: string }) {
   if (!config.danielPhoto) return null;
@@ -725,110 +1061,6 @@ function VslPlaceholder() {
       <span className="text-sm text-muted-foreground">
         Preview only. Set <code>vsl.src</code> in src/config.ts and it replaces this box.
       </span>
-    </div>
-  );
-}
-
-/*
- * LinkedIn recommendations, word for word as posted, rebuilt as cards so
- * they're readable on a phone (a screenshot shrinks to ~6px text there).
- * Moushumi first: a CFO and Xero award winner speaks to who the ads reach.
- */
-const REVIEWS = [
-  {
-    name: "Moushumi Sikand",
-    photo: "/assets/reviewer-moushumi.webp",
-    headline:
-      "CFO for Purpose-Driven Businesses | 20+ Yrs Experience | Helping Founders Gain Financial Clarity, Confidence & Sustainable Profit | Winner of Xero Sole Practitioner of the year",
-    service: "IT Consulting",
-    date: "May 19, 2026",
-    text: "Daniel is very knowledgeable and passionate about providing great outcomes when it comes to automations and efficiency projects leveraging technology and Ai. Strongly recommend.",
-  },
-  {
-    name: "Craig Whitton",
-    photo: "/assets/reviewer-craig.webp",
-    headline:
-      "Growth & Leadership Consulting Partner; Wingman; Mentor; Accountability Partner; Organisational Consulting; Outsourced Consulting CFO at Real Balance Business Consulting, Vocalist and Band Manager/Roadie",
-    service: "Custom Software Development",
-    date: "January 24, 2026",
-    text: "Incredibly knowledgeable about apps and development. Has a clear strategic foresight of the project, not just its development. Easy to talk with and communicates tech matters in an easy to understand manner. Thanks mate for your support",
-  },
-  {
-    name: "Justin Rigby",
-    photo: "/assets/reviewer-justin.webp",
-    headline: "Consultant - Corrosion Technologist & Senior Coatings Inspector (AMPP)",
-    service: "Custom Software Development",
-    date: "May 11, 2026",
-    text: "Daniel has a great grasp on task management and how automation can be achieved. His is helpful and inquisitive - I expect he will soon be an industry leader. Grab him now while he is still available.",
-  },
-];
-
-/** Swipeable row that moves on its own every few seconds until it's touched. */
-function Reviews() {
-  const scroller = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    const element = scroller.current;
-    if (!element || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let tookOver = false;
-    const stop = () => {
-      tookOver = true;
-    };
-    const events = ["pointerdown", "wheel", "touchstart", "focusin"] as const;
-    for (const name of events) element.addEventListener(name, stop, { passive: true });
-    const timer = window.setInterval(() => {
-      if (tookOver) return;
-      const card = element.querySelector<HTMLElement>("[data-review]");
-      if (!card) return;
-      const step = card.offsetWidth + 16;
-      const max = element.scrollWidth - element.clientWidth;
-      const next = element.scrollLeft + step;
-      element.scrollTo({ left: next > max + 8 ? 0 : Math.min(next, max), behavior: "smooth" });
-    }, 4000);
-    return () => {
-      window.clearInterval(timer);
-      for (const name of events) element.removeEventListener(name, stop);
-    };
-  }, []);
-
-  return (
-    <div
-      ref={scroller}
-      className="flex snap-x snap-mandatory gap-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-    >
-      {REVIEWS.map((review) => (
-        <figure
-          key={review.name}
-          data-review
-          className="flex w-[85%] shrink-0 snap-start flex-col rounded-md border bg-card px-4 py-4 sm:w-[340px]"
-        >
-          <figcaption className="flex gap-3">
-            <img
-              src={review.photo}
-              alt=""
-              width={44}
-              height={44}
-              className="h-11 w-11 shrink-0 rounded-full object-cover"
-            />
-            <span className="min-w-0">
-              <strong className="block text-[0.9375rem] leading-snug">{review.name}</strong>
-              <span className="line-clamp-2 text-xs leading-snug text-muted-foreground">
-                {review.headline}
-              </span>
-            </span>
-          </figcaption>
-          <span className="mt-3 self-start rounded-sm bg-muted px-2 py-0.5 text-xs font-medium">
-            {review.service}
-          </span>
-          <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Stars small /> <strong className="text-foreground">5.0</strong> &middot; {review.date}
-          </p>
-          <blockquote className="mt-2 flex-1 text-[0.9375rem] leading-relaxed">{review.text}</blockquote>
-          <p className="mt-3 flex items-center gap-1.5 border-t pt-3 text-xs text-muted-foreground">
-            <LinkedInMark /> Recommendation on LinkedIn
-          </p>
-        </figure>
-      ))}
     </div>
   );
 }
