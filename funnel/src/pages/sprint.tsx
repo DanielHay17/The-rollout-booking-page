@@ -593,13 +593,6 @@ const PROJECTS: Project[] = [
     todo: "Add the Head of Operations' name and photo.",
   },
   {
-    client: "Hash Financial Group",
-    who: "broker network",
-    title: "227,000+ brokers, $3.6B in loans settled",
-    detail: "A broker marketplace with an AI sales agent behind it.",
-    todo: "Add a review.",
-  },
-  {
     client: "Studyfin",
     who: "fintech for international students",
     title: "Seven products on one platform",
@@ -612,13 +605,6 @@ const PROJECTS: Project[] = [
     todo: "Add the founder's name and photo.",
   },
   {
-    client: "Saig",
-    who: "enterprise AI",
-    title: "Private AI at 80% lower cost",
-    detail: "A private AI grid so companies can run large language models on their own infrastructure.",
-    todo: "Add a review.",
-  },
-  {
     client: "Sapien Group",
     who: "renewables",
     title: "AI and automation, delivered to a plan",
@@ -629,13 +615,6 @@ const PROJECTS: Project[] = [
         "Phlo brings structure and pace to complex AI and automation projects. That makes delivery far more predictable.",
     },
     todo: "Check the project wording, and add the Managing Director's name and photo.",
-  },
-  {
-    client: "A Perth strata management firm",
-    who: "strata management",
-    title: "Documents that sound like the firm wrote them",
-    detail: "A Claude skill that writes reports and letters in the firm's own voice and template.",
-    todo: "Ask Peter for a review, a photo and the OK to name Ikon SM.",
   },
   {
     client: "A national car dealership group",
