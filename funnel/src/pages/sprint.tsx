@@ -150,16 +150,19 @@ function SprintPage() {
         <section className="mt-12">
           <SectionHeading>What we&apos;ve built for businesses like yours</SectionHeading>
           <p className="max-w-[44rem] text-muted-foreground">
-            Real builds, from bookkeeping practices to mining sites, in the clients&apos; own words.
+            Real builds, from bookkeeping practices to car dealerships, in the clients&apos; own words.
           </p>
           <p className="mt-2 mb-5 flex items-center gap-2 text-sm">
             <Stars small /> <strong>5.0</strong>
             <span className="text-muted-foreground">from {REVIEW_COUNT} client reviews</span>
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
-            {PROJECTS.map((project) => (
-              <ProjectCard key={project.title} project={project} preview={preview} />
-            ))}
+            {PROJECTS.map((project, i) => {
+              // The card beside this one on desktop, two to a row.
+              const partner = PROJECTS[i % 2 === 0 ? i + 1 : i - 1];
+              const align = !partner || hasMedia(partner, preview) === hasMedia(project, preview);
+              return <ProjectCard key={project.title} project={project} preview={preview} align={align} />;
+            })}
           </div>
         </section>
 
@@ -496,12 +499,13 @@ type Project = {
 /*
  * Every build we can point to, two to a row on desktop. The four with
  * screenshots come first so the rows line up; the dealership build, with its
- * rotating screenshots, closes the grid. Quotes are word for word: LinkedIn
+ * rotating screenshots, closes the grid. Reviews line up across a row (see
+ * ProjectCard). Quotes are word for word: LinkedIn
  * recommendations, the testimonials published on phloing.com, or wording a
  * client has approved (pending until they do). Clients we don't yet have
- * permission to name are described, not named. Personal details in
- * screenshots (a name and mobile in Remedy's sheet, customer and rep names in
- * the dealership's) are blurred.
+ * permission to name are described, not named. Personal details in Remedy's
+ * screenshot (a name and mobile) are blurred; the dealership's screenshots
+ * come from its demo site.
  */
 const PROJECTS: Project[] = [
   {
@@ -585,14 +589,6 @@ const PROJECTS: Project[] = [
     todo: "Ask Raff for a review, a photo and the OK to name First Class Accounts.",
   },
   {
-    client: "Plantman",
-    who: "mining equipment, WA",
-    title: "An AI command centre across WA mining sites",
-    detail:
-      "Connects their ERP so procurement and equipment insights surface on their own, without anyone building a report.",
-    todo: "Add a review, and a blurred dashboard screenshot (the original is marked Confidential).",
-  },
-  {
     client: "Hash Financial Group",
     who: "private credit",
     title: "Investor onboarding and KYC, automated",
@@ -645,23 +641,23 @@ const PROJECTS: Project[] = [
       },
       {
         src: "/assets/work/fleet-customers.jpg",
-        alt: "Customer ranking by fleet size, with call status, vehicles over five years old and each fleet's mix of utes, SUVs, cars and vans. Names blurred.",
+        alt: "Customer ranking by fleet size, with call status, vehicles over five years old and each fleet's mix of utes, SUVs, cars and vans.",
       },
       {
         src: "/assets/work/fleet-map.jpg",
-        alt: "Coverage map of customers and prospects across Melbourne inside the dealership's primary market area. Names blurred.",
+        alt: "Coverage map of customers and prospects across Melbourne inside the dealership's primary market area.",
       },
       {
         src: "/assets/work/fleet-dashboard.jpg",
-        alt: "Sales dashboard: pipeline by call status, activity by channel and week, and each rep's open and overdue actions. Rep names blurred.",
+        alt: "Sales dashboard: pipeline by call status, activity by channel and week, and each rep's open and overdue actions.",
       },
       {
         src: "/assets/work/fleet-planner.jpg",
-        alt: "Contact planner board with accounts in columns from Not Started to Contract Secured. Names blurred.",
+        alt: "Contact planner board with accounts in columns from Not Started to Contract Secured.",
       },
       {
         src: "/assets/work/fleet-actions.jpg",
-        alt: "Calendar of every rep's next action for the month. Names blurred.",
+        alt: "Calendar of every rep's next action for the month.",
       },
     ],
     review: {
@@ -679,11 +675,28 @@ const PROJECTS: Project[] = [
 /** Reviews the live page shows; ones still waiting on their words don't count. */
 const REVIEW_COUNT = PROJECTS.filter((project) => project.review?.quote && !project.review.pending).length;
 
-function ProjectCard({ project, preview }: { project: Project; preview: boolean }) {
+/** Whether a card opens with a picture (or, with ?preview, the slot for one). */
+function hasMedia(project: Project, preview: boolean) {
+  return Boolean(project.slides || project.image || preview);
+}
+
+/**
+ * One build. Every card spans four grid rows: picture, text, review, to-do.
+ * When both cards in a row open the same way they share those rows as a
+ * subgrid, so their reviews start at the same height. A card beside one of a
+ * different shape keeps its own flow rather than opening a gap above its
+ * review.
+ */
+function ProjectCard({ project, preview, align }: { project: Project; preview: boolean; align: boolean }) {
   const { image, slides, review } = project;
   const showReview = review && ((review.quote && !review.pending) || preview);
   return (
-    <article className="flex flex-col overflow-hidden rounded-md border bg-card">
+    <article
+      className={cn(
+        "row-span-4 overflow-hidden rounded-md border bg-card",
+        align ? "grid grid-rows-subgrid gap-0" : "flex flex-col",
+      )}
+    >
       {slides ? (
         <ProjectSlides slides={slides} />
       ) : image ? (
@@ -697,19 +710,21 @@ function ProjectCard({ project, preview }: { project: Project; preview: boolean 
         />
       ) : preview ? (
         <Slot className="aspect-video rounded-none border-0 border-b-2">Screenshot goes here</Slot>
-      ) : null}
-      <div className="flex flex-1 flex-col px-4 py-4 sm:px-5">
+      ) : (
+        <div aria-hidden="true" />
+      )}
+      <div className="px-4 pt-4 sm:px-5">
         <p className="text-sm">
           <strong>{project.client}</strong>
           <span className="text-muted-foreground"> &middot; {project.who}</span>
         </p>
         <h3 className="mt-1.5 font-serif text-[1.375rem] leading-tight font-bold">{project.title}</h3>
         <p className="mt-1.5 text-[0.9375rem] text-muted-foreground">{project.detail}</p>
-        {showReview ? (
-          <ProjectReviewCard review={review} />
-        ) : preview ? (
-          <ReviewSlot />
-        ) : null}
+      </div>
+      <div className="flex flex-1 flex-col px-4 sm:px-5">
+        {showReview ? <ProjectReviewCard review={review} /> : preview ? <ReviewSlot /> : null}
+      </div>
+      <div className="px-4 pb-4 sm:px-5">
         {preview && project.todo ? (
           <p className="mt-3 text-xs font-medium text-primary">To do: {project.todo}</p>
         ) : null}
