@@ -78,37 +78,29 @@ function SprintPage() {
         <section className="mt-9 sm:mt-12">
           <p className="mb-2.5 font-medium sm:text-lg">{eyebrow}</p>
           <h1 className="text-[1.875rem] font-bold sm:max-w-[46rem] sm:text-[2.625rem]">{headline}</h1>
-          {showVsl ? (
-            // The video explains the tutoring, so keep it high on the screen:
-            // just the one personal line between the headline and play.
-            stageNote ? (
-              <p className="mt-3 text-muted-foreground sm:text-lg">{stageNote.trim()}</p>
-            ) : null
-          ) : (
-            <>
-              <p className="mt-3 text-muted-foreground sm:max-w-[34rem] sm:text-lg">
-                {stageNote}
-                <strong className="text-foreground">
-                  If your kids have ever had a tutor, it&apos;s like that, for AI.
-                </strong>{" "}
-                I tutor business owners, accountants and operations teams on the back-office admin,
-                reporting and scheduling that eats their week. Two 1-on-1 calls a month with me: we
-                build it together on your own files, and you learn to do the next one yourself.
-              </p>
-              <ul className="mt-4 space-y-1.5">
-                {[
-                  "No coding, and no developer to hire",
-                  "No paying an agency thousands for a build",
-                  "Nothing goes live without your OK",
-                ].map((item) => (
-                  <li key={item} className="flex gap-2.5 text-[0.9375rem]">
-                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
+          {/* The tutor offer in a few lines, with or without the video: most
+              people read this before they decide whether to press play. */}
+          <p className="mt-3 text-muted-foreground sm:max-w-[34rem] sm:text-lg">
+            {stageNote}
+            <strong className="text-foreground">
+              If your kids have ever had a tutor, it&apos;s like that, for AI.
+            </strong>{" "}
+            I tutor business owners, accountants and operations teams on the back-office admin,
+            reporting and scheduling that eats their week. Two 1-on-1 calls a month with me: we
+            build it together on your own files, and you learn to do the next one yourself.
+          </p>
+          <ul className="mt-4 space-y-1.5">
+            {[
+              "No coding, and no developer to hire",
+              "No paying an agency thousands for a build",
+              "Nothing goes live without your OK",
+            ].map((item) => (
+              <li key={item} className="flex gap-2.5 text-[0.9375rem]">
+                <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                {item}
+              </li>
+            ))}
+          </ul>
 
           <div className="mt-6">
             {showVsl ? (
