@@ -11,6 +11,7 @@ import {
 } from "../shared/survey";
 import { addToBeehiiv, retryBeehiivSoon, updateBeehiivFields, type Utm } from "./beehiiv";
 import { shortLinkRedirect } from "./links";
+import { serveVideo } from "./video";
 import {
   funnelEvent,
   json,
@@ -44,7 +45,9 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (!url.pathname.startsWith("/api/")) {
-      // Only paths with no matching page reach the Worker; short links are those.
+      // Videos come through here so iPhones get the byte ranges they ask for.
+      if (url.pathname.endsWith(".mp4")) return serveVideo(request, env.ASSETS);
+      // Otherwise only paths with no matching page reach the Worker; short links are those.
       return shortLinkRedirect(url) ?? env.ASSETS.fetch(request);
     }
     try {

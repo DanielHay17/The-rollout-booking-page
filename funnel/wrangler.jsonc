@@ -8,11 +8,12 @@
   "compatibility_date": "2026-09-15",
 
   // The pages are plain files built by Vite into dist/. Cloudflare serves them
-  // straight from its edge; only /api/* wakes the Worker.
+  // straight from its edge; only /api/* and the videos wake the Worker (the
+  // asset server ignores Range, which iPhones need to play video).
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/*"],
+    "run_worker_first": ["/api/*", "/assets/*.mp4"],
     "html_handling": "auto-trailing-slash"
   },
 
