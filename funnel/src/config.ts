@@ -26,7 +26,9 @@ export const config = {
    * so the two can be compared before one wins.
    */
   sprint2Vsl: {
-    src: "/assets/vsl/vsl-v2.mp4",
+    // v3 is take 2 with only the LinkedIn sidebar blurred (same cut, so the
+    // v2 captions and poster still fit).
+    src: "/assets/vsl/vsl-v3.mp4",
     poster: "/assets/vsl/vsl-v2-poster.jpg",
     captions: "/assets/vsl/vsl-v2.vtt",
   },
