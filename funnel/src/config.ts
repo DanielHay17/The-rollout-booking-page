@@ -20,6 +20,17 @@ export const config = {
     captions: "",
   },
 
+  /**
+   * /sprint2: the same page with Daniel's video in the hero, linked from the
+   * newsletter. /sprint (where new subscribers land) keeps running without it,
+   * so the two can be compared before one wins.
+   */
+  sprint2Vsl: {
+    src: "/assets/vsl/vsl-v2.mp4",
+    poster: "/assets/vsl/vsl-v2-poster.jpg",
+    captions: "/assets/vsl/vsl-v2.vtt",
+  },
+
   /** The 90-second "what to expect on the call" video on /booked. */
   expectationsVideo: {
     src: "",
