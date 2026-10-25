@@ -22,6 +22,7 @@ export default defineConfig({
         xero: here("./xero.html"),
         welcome: here("./welcome.html"),
         sprint: here("./sprint.html"),
+        sprint2: here("./sprint2.html"),
         booked: here("./booked.html"),
         privacy: here("./privacy.html"),
       },

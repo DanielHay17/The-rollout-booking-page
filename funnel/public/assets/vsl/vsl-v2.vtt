@@ -1,0 +1,278 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:03.410
+Hey, I'm Daniel. I'm an AI architect at Phlo. And I
+
+00:00:03.410 --> 00:00:06.220
+basically want to describe what The Rollout sort of
+
+00:00:06.220 --> 00:00:08.800
+packages, right? So a bit of an intro to me is I was
+
+00:00:08.800 --> 00:00:12.100
+studying finance and marketing at university and got a job
+
+00:00:12.100 --> 00:00:15.850
+at an investment firm sort of implementing AI. And through
+
+00:00:15.850 --> 00:00:18.540
+my learnings doing that for the past three years at a
+
+00:00:18.540 --> 00:00:21.690
+pretty large firm, I went out and built Phlo, where I was
+
+00:00:21.690 --> 00:00:24.870
+basically doing what I was doing for portfolio companies
+
+00:00:24.870 --> 00:00:28.180
+for other businesses and building quite large projects and
+
+00:00:28.180 --> 00:00:29.640
+automations and agents.
+
+00:00:29.640 --> 00:00:32.480
+and everything like that. So what I've decided to do is
+
+00:00:32.480 --> 00:00:36.070
+take all this knowledge that I've done working for people
+
+00:00:36.070 --> 00:00:39.310
+like Moushumi and stuff like that and bring that into sort
+
+00:00:39.310 --> 00:00:42.480
+of a tutoring program. Think of it exactly like an ATAR
+
+00:00:42.480 --> 00:00:45.510
+tutor for your kid. If your kid's ever had a tutoring, I'm
+
+00:00:45.510 --> 00:00:48.950
+like that for AI, right? So what's the package? It's $300 a
+
+00:00:48.950 --> 00:00:52.960
+month. We talk twice a month. And what are we doing, right?
+
+00:00:52.960 --> 00:00:55.900
+So I'm going to show you everything where you're getting
+
+00:00:55.900 --> 00:00:58.320
+stuck on. Luckily, I'm a Claude partner.
+
+00:00:59.280 --> 00:01:01.840
+I'm constantly getting trained by them and know all the
+
+00:01:01.840 --> 00:01:05.360
+newest things. And I basically do R&D for you. So you show
+
+00:01:05.360 --> 00:01:07.350
+me where you're getting stuck, what you're trying to
+
+00:01:07.350 --> 00:01:10.380
+achieve and growing from there. It doesn't really matter if
+
+00:01:10.380 --> 00:01:13.570
+you're using Claude Code at the final stages and doing really
+
+00:01:13.570 --> 00:01:15.520
+complex stuff, or you just want to get the most out of
+
+00:01:15.520 --> 00:01:18.400
+regular Claude and Cowork.
+
+00:01:18.560 --> 00:01:20.630
+So what are some stuff we could do? We could do really
+
+00:01:20.630 --> 00:01:24.170
+simple stuff like how do you do your account reconciling
+
+00:01:24.170 --> 00:01:28.520
+using Xero, how to get it to do custom sort of payroll
+
+00:01:28.520 --> 00:01:32.680
+tasks inside of Xero, any sort of application and automating
+
+00:01:32.680 --> 00:01:33.320
+each workflow.
+
+00:01:33.560 --> 00:01:36.180
+So the next sort of step is we could take all that data and
+
+00:01:36.180 --> 00:01:39.370
+build what we call a data warehouse. It's very simple. But
+
+00:01:39.370 --> 00:01:42.580
+for example, we could take all of that Xero data and put it
+
+00:01:42.580 --> 00:01:45.340
+into a nice website like this, where Claude is constantly
+
+00:01:45.340 --> 00:01:49.200
+analyzing your business and creating charts and telling you,
+
+00:01:49.200 --> 00:01:51.910
+for example, in this Plantman use case, that they were
+
+00:01:51.910 --> 00:01:54.280
+ordering axles four weeks early and they were just sitting
+
+00:01:54.280 --> 00:01:55.400
+on the warehouse floor.
+
+00:01:55.560 --> 00:01:58.020
+Right, it's killing their cash flow. Claude picked that up,
+
+00:01:58.020 --> 00:02:00.790
+put it in a chart, and it's now further improving their
+
+00:02:00.790 --> 00:02:03.580
+business. And we can track all of that, and that's pulling
+
+00:02:03.580 --> 00:02:05.920
+from their CRM, ERP, and accounting software.
+
+00:02:06.360 --> 00:02:08.920
+So we can go through and see all these charts, and it's all
+
+00:02:08.920 --> 00:02:10.920
+built fully by Claude agentically.
+
+00:02:11.760 --> 00:02:14.130
+The next step, or another thing that we can teach, is how
+
+00:02:14.130 --> 00:02:17.300
+to build custom software. So lots of people are using
+
+00:02:17.300 --> 00:02:20.810
+ServiceM8, Jira, project management tools, but it's not
+
+00:02:20.810 --> 00:02:22.360
+really right for them.
+
+00:02:22.360 --> 00:02:25.370
+So, for example, for Remedy, this is a pretty large asset
+
+00:02:25.370 --> 00:02:29.150
+inspection firm. We've been building their own, basically,
+
+00:02:29.150 --> 00:02:32.180
+ERP competitor, where they can go through and manage all of
+
+00:02:32.180 --> 00:02:35.520
+their jobs, their timelines, allocate tasks to people.
+
+00:02:36.100 --> 00:02:38.870
+They have a very specific workflow of draft reporting, peer
+
+00:02:38.870 --> 00:02:42.160
+reviews, inspection, and it's all populating by dates,
+
+00:02:42.160 --> 00:02:42.820
+right?
+
+00:02:43.260 --> 00:02:45.450
+And they can go through and track all of this. And this is
+
+00:02:45.450 --> 00:02:48.070
+actually integrating, and we're pulling it from their old
+
+00:02:48.070 --> 00:02:49.700
+ERP so we can transition easily.
+
+00:02:50.080 --> 00:02:53.810
+Another thing is just custom workflows, right? So we could
+
+00:02:53.810 --> 00:02:57.660
+use tools like Lindy, or I think Claude is going to start
+
+00:02:57.660 --> 00:02:59.780
+building this, or you can build it on-prem.
+
+00:02:59.860 --> 00:03:02.230
+There's lots of different ways, right? Where I've got all
+
+00:03:02.230 --> 00:03:05.970
+these custom workflows, for example, inbound phone call
+
+00:03:05.970 --> 00:03:09.010
+agents, chat agents, where it's like a flow, and it's quite
+
+00:03:09.010 --> 00:03:09.540
+defined.
+
+00:03:10.000 --> 00:03:13.900
+So this is for your sort of, let's say, your mortgage
+
+00:03:13.900 --> 00:03:17.710
+broker, right? When the lead comes in, you want to assess
+
+00:03:17.710 --> 00:03:19.540
+their ability to get a loan.
+
+00:03:19.860 --> 00:03:22.870
+So you want to sort of get their payment, their payslip
+
+00:03:22.870 --> 00:03:26.600
+information, where they live, their current assets.
+
+00:03:26.880 --> 00:03:29.190
+You could set up an agent to collect that all for you
+
+00:03:29.190 --> 00:03:31.940
+autonomously, and then assess what type of loan and LVR and
+
+00:03:31.940 --> 00:03:34.000
+stuff they could get, as an example.
+
+00:03:34.780 --> 00:03:37.220
+So I go through and teach all of that. I'll show you how to
+
+00:03:37.220 --> 00:03:40.900
+build it. And it's very simple, basically.
+
+00:03:41.840 --> 00:03:45.250
+And my emails are always open. No one's ever cancelled this
+
+00:03:45.250 --> 00:03:47.760
+plan, because I think it's a great offering.
+
+00:03:48.220 --> 00:03:50.930
+We get educated super quick. I mean, I know someone who was
+
+00:03:50.930 --> 00:03:52.980
+working for, like, an ASX Top 200.
+
+00:03:53.720 --> 00:03:56.510
+They were just doing this as tutoring and doing it as a
+
+00:03:56.510 --> 00:04:00.000
+business, like, knowledge-building thing.
+
+00:04:00.520 --> 00:04:02.660
+And when their company did big layoffs due to AI, they kept
+
+00:04:02.660 --> 00:04:05.250
+their job, because they were very knowledgeable in the
+
+00:04:05.250 --> 00:04:06.200
+space, right?
+
+00:04:06.280 --> 00:04:07.800
+So I think this is a very useful thing.
+
+00:04:07.920 --> 00:04:10.120
+The first call is completely free. I suggest you book it.
+
+00:04:10.120 --> 00:04:13.730
+I can show you heaps more workflows tailored to your exact
+
+00:04:13.730 --> 00:04:17.410
+niche and explain any questions that you have around using
+
+00:04:17.410 --> 00:04:19.260
+Claude and how you get the most out of it.
+
+00:04:19.620 --> 00:04:21.370
+The booking link's down below. Just click the button.
+
+00:04:21.370 --> 00:04:21.800
+Thanks.
+

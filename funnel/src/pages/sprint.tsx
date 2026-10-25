@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
  * Step 3: the VSL and the calendar. Personalised from the survey (or from
  * ?name=&stage=&email= on links from emails), and it works without the VSL:
  * until config.vsl.src is set, real footage of a build plays in its place.
+ * /sprint2 is this same page with Daniel's video (config.sprint2Vsl).
  *
  * The offer is AI tutoring: a free 30-minute call, then two 1-on-1 calls a
  * month with Daniel for $300. The price is on the page on purpose, so nobody
@@ -47,10 +48,12 @@ function SprintPage() {
     sendEvent("page_sprint");
   }, []);
 
+  // sprint2.html marks its root data-vsl="sprint2" to get the video version.
+  const vsl = document.getElementById("root")?.dataset.vsl === "sprint2" ? config.sprint2Vsl : config.vsl;
   const previewVsl = new URLSearchParams(window.location.search).has("preview");
   // ?preview also shows the empty slots in the project grid (photos, reviews).
   const preview = previewVsl || import.meta.env.DEV;
-  const showVsl = Boolean(config.vsl.src) || previewVsl || import.meta.env.DEV;
+  const showVsl = Boolean(vsl.src) || previewVsl || import.meta.env.DEV;
   const area = state.bottleneck ? FOCUS_AREAS[state.bottleneck] : undefined;
 
   const eyebrow = showVsl
@@ -104,8 +107,8 @@ function SprintPage() {
 
           <div className="mt-6">
             {showVsl ? (
-              config.vsl.src ? (
-                <Vsl src={config.vsl.src} poster={config.vsl.poster} captions={config.vsl.captions} />
+              vsl.src ? (
+                <Vsl src={vsl.src} poster={vsl.poster} captions={vsl.captions} />
               ) : (
                 <VslPlaceholder />
               )
