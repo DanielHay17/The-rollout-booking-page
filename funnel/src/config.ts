@@ -15,15 +15,17 @@ export const config = {
    * optional poster image and .vtt captions. Empty = the page runs without it.
    */
   vsl: {
-    src: "",
-    poster: "",
-    captions: "",
+    // Since 25 Oct /sprint runs the same video as /sprint2, to test it for a
+    // week on the subscriber traffic. Empty these three to go back to the
+    // Xero clip.
+    src: "/assets/vsl/vsl-v3.mp4",
+    poster: "/assets/vsl/vsl-v2-poster.jpg",
+    captions: "/assets/vsl/vsl-v2.vtt",
   },
 
   /**
    * /sprint2: the same page with Daniel's video in the hero, linked from the
-   * newsletter. /sprint (where new subscribers land) keeps running without it,
-   * so the two can be compared before one wins.
+   * newsletter.
    */
   sprint2Vsl: {
     // v3 is take 2 with only the LinkedIn sidebar blurred (same cut, so the
