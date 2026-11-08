@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
  * /sprint2 is this same page with Daniel's video (config.sprint2Vsl).
  *
  * The offer is AI tutoring: a free 30-minute call, then two 1-on-1 calls a
- * month with Daniel for $300. The price is on the page on purpose, so nobody
+ * month with Daniel for $500. The price is on the page on purpose, so nobody
  * is surprised by it on the call.
  */
 
@@ -129,7 +129,7 @@ function SprintPage() {
               Book my free call <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </CtaLink>
             <p className="mt-2.5 text-sm text-muted-foreground">
-              Free 30-minute call <Dot /> Then two 1-on-1 calls a month with me, $300 <Dot /> Cancel
+              Free 30-minute call <Dot /> Then two 1-on-1 calls a month with me, $500 <Dot /> Cancel
               any time
             </p>
           </div>
@@ -288,13 +288,15 @@ function SprintPage() {
 
         {/* The price, said plainly */}
         <section className="mt-14">
-          <SectionHeading>Two 1-on-1 calls a month with me, for $300</SectionHeading>
-          <p className="mb-4 text-muted-foreground">If it saves you three hours a month, it&apos;s paid for itself.</p>
+          <SectionHeading>Two 1-on-1 calls a month with me, for $500</SectionHeading>
+          <p className="mb-4 text-muted-foreground">
+            That&apos;s $250 a call. If it gives you back two hours a week, it&apos;s paid for itself.
+          </p>
           {/* Full column width like everything else: on desktop the price and
               button sit on the left, what's included on the right. */}
           <div className="grid rounded-md border-2 border-primary bg-card px-5 py-5 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-x-10 sm:px-7 sm:py-7">
             <p className="font-serif text-4xl leading-none font-bold">
-              $300{" "}
+              $500{" "}
               <span className="font-sans text-base font-normal text-muted-foreground">
                 a month, month to month
               </span>
@@ -380,7 +382,7 @@ function SprintPage() {
             Pick a time for your free call <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </CtaLink>
           <p className="mt-2.5 text-sm text-muted-foreground">
-            After the call: two 1-on-1 calls a month with me for $300. Cancel any time.
+            After the call: two 1-on-1 calls a month with me for $500. Cancel any time.
           </p>
         </section>
       </PageColumn>
@@ -398,7 +400,7 @@ const FAQS = [
   },
   {
     q: "Is this a sales call?",
-    a: "Call one is a look at your business and the first job I'd get Claude doing. If tutoring's a fit, I'll explain how it works at the end: two 1-on-1 calls a month for $300, cancel any time. No pressure either way.",
+    a: "Call one is a look at your business and the first job I'd get Claude doing. If tutoring's a fit, I'll explain how it works at the end: two 1-on-1 calls a month for $500, cancel any time. No pressure either way.",
   },
   {
     q: "Who's on the call?",
@@ -455,7 +457,7 @@ const ALTERNATIVES = [
   },
   {
     title: "AI tutoring",
-    body: "Built on your own files, you learn as we go, and it's $300 a month, cancel any time.",
+    body: "Built on your own files, you learn as we go, and it's $500 a month, cancel any time.",
     pick: true,
   },
 ];

@@ -18,9 +18,9 @@ export const config = {
     // Since 25 Oct /sprint runs the same video as /sprint2, to test it for a
     // week on the subscriber traffic. Empty these three to go back to the
     // Xero clip.
-    src: "/assets/vsl/vsl-v3.mp4",
+    src: "/assets/vsl/vsl-v4.mp4",
     poster: "/assets/vsl/vsl-v2-poster.jpg",
-    captions: "/assets/vsl/vsl-v2.vtt",
+    captions: "/assets/vsl/vsl-v4.vtt",
   },
 
   /**
@@ -28,11 +28,12 @@ export const config = {
    * newsletter.
    */
   sprint2Vsl: {
-    // v3 is take 2 with only the LinkedIn sidebar blurred (same cut, so the
-    // v2 captions and poster still fit).
-    src: "/assets/vsl/vsl-v3.mp4",
+    // v4 is take 2 with only the LinkedIn sidebar blurred and the "It's $300 a
+    // month" sentence cut out (48.03-49.37s of v3) for the $500 price. The v2
+    // poster still fits; v4 captions are shifted to match.
+    src: "/assets/vsl/vsl-v4.mp4",
     poster: "/assets/vsl/vsl-v2-poster.jpg",
-    captions: "/assets/vsl/vsl-v2.vtt",
+    captions: "/assets/vsl/vsl-v4.vtt",
   },
 
   /** The 90-second "what to expect on the call" video on /booked. */
