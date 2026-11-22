@@ -132,13 +132,12 @@ const PROJECTS: Project[] = [
       height: 816,
       alt: "Real Balance's client dashboard: revenue, expenses, net profit and cash at bank, with recent activity and upcoming BAS and tax deadlines.",
     },
-    // Only "3+ hours saved" is known. The 4-hour starting point is a guess: confirm with Craig.
+    // Numbers confirmed by Daniel, 22 Nov 2026.
     chart: {
       title: "Monthly client reporting: about 4 hours a client, down to 1",
       before: { label: "By hand", value: "4 hrs" },
       after: { label: "With the live dashboard and AI", value: "1 hr" },
       afterPercent: 25,
-      pending: true,
     },
     review: {
       name: "Craig Whitton",
@@ -162,13 +161,12 @@ const PROJECTS: Project[] = [
       height: 446,
       alt: "Claude running beside Xero's bank reconciliation screen, prompted to work as an experienced Australian bookkeeper.",
     },
-    // From the card's own claim. "Up to date" assumes the whole backlog is cleared: confirm.
+    // Numbers confirmed by Daniel, 22 Nov 2026.
     chart: {
       title: "Bank reconciliation backlog: 5 years, down to none",
       before: { label: "Before", value: "5 years behind" },
       after: { label: "With Claude, and a bookkeeper approving", value: "up to date" },
       afterPercent: 0,
-      pending: true,
     },
     review: {
       name: "Moushumi Sikand",
