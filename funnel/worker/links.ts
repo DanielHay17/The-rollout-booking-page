@@ -26,6 +26,9 @@ export const SHORT_LINKS: Record<string, ShortLink> = {
   "/bf": { to: "/black-friday", tags: { utm_source: "the-rollout", utm_medium: "email", utm_campaign: "black-friday" } },
   // The same page for texts: short to type, and it opens at the price and button.
   "/deal": { to: "/black-friday#offer", tags: { utm_source: "the-rollout", utm_medium: "sms", utm_campaign: "black-friday" } },
+  // The page's address typed without the hyphen. No tags of its own, so it
+  // never overwrites where the visitor really came from.
+  "/blackfriday": { to: "/black-friday", tags: {} },
 };
 
 export function shortLinkRedirect(url: URL): Response | null {
