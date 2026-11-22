@@ -4,22 +4,30 @@ import * as React from "react";
 import { ArrowRight, Check } from "lucide-react";
 
 import { ProjectGrid, REVIEW_COUNT, Stars } from "@/components/projects";
-import { CtaLink, PageColumn, SiteFooter, SiteHeader, mountPage } from "@/components/site";
+import { CtaLink, PageColumn, SiteFooter, mountPage } from "@/components/site";
 import { config } from "@/config";
 import { attribution, currentState } from "@/lib/funnel";
 import { initPixel, trackPixel, trackPixelCustom } from "@/lib/pixel";
 import { cn } from "@/lib/utils";
 
 /*
- * The Black Friday offer page: The Rollout Workshop, three months for $999.
- * The emails and texts link here, and Daniel shares it on sales calls.
+ * The Black Friday offer page: three months of 1-on-1 calls for $999.
+ * The emails, texts and ads link here, and Daniel shares it on sales calls.
  *
- * It is /sprint's shape with a different ask: the deal as the headline, the
- * same grid of builds and reviews as the proof, then the offer block at the
- * bottom with the button.
+ * It is the long version of the emails. The emails tell one story each; this
+ * page has room for all of it (Neville, 19 Nov: "long-form detail belongs on
+ * a landing page"). Top to bottom:
+ *
+ *   black hero     the deal: price, countdown, checkout button
+ *   two stories    what one call did for Shaun and for Glen
+ *   five problems  boring jobs AI is good at, "which one is you?"
+ *   the grid       every build with the client's review (shared with /sprint)
+ *   three months   how the calls run
+ *   offer card     the deal again, with everything that's included
+ *   questions
  *
  * Everything that changes (the Stripe link, the deadline, when the courses
- * open) lives in config.blackFriday. With no Stripe link the button books a
+ * open) lives in config.blackFriday. With no Stripe link the buttons book a
  * free call instead, and once the deadline passes the page says so and stops
  * offering the price.
  */
@@ -87,44 +95,135 @@ function BlackFridayPage() {
     // A standard event too, so a Meta campaign sent to this page has something to optimise on.
     if (canPay) trackPixel("InitiateCheckout", { value: 999, currency: "AUD" });
   };
-  const jumpLabel = ended ? "See what's included" : "Get the Black Friday price";
 
   return (
     <>
+      {/* The deal, in black: this is the Black Friday part of the page. */}
+      <div className="bg-foreground text-background">
+        <div className="mx-auto w-full max-w-[960px] px-4 pt-6 pb-10 sm:px-5 sm:pt-10 sm:pb-14">
+          <header className="flex items-center justify-between gap-4">
+            <img
+              src="/assets/rollout-logo.png"
+              alt="The Rollout"
+              width={600}
+              height={200}
+              className="h-9 w-auto brightness-0 invert sm:h-10"
+            />
+            <img
+              src="/assets/claude-partner-logo.svg"
+              alt="Claude Partner Network"
+              width={363}
+              height={28}
+              className="h-auto w-[min(50vw,280px)] brightness-0 invert"
+            />
+          </header>
+
+          <section className="mt-7 grid gap-6 sm:mt-12 sm:grid-cols-[minmax(0,1fr)_23.5rem] sm:items-center sm:gap-10">
+            <div>
+              <p className="inline-flex items-center gap-2 rounded-full border border-primary px-3.5 py-1.5 text-[0.8125rem] font-semibold tracking-[0.08em] text-primary uppercase">
+                <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
+                {ended ? "Black Friday has ended" : "Black Friday sale"}
+              </p>
+              <h1 className="mt-4 text-[2.25rem] leading-[1.1] font-bold sm:text-[3.5rem]">
+                Let me automate boring tasks in your business.
+              </h1>
+              <p className="mt-4 text-background/75 sm:text-lg">
+                It&apos;s like a tutor, but for AI in your business. You get 3 one-hour video calls with me,
+                one a month. On each call you pick one boring job, we share screens, and we set Claude up
+                to do it on your own files.
+              </p>
+              <HeroStars className="mt-5 hidden sm:flex" />
+            </div>
+
+            {/* Price, clock and button together, so the whole deal is one glance. */}
+            <div className="rounded-xl border-2 border-primary px-5 py-5 sm:px-6 sm:py-6">
+              <DealPrice ended={ended} />
+              {remaining !== null ? <Clock remaining={remaining} className="mt-5" /> : null}
+              <CtaLink
+                ref={heroCta}
+                href={cta.href}
+                onClick={onCta}
+                className="mt-5 min-h-14 px-4 text-base text-foreground sm:w-full sm:text-lg"
+              >
+                {cta.label} <ArrowRight className="h-5 w-5" aria-hidden="true" />
+              </CtaLink>
+              <p className="mt-3 text-center text-sm text-background/65">
+                {ended ? (
+                  <>Tutoring is {offer.after}.</>
+                ) : (
+                  <>
+                    Paid once at checkout. From Saturday it&apos;s {offer.was}.{" "}
+                    <a href="#offer" className="underline decoration-primary underline-offset-4 hover:text-primary">
+                      See what you get
+                    </a>
+                  </>
+                )}
+              </p>
+            </div>
+            <HeroStars className="flex justify-center sm:hidden" />
+          </section>
+        </div>
+      </div>
+
       {/* As wide as /sprint, so the project grid gets two real columns. */}
       <PageColumn className="sm:max-w-[960px]">
-        <SiteHeader />
-
-        {/* The deal is the headline */}
-        <section className="mt-9 sm:mt-12">
-          <DeadlinePill ended={ended} remaining={remaining} />
-          <h1 className="mt-4 text-[2rem] font-bold sm:text-[3rem]">
-            The Rollout Workshop: 3 months for {ended ? "$1,500" : "$999"}
-          </h1>
-          <p className="mt-3 text-muted-foreground sm:max-w-[38rem] sm:text-lg">
-            It&apos;s like a tutor, but for AI in your business. You get 3 one-hour video calls with me,
-            one a month. On each call you pick one boring job, we share screens, and we set Claude up
-            to do it on your own files.
+        {/* One story per client, the result first */}
+        <section className="mt-6 sm:mt-4">
+          <SectionHeading>One call. One boring job, gone.</SectionHeading>
+          <p className="max-w-[44rem] text-muted-foreground">
+            Each of these was set up on a single one-hour call, on the client&apos;s own files.
           </p>
-          <div className="mt-6">
-            <CtaLink ref={heroCta} href="#offer">
-              {jumpLabel} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </CtaLink>
-            <p className="mt-2.5 text-sm text-muted-foreground">
-              {ended ? (
-                <>The Black Friday price has ended. Tutoring is {offer.after}.</>
-              ) : (
-                <>
-                  <span className="line-through">{offer.was}</span> {offer.price} for 3 months <Dot /> Ends{" "}
-                  {offer.endsShort}
-                </>
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            {STORIES.map((story) => (
+              <Story key={story.title} story={story} />
+            ))}
+          </div>
+        </section>
+
+        {/* The reader's own problem, then who already fixed it */}
+        <section className="mt-14">
+          <SectionHeading>5 boring jobs AI is really good at</SectionHeading>
+          <p className="max-w-[44rem] text-muted-foreground">Which one is you?</p>
+          <ol className="mt-5 divide-y rounded-md border bg-card">
+            {PROBLEMS.map((problem, index) => (
+              <li key={problem.you} className="grid gap-x-4 px-4 py-5 sm:grid-cols-[2.5rem_minmax(0,1fr)] sm:px-6">
+                <span className="font-serif text-2xl leading-none font-bold text-primary sm:text-3xl" aria-hidden="true">
+                  {index + 1}
+                </span>
+                <div className="mt-2 sm:mt-0">
+                  <h3 className="text-lg font-bold sm:text-xl">{problem.you}</h3>
+                  <p className="mt-1.5 text-[0.9375rem] text-muted-foreground">{problem.today}</p>
+                  <p className="mt-3 flex gap-2.5 text-[0.9375rem]">
+                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                    <span>
+                      <strong>{problem.label}</strong> {problem.after}
+                      {problem.proof ? <strong className="mt-1.5 block">{problem.proof}</strong> : null}
+                    </span>
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-4 text-[0.9375rem] text-muted-foreground">
+            Your numbers won&apos;t be these numbers. You&apos;ll have your own.
+          </p>
+          <div className="mt-6 flex flex-col gap-4 rounded-xl bg-foreground px-5 py-5 text-background sm:flex-row sm:items-center sm:justify-between sm:px-7">
+            <p className="font-serif text-xl font-bold sm:text-2xl">
+              Which job do you want off your desk first?
+              {ended ? null : (
+                <span className="mt-1 block font-sans text-sm font-normal text-background/70">
+                  {offer.price} for 3 months, down from {offer.was}. Ends {offer.endsShort}.
+                </span>
               )}
             </p>
+            <CtaLink href={cta.href} onClick={onCta} className="shrink-0 text-foreground">
+              {cta.label} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </CtaLink>
           </div>
         </section>
 
         {/* The same proof as /sprint: every build, in the client's own words */}
-        <section className="mt-12">
+        <section className="mt-14">
           <SectionHeading>What we&apos;ve built for businesses like yours</SectionHeading>
           <p className="max-w-[44rem] text-muted-foreground">
             Real builds, from bookkeeping practices to car dealerships, in the clients&apos; own words.
@@ -136,38 +235,48 @@ function BlackFridayPage() {
           <ProjectGrid preview={preview} />
         </section>
 
-        {/* The offer, at the bottom */}
+        {/* What the three months look like */}
+        <section className="mt-14">
+          <SectionHeading>How the 3 months go</SectionHeading>
+          <ol className="grid gap-4 sm:grid-cols-3">
+            {MONTHS.map((month, index) => (
+              <li key={month.title} className="rounded-md border bg-card px-4 py-4 sm:px-5">
+                <Eyebrow>Month {index + 1}</Eyebrow>
+                <p className="mt-1.5 font-serif text-lg font-bold">{month.title}</p>
+                <p className="mt-1.5 text-[0.9375rem] text-muted-foreground">{month.body}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* The deal again, with everything in it */}
         <section ref={offerBlock} id="offer" className="mt-14 scroll-mt-6">
-          <SectionHeading>Let me automate boring tasks in your business</SectionHeading>
-          <div className="grid rounded-md border-2 border-primary bg-card px-5 py-5 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-x-10 sm:px-7 sm:py-7">
+          <div className="grid rounded-xl bg-foreground px-5 py-7 text-background sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-x-10 sm:px-8 sm:py-9">
             <div>
-              <Eyebrow>{ended ? "Black Friday has ended" : `Black Friday · ends ${offer.endsShort}`}</Eyebrow>
-              <p className="mt-1.5 font-serif text-xl font-bold">The Rollout Workshop</p>
-              <Price ended={ended} className="mt-3" />
+              <p className="text-xs font-semibold tracking-[0.08em] text-primary uppercase">
+                {ended ? "Black Friday has ended" : `Black Friday · ends ${offer.endsShort}`}
+              </p>
+              <h2 className="mt-2 text-2xl font-bold sm:text-[1.75rem]">The Rollout Workshop</h2>
+              <p className="mt-1 text-background/75">3 months of 1-on-1 AI tutoring with me.</p>
+              <DealPrice ended={ended} perCall className="mt-5" />
+              {remaining !== null ? <Clock remaining={remaining} className="mt-5" /> : null}
             </div>
-            <ul className="mt-4 mb-5 space-y-2.5 sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:my-0">
+            <ul className="mt-6 mb-6 space-y-3 sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:my-0">
               {INCLUDED.map((item) => (
-                <li key={item.title} className="flex gap-3 text-[0.9375rem]">
+                <li key={item.title} className="flex gap-3">
                   <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
                   <span>
-                    <strong>{item.title}.</strong> <span className="text-muted-foreground">{item.body}</span>
+                    <strong>{item.title}.</strong> <span className="text-background/70">{item.body}</span>
                   </span>
                 </li>
               ))}
             </ul>
-            <div className="sm:col-start-1 sm:row-start-2 sm:self-end">
-              <CtaLink href={cta.href} onClick={onCta}>
-                {cta.label} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            <div className="sm:col-start-1 sm:row-start-2 sm:mt-6 sm:self-end">
+              <CtaLink href={cta.href} onClick={onCta} className="min-h-14 px-4 text-base text-foreground sm:w-full sm:text-lg">
+                {cta.label} <ArrowRight className="h-5 w-5" aria-hidden="true" />
               </CtaLink>
-              <p className="mt-2.5 text-sm text-muted-foreground">
-                {ended ? (
-                  <>Tutoring is {offer.after}.</>
-                ) : (
-                  <>
-                    Paid once at checkout.{" "}
-                    <span className="block">From Saturday it&apos;s {offer.was}.</span>
-                  </>
-                )}
+              <p className="mt-3 text-sm text-background/65">
+                {ended ? <>Tutoring is {offer.after}.</> : <>Paid once at checkout. From Saturday it&apos;s {offer.was}.</>}
               </p>
             </div>
           </div>
@@ -186,7 +295,7 @@ function BlackFridayPage() {
           ) : null}
         </section>
 
-        {/* The three questions people actually ask */}
+        {/* The questions people actually ask */}
         <section className="mt-14">
           <SectionHeading>Questions</SectionHeading>
           <div className="divide-y rounded-md border bg-card">
@@ -209,10 +318,124 @@ function BlackFridayPage() {
       </PageColumn>
 
       <SiteFooter />
-      <StickyCta heroCta={heroCta} offerBlock={offerBlock} label={jumpLabel} />
+      <StickyCta heroCta={heroCta} offerBlock={offerBlock} href={cta.href} onClick={onCta} canPay={canPay} remaining={remaining} />
     </>
   );
 }
+
+interface StoryData {
+  title: string;
+  body: string;
+  bars: { label: string; value: string; width: string; after?: boolean }[];
+  image: { src: string; alt: string };
+}
+
+// The same two stories as the emails, with the same graphics.
+const STORIES: StoryData[] = [
+  {
+    title: "Shaun got 4 hours a week back.",
+    body: "Shaun runs a bookkeeping practice in Sydney. One employee reimbursement took him 8 steps by hand. In one hour we had Claude doing 5 of them. Shaun still checks everything before it posts.",
+    bars: [
+      { label: "By hand", value: "4 hrs a week", width: "100%" },
+      { label: "With Claude, and Shaun checking", value: "30 min", width: "12.5%", after: true },
+    ],
+    image: {
+      src: "/assets/bf/shaun-steps.png",
+      alt: "8 steps for one employee reimbursement. Claude now does 5; Shaun approves the claim, checks the totals and posts.",
+    },
+  },
+  {
+    title: "Glen stopped paying an ad agency $1,000+ a month.",
+    body: "Glen is an architect in Melbourne. An agency ran his Meta ads, and it wasn't working. On our first call we connected Claude to his ad account and it built his first campaign. Glen picks the budget, checks the creative and presses publish.",
+    bars: [
+      { label: "Ad agency", value: "$1,000+ a month", width: "100%" },
+      { label: "Glen and Claude", value: "one Claude subscription", width: "6%", after: true },
+    ],
+    image: {
+      src: "/assets/bf/glen-steps.png",
+      alt: "8 steps to run Meta ads. Claude now does 6; Glen picks the budget, checks the creative and presses publish.",
+    },
+  },
+];
+
+function Story({ story }: { story: StoryData }) {
+  return (
+    <article className="flex flex-col overflow-hidden rounded-md border bg-card">
+      <div className="px-4 pt-5 sm:px-5">
+        <h3 className="text-xl font-bold sm:text-2xl">{story.title}</h3>
+        <dl className="mt-4 space-y-2.5">
+          {story.bars.map((bar) => (
+            <div key={bar.label}>
+              <dt className="text-sm font-semibold">{bar.label}</dt>
+              <dd className="mt-1 flex items-center gap-2.5">
+                <span
+                  className={cn("h-4 min-w-2 rounded-sm", bar.after ? "bg-primary" : "bg-subtle-foreground/60")}
+                  style={{ width: `calc(${bar.width} * 0.6)` }}
+                  aria-hidden="true"
+                />
+                <span className="text-sm font-semibold whitespace-nowrap">{bar.value}</span>
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-4 mb-4 text-[0.9375rem] text-muted-foreground">{story.body}</p>
+      </div>
+      <img
+        src={story.image.src}
+        alt={story.image.alt}
+        width={1560}
+        height={1155}
+        loading="lazy"
+        className="mt-auto h-auto w-full border-t bg-white"
+      />
+    </article>
+  );
+}
+
+// "Is this you?" first, the client who already has it second.
+const PROBLEMS = [
+  {
+    you: "You build the same report by hand, every month",
+    today: "You pull the numbers. You build the report. You answer the same questions. Next month you do it all again.",
+    label: "Three months from now:",
+    after: "a live dashboard your clients log into, and an AI that answers their questions for you.",
+    proof: "Craig at Real Balance already has this. 3+ hours back per client, every month.",
+  },
+  {
+    you: "You're months behind on the books",
+    today: "The bank feed is a backlog. Finding one invoice takes an afternoon. You keep meaning to catch up.",
+    label: "Three months from now:",
+    after: "Claude codes every bank line and writes down why. You approve each page.",
+    proof: "Moushumi at Ethical CFO already has this. 5 years of bank lines, reconciled in Xero.",
+  },
+  {
+    you: "Your business runs on one giant spreadsheet",
+    today: "Every person and every job sits in one colour-coded sheet. When it changes, you hunt for what moved.",
+    label: "Three months from now:",
+    after: "a live calendar of every person and job. Upload the new roster and it shows you what changed.",
+    proof: "Justin at Remedy already has this. 6 new jobs and 11 changes, caught from one upload.",
+  },
+  {
+    you: "Every proposal takes you two hours",
+    today: "One client sends five a week. That was ten hours gone before any real work.",
+    label: "Now:",
+    after: "each one takes 30 minutes.",
+    proof: "Ten hours a week became two and a half.",
+  },
+  {
+    you: "Your cash is sitting in stock you ordered too early",
+    today: "A truck builder in Perth was ordering axles the day a job was signed. The axle is the last part to go on.",
+    label: "Fixing that freed up $75,000.",
+    after: "",
+    proof: "",
+  },
+];
+
+const MONTHS = [
+  { title: "The job that eats your week", body: "We pick it on the first call and get it working." },
+  { title: "The next jobs", body: "You drive, I steer." },
+  { title: "On your own", body: "You're building by yourself, and I help you finish." },
+];
 
 const INCLUDED = [
   {
@@ -239,6 +462,10 @@ const FAQS = [
     a: `You're taken straight to the members' portal. Sign in with the email you paid with, then book your first call. The courses open on ${offer.coursesOpen}.`,
   },
   {
+    q: "What if I don't know what to automate?",
+    a: "That's what the first call is for. We go through your week together and pick the job that costs you the most time.",
+  },
+  {
     q: "What happens after the three months?",
     a: `The ${offer.price} is paid once and nothing renews on its own. If you want to keep going, it's ${offer.after}.`,
   },
@@ -248,7 +475,7 @@ const FAQS = [
   },
 ];
 
-/** The time left until `endsAt`, updated every half minute; null once it has passed. */
+/** The time left until `endsAt`, ticking every second; null once it has passed. */
 function useCountdown(endsAt: string) {
   const end = React.useMemo(() => new Date(endsAt).getTime(), [endsAt]);
   const read = React.useCallback(() => {
@@ -258,52 +485,84 @@ function useCountdown(endsAt: string) {
   const [remaining, setRemaining] = React.useState(read);
 
   React.useEffect(() => {
-    const timer = window.setInterval(() => setRemaining(read()), 30_000);
+    const timer = window.setInterval(() => setRemaining(read()), 1000);
     return () => window.clearInterval(timer);
   }, [read]);
 
   return remaining;
 }
 
+function clockParts(ms: number) {
+  const seconds = Math.floor(ms / 1000);
+  return [
+    { value: Math.floor(seconds / 86_400), label: "days" },
+    { value: Math.floor((seconds % 86_400) / 3600), label: "hours" },
+    { value: Math.floor((seconds % 3600) / 60), label: "mins" },
+    { value: seconds % 60, label: "secs" },
+  ];
+}
+
+/** The short form for the phone bar: "5d 8h left". */
 function formatRemaining(ms: number) {
-  const minutes = Math.floor(ms / 60_000);
-  const days = Math.floor(minutes / 1440);
-  const hours = Math.floor((minutes % 1440) / 60);
+  const [days, hours, minutes] = clockParts(ms).map((part) => part.value);
   if (days > 0) return `${days}d ${hours}h left`;
-  if (hours > 0) return `${hours}h ${minutes % 60}m left`;
+  if (hours > 0) return `${hours}h ${minutes}m left`;
   return `${Math.max(minutes, 1)}m left`;
 }
 
-function DeadlinePill({ ended, remaining }: { ended: boolean; remaining: number | null }) {
+/** The countdown as four boxes. Only ever shown on black. */
+function Clock({ remaining, className }: { remaining: number; className?: string }) {
   return (
-    <p className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 rounded-md border border-primary bg-card px-3.5 py-2 text-[0.8125rem] font-semibold tracking-wide uppercase sm:rounded-full sm:py-1.5">
-      <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
-      {ended ? (
-        "The Black Friday price has ended"
-      ) : (
-        <>
-          Black Friday <span className="font-normal normal-case text-muted-foreground">ends {offer.endsLabel}</span>
-          {remaining !== null ? <span className="text-primary normal-case">{formatRemaining(remaining)}</span> : null}
-        </>
-      )}
-    </p>
+    <div className={className}>
+      <p className="text-xs font-semibold text-background/65">Ends {offer.endsLabel}</p>
+      <div className="mt-2 grid grid-cols-4 gap-2" role="timer" aria-label={formatRemaining(remaining)}>
+        {clockParts(remaining).map((part) => (
+          <div key={part.label} className="rounded-md bg-background/10 px-1 py-2 text-center">
+            <span className="block font-serif text-2xl leading-none font-bold tabular-nums sm:text-3xl">
+              {String(part.value).padStart(2, "0")}
+            </span>
+            <span className="mt-1 block text-[0.6875rem] tracking-wide text-background/65 uppercase">{part.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
-function Price({ ended, className }: { ended: boolean; className?: string }) {
+/** The price, as big as the page allows. Only ever shown on black. */
+function DealPrice({ ended, perCall = false, className }: { ended: boolean; perCall?: boolean; className?: string }) {
   if (ended) {
     return (
-      <p className={cn("font-serif text-4xl leading-none font-bold", className)}>
-        $500 <span className="font-sans text-base font-normal text-muted-foreground">+ GST a month</span>
+      <p className={cn("font-serif text-5xl leading-none font-bold", className)}>
+        $500 <span className="font-sans text-base font-normal text-background/65">+ GST a month</span>
       </p>
     );
   }
   return (
-    <p className={cn("flex flex-wrap items-baseline gap-x-3 gap-y-1", className)}>
-      <span className="text-xl text-subtle-foreground line-through">{offer.was}</span>
-      <span className="font-serif text-[2.75rem] leading-none font-bold">{offer.price.replace(" + GST", "")}</span>
-      <span className="text-muted-foreground">+ GST for 3 months</span>
-      <span className="basis-full text-sm font-semibold text-primary-hover">Save {offer.saving}</span>
+    <div className={className}>
+      <p className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <span className="text-2xl text-background/55 line-through">{offer.was}</span>
+        <span className="rounded-full bg-primary px-3 py-1 text-sm font-bold tracking-wide text-foreground uppercase">
+          Save {offer.saving}
+        </span>
+      </p>
+      <p className="mt-1 flex flex-wrap items-baseline gap-x-3">
+        <span className="font-serif text-[4.5rem] leading-none font-bold sm:text-[5rem]">
+          {offer.price.replace(" + GST", "")}
+        </span>
+        <span className="text-background/75">+ GST for 3 months</span>
+      </p>
+      {perCall ? <p className="mt-2 text-sm text-background/65">That&apos;s $333 a call, down from $500.</p> : null}
+    </div>
+  );
+}
+
+/** The review score, for the black hero. */
+function HeroStars({ className }: { className?: string }) {
+  return (
+    <p className={cn("items-center gap-2 text-sm", className)}>
+      <Stars small /> <strong>5.0</strong>
+      <span className="text-background/65">from {REVIEW_COUNT} client reviews</span>
     </p>
   );
 }
@@ -317,14 +576,6 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p className="text-xs font-semibold tracking-[0.08em] text-primary-hover uppercase">{children}</p>;
 }
 
-function Dot() {
-  return (
-    <span className="mx-1 text-primary" aria-hidden="true">
-      &middot;
-    </span>
-  );
-}
-
 /** Add tracking tags to a link without dropping the ones it already has. */
 function withParams(href: string, params: Record<string, string>) {
   const url = new URL(href, window.location.origin);
@@ -334,15 +585,21 @@ function withParams(href: string, params: Record<string, string>) {
   return url.origin === window.location.origin ? `${url.pathname}${url.search}` : url.toString();
 }
 
-/** On phones, a button that jumps to the offer while they're reading the reviews. */
+/** On phones, the price and the button stay on screen while they read. */
 function StickyCta({
   heroCta,
   offerBlock,
-  label,
+  href,
+  onClick,
+  canPay,
+  remaining,
 }: {
   heroCta: React.RefObject<HTMLAnchorElement | null>;
   offerBlock: React.RefObject<HTMLElement | null>;
-  label: string;
+  href: string;
+  onClick: () => void;
+  canPay: boolean;
+  remaining: number | null;
 }) {
   const [heroVisible, setHeroVisible] = React.useState(true);
   const [offerVisible, setOfferVisible] = React.useState(false);
@@ -351,7 +608,10 @@ function StickyCta({
     const hero = heroCta.current;
     const block = offerBlock.current;
     if (!hero || !block || !("IntersectionObserver" in window)) return;
-    const heroWatch = new IntersectionObserver(([entry]) => setHeroVisible(entry.isIntersecting));
+    // A sliver of the hero button at the bottom of the screen doesn't count as showing it.
+    const heroWatch = new IntersectionObserver(([entry]) => setHeroVisible(entry.intersectionRatio >= 0.9), {
+      threshold: [0, 0.9, 1],
+    });
     const offerWatch = new IntersectionObserver(([entry]) => setOfferVisible(entry.isIntersecting));
     heroWatch.observe(hero);
     offerWatch.observe(block);
@@ -366,12 +626,20 @@ function StickyCta({
     <div
       aria-hidden={!show}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-20 border-t bg-background/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur transition-transform duration-200 sm:hidden",
+        "fixed inset-x-0 bottom-0 z-20 flex items-center gap-3 bg-foreground px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] text-background transition-transform duration-200 sm:hidden",
         show ? "translate-y-0" : "pointer-events-none translate-y-full",
       )}
     >
-      <CtaLink href="#offer" tabIndex={show ? 0 : -1}>
-        {label} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+      {canPay ? (
+        <p className="shrink-0 leading-tight">
+          <span className="block font-serif text-xl font-bold">
+            $999 <span className="font-sans text-sm font-normal text-background/55 line-through">{offer.was}</span>
+          </span>
+          {remaining !== null ? <span className="block text-xs text-primary">{formatRemaining(remaining)}</span> : null}
+        </p>
+      ) : null}
+      <CtaLink href={href} onClick={onClick} tabIndex={show ? 0 : -1} className="text-foreground">
+        {canPay ? "Check out" : "Book a free call"} <ArrowRight className="h-4 w-4" aria-hidden="true" />
       </CtaLink>
     </div>
   );
