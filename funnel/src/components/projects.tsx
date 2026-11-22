@@ -81,8 +81,8 @@ const SHAUN: Project = {
       "Dan Hay and Phlo have changed how I run my bookkeeping practice. Dan taught me to automate real workflows with Claude and other tools, starting with employee reimbursements, then monthly reporting, BAS prep and reconciliations. He's practical, patient and explains things in plain English, so you understand what you've built. I'm now getting hours back every week. If you're an accountant, bookkeeper or business owner keen to put AI to work, I can't recommend Dan highly enough.",
     date: "November 15, 2026",
     linkedin: true,
+    photo: "/assets/reviewer-shaun.jpg",
   },
-  todo: "Ask Shaun for a photo.",
 };
 
 // Named as "Glen, an architect in Melbourne" and nothing more: no practice name.
@@ -112,6 +112,7 @@ const GLEN: Project = {
     quote:
       "I'd been paying an agency more than a thousand dollars a month to run our Meta ads, and it wasn't working. In one session Daniel had Claude connected to our ad account and making ads from our own project photos, in our own look. Now I run them myself, and I know exactly what's going out.",
     date: "November 22, 2026",
+    photo: "/assets/reviewer-glen.jpg",
   },
 };
 
@@ -322,8 +323,19 @@ const PROJECTS: Project[] = [
 /** Reviews the live page shows; ones still waiting on their words don't count. */
 export const REVIEW_COUNT = PROJECTS.filter((project) => project.review?.quote && !project.review.pending).length;
 
-/** The same count for a grid that opens with the stories, which adds Glen's review. */
-export const STORIES_REVIEW_COUNT = REVIEW_COUNT + (GLEN.review?.quote && !GLEN.review.pending ? 1 : 0);
+/*
+ * The grid that opens with the two tutoring stories (the Black Friday page).
+ * Studyfin's card is left out here: its review has no name or face yet, and
+ * without it the grid is an even eight.
+ */
+const STORIES: Project[] = [
+  SHAUN,
+  GLEN,
+  ...PROJECTS.filter((project) => project !== SHAUN && project.client !== "Studyfin"),
+];
+
+/** The review count for that grid. */
+export const STORIES_REVIEW_COUNT = STORIES.filter((project) => project.review?.quote && !project.review.pending).length;
 
 /** Whether a card opens with a picture (or, with ?preview, the slot for one). */
 function hasMedia(project: Project, preview: boolean) {
@@ -615,7 +627,7 @@ function Slot({ className, children }: { className?: string; children: React.Rea
  * Friday emails are about, and shows their before-and-after charts.
  */
 export function ProjectGrid({ preview, stories = false }: { preview: boolean; stories?: boolean }) {
-  const projects = stories ? [SHAUN, GLEN, ...PROJECTS.filter((project) => project !== SHAUN)] : PROJECTS;
+  const projects = stories ? STORIES : PROJECTS;
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       {projects.map((project, i) => {
