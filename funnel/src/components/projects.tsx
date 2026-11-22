@@ -34,6 +34,17 @@ type Project = {
   slides?: { src: string; alt: string }[];
   /** A short silent screen recording that loops, in place of a GIF. */
   video?: { src: string; poster: string; width: number; height: number; alt: string };
+  /**
+   * Before and after, as two bars: the chart from the top of the emails.
+   * Only where we have both numbers. Shown where a page asks for charts.
+   */
+  chart?: {
+    title: string;
+    before: { label: string; value: string };
+    after: { label: string; value: string };
+    /** How long the "after" bar is next to the "before" bar, 0 to 100. */
+    afterPercent: number;
+  };
   review?: ProjectReview;
   /** What's still missing. Only shown with ?preview, so the live page stays clean. */
   todo?: string;
@@ -54,6 +65,12 @@ const SHAUN: Project = {
     width: 900,
     height: 506,
     alt: "Claude checking staff expense claims in Xero's demo company before they're approved.",
+  },
+  chart: {
+    title: "Employee reimbursements: about 4 hours a week, down to 30 minutes",
+    before: { label: "By hand", value: "4 hrs" },
+    after: { label: "With Claude, and Shaun checking", value: "30 min" },
+    afterPercent: 12.5,
   },
   review: {
     name: "Shaun Rafferty",
@@ -79,6 +96,12 @@ const GLEN: Project = {
     width: 1280,
     height: 720,
     alt: "Claude laying out Meta ads from an architect's project photos during a video call, with Glen watching, hands over his mouth.",
+  },
+  chart: {
+    title: "Meta ads: $1,000+ a month, down to one Claude subscription",
+    before: { label: "Ad agency", value: "$1,000+ a month" },
+    after: { label: "Glen and Claude", value: "one Claude subscription" },
+    afterPercent: 6,
   },
   todo: "Ask Glen for a review.",
 };
@@ -288,7 +311,17 @@ function hasMedia(project: Project, preview: boolean) {
  * different shape keeps its own flow rather than opening a gap above its
  * review.
  */
-function ProjectCard({ project, preview, align }: { project: Project; preview: boolean; align: boolean }) {
+function ProjectCard({
+  project,
+  preview,
+  align,
+  charts,
+}: {
+  project: Project;
+  preview: boolean;
+  align: boolean;
+  charts: boolean;
+}) {
   const { image, slides, video, review } = project;
   const showReview = review && ((review.quote && !review.pending) || preview);
   return (
@@ -323,6 +356,7 @@ function ProjectCard({ project, preview, align }: { project: Project; preview: b
         </p>
         <h3 className="mt-1.5 font-serif text-[1.375rem] leading-tight font-bold">{project.title}</h3>
         <p className="mt-1.5 text-[0.9375rem] text-muted-foreground">{project.detail}</p>
+        {charts && project.chart ? <SavingChart chart={project.chart} /> : null}
       </div>
       <div className="flex flex-1 flex-col px-4 sm:px-5">
         {showReview ? <ProjectReviewCard review={review} /> : preview ? <ReviewSlot /> : null}
@@ -333,6 +367,35 @@ function ProjectCard({ project, preview, align }: { project: Project; preview: b
         ) : null}
       </div>
     </article>
+  );
+}
+
+/** The saving as two bars: what it took before, and what it takes now. */
+function SavingChart({ chart }: { chart: NonNullable<Project["chart"]> }) {
+  const rows = [
+    { ...chart.before, percent: 100, after: false },
+    { ...chart.after, percent: chart.afterPercent, after: true },
+  ];
+  return (
+    <div className="mt-3.5 rounded-md bg-[#EEF5F3] px-3.5 py-3">
+      <p className="text-sm leading-snug font-semibold">{chart.title}</p>
+      <dl className="mt-2.5 space-y-2">
+        {rows.map((row) => (
+          <div key={row.label}>
+            <dt className="text-[0.8125rem] font-semibold">{row.label}</dt>
+            <dd className="mt-1 flex items-center gap-2">
+              {/* The bars share 55% of the row, so the longer value still fits beside its bar. */}
+              <span
+                className={cn("h-3.5 min-w-2 rounded-sm", row.after ? "bg-primary" : "bg-subtle-foreground/55")}
+                style={{ width: `${row.percent * 0.55}%` }}
+                aria-hidden="true"
+              />
+              <span className="text-[0.8125rem] font-semibold">{row.value}</span>
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
   );
 }
 
@@ -515,7 +578,7 @@ function Slot({ className, children }: { className?: string; children: React.Rea
 /**
  * Every build, two to a row on desktop, with the reviews lined up across each row.
  * `stories` opens the grid with Shaun and Glen, the two clients the Black
- * Friday emails are about.
+ * Friday emails are about, and shows their before-and-after charts.
  */
 export function ProjectGrid({ preview, stories = false }: { preview: boolean; stories?: boolean }) {
   const projects = stories ? [SHAUN, GLEN, ...PROJECTS.filter((project) => project !== SHAUN)] : PROJECTS;
@@ -525,7 +588,7 @@ export function ProjectGrid({ preview, stories = false }: { preview: boolean; st
         // The card beside this one on desktop, two to a row.
         const partner = projects[i % 2 === 0 ? i + 1 : i - 1];
         const align = !partner || hasMedia(partner, preview) === hasMedia(project, preview);
-        return <ProjectCard key={project.title} project={project} preview={preview} align={align} />;
+        return <ProjectCard key={project.title} project={project} preview={preview} align={align} charts={stories} />;
       })}
     </div>
   );
