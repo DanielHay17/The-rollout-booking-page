@@ -60,6 +60,17 @@ export const config = {
     endsShort: "Friday 27 November",
     /** When the courses open in the portal. Buyers can sign in and book calls straight away. */
     coursesOpen: "Friday 27 November",
+    /**
+     * The video at the top of the page. For now it is the /sprint video, which
+     * talks about the monthly tutoring ("we talk twice a month", "the first
+     * call is free"). Swap in a Black Friday recording when there is one; an
+     * empty src hides the video box.
+     */
+    vsl: {
+      src: "/assets/vsl/vsl-v4.mp4",
+      poster: "/assets/vsl/vsl-v2-poster.jpg",
+      captions: "/assets/vsl/vsl-v4.vtt",
+    },
   },
 
   /** Daniel's LinkedIn profile, e.g. https://www.linkedin.com/in/... */

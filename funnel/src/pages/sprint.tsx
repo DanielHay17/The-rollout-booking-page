@@ -1,13 +1,14 @@
 import "../index.css";
 
 import * as React from "react";
-import { ArrowRight, Check, Volume2, X } from "lucide-react";
+import { ArrowRight, Check, X } from "lucide-react";
 
 import type { AiStage, Bottleneck } from "@shared/survey";
 import { ProjectGrid, REVIEW_COUNT, Stars } from "@/components/projects";
 import { CtaLink, PageColumn, SiteFooter, SiteHeader, mountPage } from "@/components/site";
+import { Vsl } from "@/components/vsl";
 import { config } from "@/config";
-import { attribution, currentState, sendEvent, type FunnelEvent, type FunnelState } from "@/lib/funnel";
+import { attribution, currentState, sendEvent, type FunnelState } from "@/lib/funnel";
 import { initPixel, trackPixelCustom } from "@/lib/pixel";
 import { cn } from "@/lib/utils";
 
@@ -521,77 +522,6 @@ function BookingEmbed({ state }: { state: FunnelState }) {
       title="Find what to automate first"
       style={{ width: "100%", height: 620 }}
     />
-  );
-}
-
-const VSL_MILESTONES = [25, 50, 75, 95] as const;
-
-function Vsl({ src, poster, captions }: { src: string; poster: string; captions: string }) {
-  const video = React.useRef<HTMLVideoElement>(null);
-  const [withSound, setWithSound] = React.useState(false);
-  const reported = React.useRef(new Set<number>());
-
-  React.useEffect(() => {
-    const element = video.current;
-    if (!element) return;
-    // Browsers only autoplay muted video, and iOS wants the attribute itself.
-    element.muted = true;
-    element.setAttribute("muted", "");
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!reduceMotion) element.play().catch(() => {});
-  }, []);
-
-  const playWithSound = () => {
-    const element = video.current;
-    if (!element) return;
-    element.muted = false;
-    element.currentTime = 0;
-    element.controls = true;
-    element.play().catch(() => {});
-    setWithSound(true);
-    sendEvent("vsl_play");
-    trackPixelCustom("VSLPlay");
-  };
-
-  const onTimeUpdate = () => {
-    const element = video.current;
-    if (!element || !withSound || !element.duration) return;
-    const percent = (element.currentTime / element.duration) * 100;
-    for (const milestone of VSL_MILESTONES) {
-      if (percent >= milestone && !reported.current.has(milestone)) {
-        reported.current.add(milestone);
-        sendEvent(`vsl_${milestone}` as FunnelEvent);
-        if (milestone === 50) trackPixelCustom("VSL50");
-      }
-    }
-  };
-
-  return (
-    <div className="relative aspect-video overflow-hidden rounded-md bg-black">
-      <video
-        ref={video}
-        playsInline
-        loop={!withSound}
-        preload="metadata"
-        poster={poster || undefined}
-        onTimeUpdate={onTimeUpdate}
-        className="h-full w-full object-cover"
-      >
-        <source src={src} type="video/mp4" />
-        {captions ? <track kind="captions" src={captions} srcLang="en" label="English" default /> : null}
-      </video>
-      {withSound ? null : (
-        <button
-          type="button"
-          onClick={playWithSound}
-          className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/25"
-        >
-          <span className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 font-semibold text-primary-foreground shadow-lg">
-            <Volume2 className="h-5 w-5" aria-hidden="true" /> Tap to watch with sound
-          </span>
-        </button>
-      )}
-    </div>
   );
 }
 

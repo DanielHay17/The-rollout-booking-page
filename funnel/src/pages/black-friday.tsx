@@ -1,10 +1,11 @@
 import "../index.css";
 
 import * as React from "react";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowDown, ArrowRight, Check } from "lucide-react";
 
 import { ProjectGrid, REVIEW_COUNT, Stars } from "@/components/projects";
 import { CtaLink, PageColumn, SiteFooter, SiteHeader, mountPage } from "@/components/site";
+import { Vsl } from "@/components/vsl";
 import { config } from "@/config";
 import { attribution, currentState } from "@/lib/funnel";
 import { initPixel, trackPixel, trackPixelCustom } from "@/lib/pixel";
@@ -14,9 +15,9 @@ import { cn } from "@/lib/utils";
  * The Black Friday offer page: The Rollout Workshop, three months for $999.
  * The emails and texts link here, and Daniel shares it on sales calls.
  *
- * It is /sprint's shape with a different ask: the deal as the headline, the
- * same grid of builds and reviews as the proof, then the offer block at the
- * bottom with the button.
+ * It is /sprint's shape with a different ask: the deal as the headline with
+ * Daniel's video and the countdown, the same grid of builds and reviews as
+ * the proof, then the offer block at the bottom with the price and button.
  *
  * Everything that changes (the Stripe link, the deadline, when the courses
  * open) lives in config.blackFriday. With no Stripe link the button books a
@@ -42,17 +43,19 @@ function BlackFridayPage() {
 
   // A link ending in #offer (the one the texts use) opens at the price. The
   // browser can't do that itself: the block doesn't exist until this renders.
-  // Fonts arriving afterwards move it a little, so land on it again then.
+  // It jumps rather than glides (a glide never finishes while the page is
+  // still loading), and lands again as fonts and the video settle the layout.
   React.useEffect(() => {
     if (window.location.hash !== "#offer") return;
     let cancelled = false;
     const jump = () => {
-      if (!cancelled) offerBlock.current?.scrollIntoView();
+      if (!cancelled) offerBlock.current?.scrollIntoView({ behavior: "instant" });
     };
     const stop = () => {
       cancelled = true;
     };
     jump();
+    const timers = [150, 400, 900].map((ms) => window.setTimeout(jump, ms));
     void document.fonts?.ready.then(jump);
     window.addEventListener("load", jump, { once: true });
     // Once they scroll themselves, leave the page where they put it.
@@ -60,6 +63,7 @@ function BlackFridayPage() {
     window.addEventListener("wheel", stop, { once: true, passive: true });
     return () => {
       stop();
+      timers.forEach((timer) => window.clearTimeout(timer));
       window.removeEventListener("load", jump);
       window.removeEventListener("touchstart", stop);
       window.removeEventListener("wheel", stop);
@@ -95,11 +99,16 @@ function BlackFridayPage() {
       <PageColumn className="sm:max-w-[960px]">
         <SiteHeader />
 
-        {/* The deal is the headline, with the offer box beside it */}
-        <section className="mt-9 grid gap-6 sm:mt-12 sm:grid-cols-[minmax(0,1fr)_21rem] sm:items-center sm:gap-10">
-          <div>
+        {/* The deal is the headline, with the video beside it. The price itself is at the bottom. */}
+        <section
+          className={cn(
+            "mt-9 grid gap-6 sm:mt-12 sm:gap-x-10",
+            offer.vsl.src ? "sm:grid-cols-2 sm:items-center" : "",
+          )}
+        >
+          <div className="sm:col-start-1 sm:row-start-1 sm:self-end">
             <DeadlinePill ended={ended} />
-            <h1 className="mt-4 text-[2rem] font-bold sm:text-[3rem]">
+            <h1 className={cn("mt-4 text-[2rem] font-bold", offer.vsl.src ? "sm:text-[2.5rem]" : "sm:text-[3rem]")}>
               The Rollout Workshop: 3 months for {ended ? "$1,500" : "$999"}
             </h1>
             <p className="mt-3 text-muted-foreground sm:text-lg">
@@ -109,25 +118,33 @@ function BlackFridayPage() {
             </p>
           </div>
 
-          {/* The offer box: price, time left and the button in one place */}
-          <div className="rounded-md border-2 border-primary bg-card px-5 py-5">
-            <Price ended={ended} />
-            {remaining !== null ? <Clock remaining={remaining} className="mt-4" /> : null}
-            <CtaLink ref={heroCta} href={cta.href} onClick={onCta} className="mt-4 px-4 sm:w-full">
-              {cta.label} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          {offer.vsl.src ? (
+            <div className="sm:col-start-2 sm:row-span-2 sm:row-start-1">
+              <Vsl
+                src={offer.vsl.src}
+                poster={offer.vsl.poster}
+                captions={offer.vsl.captions}
+                report={false}
+                onPlay={() => trackPixelCustom("BlackFridayVideoPlay")}
+              />
+            </div>
+          ) : null}
+
+          {/* The time left, and the way down to the price */}
+          <div className="sm:col-start-1 sm:row-start-2 sm:self-start">
+            {remaining !== null ? (
+              <>
+                <p className="text-sm font-semibold">The Black Friday price ends in</p>
+                <Clock remaining={remaining} className="mt-2 sm:max-w-[21rem]" />
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                The Black Friday price has ended. Tutoring is {offer.after}.
+              </p>
+            )}
+            <CtaLink ref={heroCta} href="#offer" className="mt-4">
+              {jumpLabel} <ArrowDown className="h-4 w-4" aria-hidden="true" />
             </CtaLink>
-            <p className="mt-2.5 text-sm text-muted-foreground">
-              {ended ? (
-                <>The Black Friday price has ended. Tutoring is {offer.after}.</>
-              ) : (
-                <>
-                  Paid once at checkout. From Saturday it&apos;s {offer.was}.{" "}
-                  <a href="#offer" className="underline decoration-primary underline-offset-4 hover:text-primary">
-                    See what you get
-                  </a>
-                </>
-              )}
-            </p>
           </div>
         </section>
 
@@ -152,6 +169,7 @@ function BlackFridayPage() {
               <Eyebrow>{ended ? "Black Friday has ended" : `Black Friday · ends ${offer.endsShort}`}</Eyebrow>
               <p className="mt-1.5 font-serif text-xl font-bold">The Rollout Workshop</p>
               <Price ended={ended} className="mt-3" />
+              {remaining !== null ? <Clock remaining={remaining} className="mt-4 sm:max-w-[21rem]" /> : null}
             </div>
             <ul className="mt-4 mb-5 space-y-2.5 sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:my-0">
               {INCLUDED.map((item) => (
@@ -163,7 +181,7 @@ function BlackFridayPage() {
                 </li>
               ))}
             </ul>
-            <div className="sm:col-start-1 sm:row-start-2 sm:self-end">
+            <div className="sm:col-start-1 sm:row-start-2 sm:mt-4 sm:self-end">
               <CtaLink href={cta.href} onClick={onCta}>
                 {cta.label} <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </CtaLink>
