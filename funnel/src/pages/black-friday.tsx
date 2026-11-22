@@ -116,6 +116,12 @@ function BlackFridayPage() {
               one a month. On each call you pick one boring job, we share screens, and we set Claude up
               to do it on your own files.
             </p>
+            <p className="mt-3 sm:text-lg">
+              <strong>You also get the whole members&apos; portal:</strong>{" "}
+              <span className="text-muted-foreground">
+                ask me questions between calls, and get all of my skills, prompts, templates and AI courses.
+              </span>
+            </p>
           </div>
 
           {offer.vsl.src ? (
@@ -158,7 +164,7 @@ function BlackFridayPage() {
             <Stars small /> <strong>5.0</strong>
             <span className="text-muted-foreground">from {REVIEW_COUNT} client reviews</span>
           </p>
-          <ProjectGrid preview={preview} />
+          <ProjectGrid preview={preview} stories />
         </section>
 
         {/* The offer, at the bottom */}
@@ -168,6 +174,9 @@ function BlackFridayPage() {
             <div>
               <Eyebrow>{ended ? "Black Friday has ended" : `Black Friday · ends ${offer.endsShort}`}</Eyebrow>
               <p className="mt-1.5 font-serif text-xl font-bold">The Rollout Workshop</p>
+              <p className="mt-1 text-[0.9375rem] text-muted-foreground">
+                3 one-on-one calls with me, plus the whole members&apos; portal.
+              </p>
               <Price ended={ended} className="mt-3" />
               {remaining !== null ? <Clock remaining={remaining} className="mt-4 sm:max-w-[21rem]" /> : null}
             </div>

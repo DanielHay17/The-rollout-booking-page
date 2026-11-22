@@ -40,6 +40,50 @@ type Project = {
 };
 
 /*
+ * The two clients the Black Friday emails are about. Shaun's card is also in
+ * the grid below; Glen's only shows where a page asks for it (see ProjectGrid).
+ */
+const SHAUN: Project = {
+  client: "A Sydney bookkeeping practice",
+  who: "Xero bookkeeping",
+  title: "40 to 50 staff expense claims a month, checked and reimbursed",
+  detail:
+    "Two jobs off the bookkeeper's desk: Claude checks every claim's account and GST and flags the wrong ones, then files the rest in payroll as employee reimbursements for the next pay run.",
+  image: {
+    src: "/assets/work/expense-claims.jpg",
+    width: 900,
+    height: 506,
+    alt: "Claude checking staff expense claims in Xero's demo company before they're approved.",
+  },
+  review: {
+    name: "Shaun Rafferty",
+    role: "First Class Accounts",
+    quote:
+      "Dan Hay and Phlo have changed how I run my bookkeeping practice. Dan taught me to automate real workflows with Claude and other tools, starting with employee reimbursements, then monthly reporting, BAS prep and reconciliations. He's practical, patient and explains things in plain English, so you understand what you've built. I'm now getting hours back every week. If you're an accountant, bookkeeper or business owner keen to put AI to work, I can't recommend Dan highly enough.",
+    date: "November 15, 2026",
+    linkedin: true,
+  },
+  todo: "Ask Shaun for a photo.",
+};
+
+// Named as "Glen, an architect in Melbourne" and nothing more: no practice name.
+// The picture is a frame from his first call, with the practice's name blurred.
+const GLEN: Project = {
+  client: "Glen, an architect in Melbourne",
+  who: "Meta ads",
+  title: "Replaced a $1,000+ a month ad agency with Claude",
+  detail:
+    "On our first call we connected Claude to his ad account and it built his first campaign from photos of his own projects. Glen picks the budget, checks the creative and presses publish. That's him watching the first ads come out.",
+  image: {
+    src: "/assets/work/glen-first-ads.jpg",
+    width: 1280,
+    height: 720,
+    alt: "Claude laying out Meta ads from an architect's project photos during a video call, with Glen watching, hands over his mouth.",
+  },
+  todo: "Ask Glen for a review.",
+};
+
+/*
  * Every build we can point to, two to a row on desktop, each with a
  * screenshot, a few rotating screenshots, or a short looping recording.
  * Reviews line up across a row (see ProjectCard), so the two still waiting on
@@ -184,28 +228,7 @@ const PROJECTS: Project[] = [
     },
     todo: "Check the project wording, and add the month Victor gave this review.",
   },
-  {
-    client: "A Sydney bookkeeping practice",
-    who: "Xero bookkeeping",
-    title: "40 to 50 staff expense claims a month, checked and reimbursed",
-    detail:
-      "Two jobs off the bookkeeper's desk: Claude checks every claim's account and GST and flags the wrong ones, then files the rest in payroll as employee reimbursements for the next pay run.",
-    image: {
-      src: "/assets/work/expense-claims.jpg",
-      width: 900,
-      height: 506,
-      alt: "Claude checking staff expense claims in Xero's demo company before they're approved.",
-    },
-    review: {
-      name: "Shaun Rafferty",
-      role: "First Class Accounts",
-      quote:
-        "Dan Hay and Phlo have changed how I run my bookkeeping practice. Dan taught me to automate real workflows with Claude and other tools, starting with employee reimbursements, then monthly reporting, BAS prep and reconciliations. He's practical, patient and explains things in plain English, so you understand what you've built. I'm now getting hours back every week. If you're an accountant, bookkeeper or business owner keen to put AI to work, I can't recommend Dan highly enough.",
-      date: "November 15, 2026",
-      linkedin: true,
-    },
-    todo: "Ask Shaun for a photo.",
-  },
+  SHAUN,
   {
     client: "A national car dealership group",
     who: "fleet sales",
@@ -489,13 +512,18 @@ function Slot({ className, children }: { className?: string; children: React.Rea
   );
 }
 
-/** Every build, two to a row on desktop, with the reviews lined up across each row. */
-export function ProjectGrid({ preview }: { preview: boolean }) {
+/**
+ * Every build, two to a row on desktop, with the reviews lined up across each row.
+ * `stories` opens the grid with Shaun and Glen, the two clients the Black
+ * Friday emails are about.
+ */
+export function ProjectGrid({ preview, stories = false }: { preview: boolean; stories?: boolean }) {
+  const projects = stories ? [SHAUN, GLEN, ...PROJECTS.filter((project) => project !== SHAUN)] : PROJECTS;
   return (
     <div className="grid gap-4 sm:grid-cols-2">
-      {PROJECTS.map((project, i) => {
+      {projects.map((project, i) => {
         // The card beside this one on desktop, two to a row.
-        const partner = PROJECTS[i % 2 === 0 ? i + 1 : i - 1];
+        const partner = projects[i % 2 === 0 ? i + 1 : i - 1];
         const align = !partner || hasMedia(partner, preview) === hasMedia(project, preview);
         return <ProjectCard key={project.title} project={project} preview={preview} align={align} />;
       })}
