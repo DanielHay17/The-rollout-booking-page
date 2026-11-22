@@ -28,6 +28,12 @@ describe("short links", () => {
     expect(to?.hash).toBe("#offer");
   });
 
+  it("sends the no-hyphen spelling to the page and keeps its tags", () => {
+    expect(follow("/blackfriday")?.pathname).toBe("/black-friday");
+    expect(follow("/blackfriday")?.search).toBe("");
+    expect(follow("/BlackFriday?utm_source=facebook")?.searchParams.get("utm_source")).toBe("facebook");
+  });
+
   it("ignores paths that aren't short links", () => {
     expect(follow("/black-friday")).toBeNull();
   });
