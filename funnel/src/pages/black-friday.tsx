@@ -15,9 +15,10 @@ import { cn } from "@/lib/utils";
  * The Black Friday offer page: The Rollout Workshop, three months for $999.
  * The emails and texts link here, and Daniel shares it on sales calls.
  *
- * It is /sprint's shape with a different ask: the deal as the headline with
- * Daniel's video and the countdown, the same grid of builds and reviews as
- * the proof, then the offer block at the bottom with the price and button.
+ * It is /sprint's shape with a different ask: the workshop's name as the
+ * headline with Daniel's video and the countdown, the same grid of builds and
+ * reviews as the proof, then the offer block at the bottom with the price and
+ * button. The price appears only in that block, so people scroll to it.
  *
  * While the price is on, nothing here offers a call: the point of the page is
  * a sale without one.
@@ -102,7 +103,7 @@ function BlackFridayPage() {
       <PageColumn className="sm:max-w-[960px]">
         <SiteHeader />
 
-        {/* The deal is the headline, with the video beside it. The price itself is at the bottom. */}
+        {/* The name is the headline, with the video beside it. No price up here: it's at the bottom, so people scroll to it. */}
         <section
           className={cn(
             "mt-9 grid gap-6 sm:mt-12 sm:gap-x-10",
@@ -112,7 +113,7 @@ function BlackFridayPage() {
           <div className="sm:col-start-1 sm:row-start-1 sm:self-end">
             <DeadlinePill ended={ended} />
             <h1 className={cn("mt-4 text-[2rem] font-bold", offer.vsl.src ? "sm:text-[2.5rem]" : "sm:text-[3rem]")}>
-              The Rollout Workshop: 3 months for {ended ? "$1,500" : "$999"}
+              The Rollout Workshop
             </h1>
             <p className="mt-3 text-muted-foreground sm:text-lg">
               It&apos;s like a tutor, but for AI in your business. You get 3 one-hour video calls with me,
