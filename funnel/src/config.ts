@@ -42,6 +42,37 @@ export const config = {
     poster: "",
   },
 
+  /**
+   * The Black Friday offer on /black-friday: The Rollout Workshop, three
+   * months paid once. For Cyber Monday, move endsAt, endsLabel and endsShort.
+   */
+  blackFriday: {
+    /** The Stripe Payment Link for the offer. Empty = the buttons book a free call instead. */
+    payUrl: "https://buy.stripe.com/aFa4gyfJvbbDgGXg6G2wU0c",
+    price: "$999 + GST",
+    /** Three months at the usual monthly price. */
+    was: "$1,500",
+    saving: "$501",
+    after: "$500 + GST a month",
+    /** When the price ends. After this the page says so and stops offering it. */
+    endsAt: "2026-11-27T23:59:00+11:00",
+    endsLabel: "Friday 27 November, 11:59pm Sydney time",
+    endsShort: "Friday 27 November",
+    /** When the courses open in the portal. Buyers can sign in and book calls straight away. */
+    coursesOpen: "Friday 27 November",
+    /**
+     * The video at the top of the page. For now it is the /sprint video, which
+     * talks about the monthly tutoring ("we talk twice a month", "the first
+     * call is free"). Swap in a Black Friday recording when there is one; an
+     * empty src hides the video box.
+     */
+    vsl: {
+      src: "/assets/vsl/vsl-v4.mp4",
+      poster: "/assets/vsl/vsl-v2-poster.jpg",
+      captions: "/assets/vsl/vsl-v4.vtt",
+    },
+  },
+
   /** Daniel's LinkedIn profile, e.g. https://www.linkedin.com/in/... */
   linkedinUrl: "https://www.linkedin.com/in/daniel--hay/",
 

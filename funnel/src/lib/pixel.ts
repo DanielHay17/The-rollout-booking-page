@@ -21,7 +21,7 @@ declare global {
   }
 }
 
-export type PixelEvent = "Subscribe" | "Lead" | "ViewContent" | "Schedule";
+export type PixelEvent = "Subscribe" | "Lead" | "ViewContent" | "Schedule" | "InitiateCheckout";
 
 function enabled() {
   if (!config.metaPixelId || import.meta.env.DEV) return false;
