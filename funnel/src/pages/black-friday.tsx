@@ -19,6 +19,9 @@ import { cn } from "@/lib/utils";
  * Daniel's video and the countdown, the same grid of builds and reviews as
  * the proof, then the offer block at the bottom with the price and button.
  *
+ * While the price is on, nothing here offers a call: the point of the page is
+ * a sale without one.
+ *
  * Everything that changes (the Stripe link, the deadline, when the courses
  * open) lives in config.blackFriday. With no Stripe link the button books a
  * free call instead, and once the deadline passes the page says so and stops
@@ -239,14 +242,6 @@ function BlackFridayPage() {
             <strong>Book your first call as soon as you&apos;ve paid.</strong> After checkout you land in the
             members&apos; portal, where you pick a time. The courses open on {offer.coursesOpen}.
           </p>
-          {canPay ? (
-            <p className="mt-4 text-[0.9375rem]">
-              Want to talk first?{" "}
-              <a href={callHref} className="underline decoration-primary underline-offset-4 hover:text-primary">
-                Book a free 30-minute call
-              </a>
-            </p>
-          ) : null}
         </section>
 
         {/* The three questions people actually ask */}
