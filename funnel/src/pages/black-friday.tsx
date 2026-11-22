@@ -1,22 +1,25 @@
 import "../index.css";
 
 import * as React from "react";
-import { ArrowRight, Check, FolderOpen, GraduationCap, MessagesSquare, Star, Video } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
+import { ProjectGrid, REVIEW_COUNT, Stars } from "@/components/projects";
 import { CtaLink, PageColumn, SiteFooter, SiteHeader, mountPage } from "@/components/site";
-import { LinkedInMark } from "@/components/linkedin-mark";
 import { config } from "@/config";
 import { attribution, currentState } from "@/lib/funnel";
-import { initPixel, trackPixelCustom } from "@/lib/pixel";
+import { initPixel, trackPixel, trackPixelCustom } from "@/lib/pixel";
 import { cn } from "@/lib/utils";
 
 /*
  * The Black Friday offer page: The Rollout Workshop, three months for $999.
- * The emails and texts link here, and Daniel shares it on sales calls, so the
- * top of the page is the whole offer: what you get, the price, the deadline.
+ * The emails and texts link here, and Daniel shares it on sales calls.
  *
- * Everything that changes (the Stripe link, the deadline, when the portal
- * opens) lives in config.blackFriday. With no Stripe link the buttons book a
+ * It is /sprint's shape with a different ask: the deal as the headline, the
+ * same grid of builds and reviews as the proof, then the offer block at the
+ * bottom with the button.
+ *
+ * Everything that changes (the Stripe link, the deadline, when the courses
+ * open) lives in config.blackFriday. With no Stripe link the button books a
  * free call instead, and once the deadline passes the page says so and stops
  * offering the price.
  */
@@ -26,13 +29,41 @@ const offer = config.blackFriday;
 function BlackFridayPage() {
   const state = React.useMemo(() => currentState(), []);
   const heroCta = React.useRef<HTMLAnchorElement>(null);
-  const priceCard = React.useRef<HTMLElement>(null);
+  const offerBlock = React.useRef<HTMLElement>(null);
   const remaining = useCountdown(offer.endsAt);
   const ended = remaining === null;
+  // ?preview also shows the empty slots in the project grid, as on /sprint.
+  const preview = new URLSearchParams(window.location.search).has("preview") || import.meta.env.DEV;
 
   React.useEffect(() => {
     initPixel({ email: state.email, firstName: state.name, phone: state.phone });
     trackPixelCustom("BlackFridayView");
+  }, []);
+
+  // A link ending in #offer (the one the texts use) opens at the price. The
+  // browser can't do that itself: the block doesn't exist until this renders.
+  // Fonts arriving afterwards move it a little, so land on it again then.
+  React.useEffect(() => {
+    if (window.location.hash !== "#offer") return;
+    let cancelled = false;
+    const jump = () => {
+      if (!cancelled) offerBlock.current?.scrollIntoView();
+    };
+    const stop = () => {
+      cancelled = true;
+    };
+    jump();
+    void document.fonts?.ready.then(jump);
+    window.addEventListener("load", jump, { once: true });
+    // Once they scroll themselves, leave the page where they put it.
+    window.addEventListener("touchstart", stop, { once: true, passive: true });
+    window.addEventListener("wheel", stop, { once: true, passive: true });
+    return () => {
+      stop();
+      window.removeEventListener("load", jump);
+      window.removeEventListener("touchstart", stop);
+      window.removeEventListener("wheel", stop);
+    };
   }, []);
 
   const utm = React.useMemo(() => {
@@ -51,148 +82,75 @@ function BlackFridayPage() {
   const cta = canPay
     ? { href: payHref, label: `Check out now: ${offer.price}` }
     : { href: callHref, label: "Book a free call to get started" };
-  const onCta = () => trackPixelCustom(canPay ? "BlackFridayCheckout" : "BlackFridayCall");
+  const onCta = () => {
+    trackPixelCustom(canPay ? "BlackFridayCheckout" : "BlackFridayCall");
+    // A standard event too, so a Meta campaign sent to this page has something to optimise on.
+    if (canPay) trackPixel("InitiateCheckout", { value: 999, currency: "AUD" });
+  };
+  const jumpLabel = ended ? "See what's included" : "Get the Black Friday price";
 
   return (
     <>
+      {/* As wide as /sprint, so the project grid gets two real columns. */}
       <PageColumn className="sm:max-w-[960px]">
         <SiteHeader />
 
-        {/* Hero: the whole offer in one screen, for sharing on a call */}
+        {/* The deal is the headline */}
         <section className="mt-9 sm:mt-12">
           <DeadlinePill ended={ended} remaining={remaining} />
-          <h1 className="mt-4 text-[2rem] font-bold sm:max-w-[44rem] sm:text-[3rem]">
-            What could you build in 3 months?
+          <h1 className="mt-4 text-[2rem] font-bold sm:text-[3rem]">
+            The Rollout Workshop: 3 months for {ended ? "$1,500" : "$999"}
           </h1>
           <p className="mt-3 text-muted-foreground sm:max-w-[38rem] sm:text-lg">
-            <strong className="text-foreground">The Rollout Workshop</strong> is 1-on-1 Claude coaching
-            with me, plus a members&apos; portal with the courses, prompts and templates. We pick the
-            job that eats your week, build it on your own files, and you learn to build the next one.
+            It&apos;s like a tutor, but for AI in your business. You get 3 one-hour video calls with me,
+            one a month. On each call you pick one boring job, we share screens, and we set Claude up
+            to do it on your own files.
           </p>
-
-          <Price ended={ended} className="mt-6" />
-
-          <div className="mt-5">
-            <CtaLink ref={heroCta} href={cta.href} onClick={onCta}>
-              {cta.label} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          <div className="mt-6">
+            <CtaLink ref={heroCta} href="#offer">
+              {jumpLabel} <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </CtaLink>
             <p className="mt-2.5 text-sm text-muted-foreground">
               {ended ? (
-                <>The Black Friday price has ended. Coaching is {offer.after}.</>
+                <>The Black Friday price has ended. Tutoring is {offer.after}.</>
               ) : (
                 <>
-                  Paid once, at checkout <Dot /> From Saturday it&apos;s {offer.after}
+                  <span className="line-through">{offer.was}</span> {offer.price} for 3 months <Dot /> Ends{" "}
+                  {offer.endsShort}
                 </>
               )}
             </p>
-            {canPay ? (
-              <p className="mt-3 text-[0.9375rem]">
-                Want to talk first?{" "}
-                <a href={callHref} className="underline decoration-primary underline-offset-4 hover:text-primary">
-                  Book a free 30-minute call
-                </a>
-              </p>
-            ) : null}
           </div>
         </section>
 
-        {/* What you get */}
+        {/* The same proof as /sprint: every build, in the client's own words */}
         <section className="mt-12">
-          <SectionHeading>Here&apos;s what you get</SectionHeading>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {INCLUDED.map((item) => (
-              <div key={item.title} className="flex gap-4 rounded-md border bg-card px-4 py-4">
-                <span
-                  aria-hidden="true"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-foreground"
-                >
-                  <item.icon className="h-5 w-5" />
-                </span>
-                <div>
-                  <h3 className="font-sans text-base font-semibold tracking-normal">{item.title}</h3>
-                  <p className="mt-1 text-[0.9375rem] text-muted-foreground">{item.body}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="mt-4 rounded-md border-l-[3px] border-primary bg-card px-4 py-3 text-[0.9375rem]">
-            <strong>Your calls start as soon as you book.</strong> Portal logins go out on{" "}
-            {offer.portalOpens}.
+          <SectionHeading>What we&apos;ve built for businesses like yours</SectionHeading>
+          <p className="max-w-[44rem] text-muted-foreground">
+            Real builds, from bookkeeping practices to car dealerships, in the clients&apos; own words.
           </p>
+          <p className="mt-2 mb-5 flex items-center gap-2 text-sm">
+            <Stars small /> <strong>5.0</strong>
+            <span className="text-muted-foreground">from {REVIEW_COUNT} client reviews</span>
+          </p>
+          <ProjectGrid preview={preview} />
         </section>
 
-        {/* Results: one big number each */}
-        <section className="mt-14">
-          <SectionHeading>What three months has done for other businesses</SectionHeading>
-          <p className="mb-5 max-w-[44rem] text-muted-foreground">
-            Real results from people I work with, and one of my own.
-          </p>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {RESULTS.map((result, index) => (
-              <ResultCard
-                key={result.number}
-                result={result}
-                // An odd one out at the end gets the full row.
-                wide={index === RESULTS.length - 1 && RESULTS.length % 2 === 1}
-              />
-            ))}
-          </div>
-          <p className="mt-5 max-w-[44rem] text-[0.9375rem] text-muted-foreground">
-            Your numbers won&apos;t be these numbers. You&apos;ll have your own. And none of it was
-            instant: the first proposal Claude drafted for me had a hosting cost that had nothing to do
-            with our real one. It only knows what you give it. Fixing that is what the calls are for.
-          </p>
-        </section>
-
-        {/* In their words */}
-        <section className="mt-14">
-          <SectionHeading>In their words</SectionHeading>
-          <p className="mb-5 flex items-center gap-2 text-sm">
-            <Stars /> <strong>5.0</strong>
-            <span className="text-muted-foreground">from client reviews on LinkedIn</span>
-          </p>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {REVIEWS.map((review) => (
-              <ReviewCard key={review.name} review={review} />
-            ))}
-          </div>
-        </section>
-
-        {/* How the three months go */}
-        <section className="mt-14">
-          <SectionHeading>How the 3 months go</SectionHeading>
-          <ol className="space-y-3">
-            {MONTHS.map((step, index) => (
-              <li key={step.title} className="flex gap-4 rounded-md border bg-card px-4 py-4">
-                <span
-                  aria-hidden="true"
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground"
-                >
-                  {index + 1}
-                </span>
-                <div>
-                  <h3 className="font-sans text-base font-semibold tracking-normal">{step.title}</h3>
-                  <p className="mt-1 text-[0.9375rem] text-muted-foreground">{step.body}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        {/* The price, said plainly */}
-        <section ref={priceCard} id="offer" className="mt-14 scroll-mt-6">
-          <SectionHeading>The Rollout Workshop, three months</SectionHeading>
+        {/* The offer, at the bottom */}
+        <section ref={offerBlock} id="offer" className="mt-14 scroll-mt-6">
+          <SectionHeading>Let me automate boring tasks in your business</SectionHeading>
           <div className="grid rounded-md border-2 border-primary bg-card px-5 py-5 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-x-10 sm:px-7 sm:py-7">
             <div>
               <Eyebrow>{ended ? "Black Friday has ended" : `Black Friday · ends ${offer.endsShort}`}</Eyebrow>
-              <Price ended={ended} className="mt-2" />
+              <p className="mt-1.5 font-serif text-xl font-bold">The Rollout Workshop</p>
+              <Price ended={ended} className="mt-3" />
             </div>
-            <ul className="mt-4 mb-5 space-y-2 sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:my-0">
+            <ul className="mt-4 mb-5 space-y-2.5 sm:col-start-2 sm:row-span-2 sm:row-start-1 sm:my-0">
               {INCLUDED.map((item) => (
                 <li key={item.title} className="flex gap-3 text-[0.9375rem]">
                   <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
                   <span>
-                    <strong>{item.title}.</strong> {item.short}
+                    <strong>{item.title}.</strong> <span className="text-muted-foreground">{item.body}</span>
                   </span>
                 </li>
               ))}
@@ -203,29 +161,32 @@ function BlackFridayPage() {
               </CtaLink>
               <p className="mt-2.5 text-sm text-muted-foreground">
                 {ended ? (
-                  <>Coaching is {offer.after}.</>
+                  <>Tutoring is {offer.after}.</>
                 ) : (
                   <>
-                    Paid once <Dot /> Nothing renews on its own
+                    Paid once at checkout.{" "}
+                    <span className="block">From Saturday it&apos;s {offer.was}.</span>
                   </>
                 )}
               </p>
             </div>
           </div>
 
-          <h3 className="mt-8 mb-3 text-xl font-semibold">What happens after you pay</h3>
-          <ol className="grid gap-3 sm:grid-cols-3">
-            {AFTER.map((step, index) => (
-              <li key={step.title} className="rounded-md border bg-card px-4 py-4">
-                <Eyebrow>Step {index + 1}</Eyebrow>
-                <strong className="mt-1 block">{step.title}</strong>
-                <span className="mt-1 block text-[0.9375rem] text-muted-foreground">{step.body}</span>
-              </li>
-            ))}
-          </ol>
+          <p className="mt-4 rounded-md border-l-[3px] border-primary bg-card px-4 py-3 text-[0.9375rem]">
+            <strong>Book your first call as soon as you&apos;ve paid.</strong> After checkout you land in the
+            members&apos; portal, where you pick a time. The courses open on {offer.coursesOpen}.
+          </p>
+          {canPay ? (
+            <p className="mt-4 text-[0.9375rem]">
+              Want to talk first?{" "}
+              <a href={callHref} className="underline decoration-primary underline-offset-4 hover:text-primary">
+                Book a free 30-minute call
+              </a>
+            </p>
+          ) : null}
         </section>
 
-        {/* FAQ */}
+        {/* The three questions people actually ask */}
         <section className="mt-14">
           <SectionHeading>Questions</SectionHeading>
           <div className="divide-y rounded-md border bg-card">
@@ -245,211 +206,45 @@ function BlackFridayPage() {
             ))}
           </div>
         </section>
-
-        {/* Last call to action */}
-        <section className="mt-14 text-center">
-          <SectionHeading>Three months from now, that job can still be on your desk</SectionHeading>
-          <p className="mx-auto mb-5 max-w-[34rem] text-muted-foreground">
-            Or Claude can be doing it, and you&apos;ll know how to build the next one.
-          </p>
-          <CtaLink href={cta.href} onClick={onCta}>
-            {cta.label} <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </CtaLink>
-          <p className="mt-2.5 text-sm text-muted-foreground">
-            {ended ? <>Coaching is {offer.after}.</> : <>Ends {offer.endsLabel}. Then it&apos;s {offer.after}.</>}
-          </p>
-        </section>
       </PageColumn>
 
       <SiteFooter />
-      <StickyCta heroCta={heroCta} priceCard={priceCard} href={cta.href} label={cta.label} onClick={onCta} />
+      <StickyCta heroCta={heroCta} offerBlock={offerBlock} label={jumpLabel} />
     </>
   );
 }
 
 const INCLUDED = [
   {
-    icon: Video,
-    title: "A 1-on-1 call with me every month",
-    body: "You share your screen and we build on your own files. Three calls over the three months.",
-    short: "You share your screen and we build on your own files.",
+    title: "3 one-hour video calls with me, one a month",
+    body: "You pick one boring job, we share screens, and we set Claude up to do it.",
   },
   {
-    icon: MessagesSquare,
-    title: "Questions answered between calls",
-    body: "Stuck on something? Ask in the portal. We research it and reply.",
-    short: "Ask in the portal and we research it and reply.",
+    title: "Ask questions between calls",
+    body: "Message me in the portal any time.",
   },
   {
-    icon: FolderOpen,
-    title: "Our skills, prompts and templates",
-    body: "The ones we use with clients, ready to copy into your own Claude account.",
-    short: "Ready to copy into your own Claude account.",
+    title: "All of my skills, prompts and templates",
+    body: "Download them to your Claude, and it imports and uses them for you.",
   },
   {
-    icon: GraduationCap,
-    title: "The courses",
-    body: "Claude 101 and Claude + Xero, step by step, with every prompt ready to copy.",
-    short: "Claude 101 and Claude + Xero, step by step.",
-  },
-];
-
-type Result = {
-  who: string;
-  number: string;
-  lines: string[];
-  image?: { src: string; width: number; height: number; alt: string };
-  bars?: { label: string; value: string; share: number; muted?: boolean }[];
-};
-
-const RESULTS: Result[] = [
-  {
-    who: "A truck builder in Perth",
-    number: "$75,000 freed up in working capital",
-    lines: [
-      "They connected Xero and their other systems to Claude, and asked what it would change.",
-      "It found they were ordering axles the day a job was signed. The axle is the last part to go on the truck. They order later now.",
-    ],
-  },
-  {
-    who: "Shaun, a bookkeeper in Sydney",
-    number: "11 hours a month back",
-    lines: ["Reimbursements, bank recs and month-end, with Shaun checking everything before it posts."],
-    bars: [
-      { label: "By hand", value: "15 hrs a month", share: 100, muted: true },
-      { label: "With Claude", value: "3.5 hrs a month", share: 23 },
-    ],
-  },
-  {
-    who: "Glen, an architect in Melbourne",
-    number: "No more agency bill",
-    lines: [
-      "He was paying an agency more than a thousand dollars a month for ads that weren't working.",
-      "He runs them himself now. Claude makes the ads from his own photos and checks the results every morning.",
-    ],
-  },
-  {
-    who: "A client who sends five proposals a week",
-    number: "A proposal in 30 minutes, not 2 hours",
-    lines: [
-      "Record the call. Claude reads it, pulls the closest past proposals and writes the draft.",
-      "You read it and press send.",
-    ],
-  },
-  {
-    who: "Real Balance, accounting and CFO advisory",
-    number: "3 hours back per client, every month",
-    lines: [
-      "A live Xero dashboard for every client, with an AI that answers their questions about their own numbers.",
-    ],
-    image: {
-      src: "/assets/work/realbalance-dashboard.webp",
-      width: 900,
-      height: 816,
-      alt: "Real Balance's client dashboard: revenue, expenses, net profit and cash at bank.",
-    },
-  },
-  {
-    who: "Moushumi, Ethical CFO",
-    number: "5 years of bank lines, reconciled",
-    lines: [
-      "Claude codes each bank line and writes down why. A bookkeeper approves every page.",
-      "The right invoice turns up in seconds, where it used to take an afternoon.",
-    ],
-    image: {
-      src: "/assets/work/ethicalcfo-xero.webp",
-      width: 800,
-      height: 446,
-      alt: "Claude running beside Xero's bank reconciliation screen.",
-    },
-  },
-  {
-    who: "Me",
-    number: "0 to 2,000 Instagram followers",
-    lines: [
-      "I'm one person. The Rollout's Reels run on three tools: Claude, Higgsfield and a scheduler.",
-      "Claude writes the scripts, makes the videos, posts them everywhere and learns from the results. In one 30-day stretch that was 70,000 views.",
-    ],
-  },
-];
-
-type Review = { name: string; role: string; photo?: string; quote: string; date: string };
-
-// Word for word from their LinkedIn recommendations.
-const REVIEWS: Review[] = [
-  {
-    name: "Shaun Rafferty",
-    role: "First Class Accounts",
-    quote:
-      "Dan Hay and Phlo have changed how I run my bookkeeping practice. Dan taught me to automate real workflows with Claude and other tools, starting with employee reimbursements, then monthly reporting, BAS prep and reconciliations. He's practical, patient and explains things in plain English, so you understand what you've built. I'm now getting hours back every week. If you're an accountant, bookkeeper or business owner keen to put AI to work, I can't recommend Dan highly enough.",
-    date: "November 15, 2026",
-  },
-  {
-    name: "Moushumi Sikand",
-    role: "Ethical CFO · Xero Sole Practitioner of the Year",
-    photo: "/assets/reviewer-moushumi.webp",
-    quote:
-      "Daniel is very knowledgeable and passionate about providing great outcomes when it comes to automations and efficiency projects leveraging technology and Ai. Strongly recommend.",
-    date: "May 19, 2026",
-  },
-  {
-    name: "Craig Whitton",
-    role: "Managing Director, Real Balance",
-    photo: "/assets/reviewer-craig.webp",
-    quote:
-      "Incredibly knowledgeable about apps and development. Has a clear strategic foresight of the project, not just its development. Easy to talk with and communicates tech matters in an easy to understand manner. Thanks mate for your support",
-    date: "January 24, 2026",
-  },
-];
-
-const MONTHS = [
-  {
-    title: "Month one: your first job, working",
-    body: "We pick the job that eats your week and build it together on your own files, on test data first.",
-  },
-  {
-    title: "Month two: the next jobs, with you driving",
-    body: "You share your screen and build while I steer.",
-  },
-  {
-    title: "Month three: building on your own",
-    body: "You bring the jobs you've started and I help you finish them.",
-  },
-];
-
-const AFTER = [
-  { title: "Book your first call", body: "The page after checkout has my calendar. Pick a time that suits." },
-  { title: "We start on your first job", body: "Bring the one job you'd most like to never do again." },
-  {
-    title: `Portal login on ${offer.portalOpens}`,
-    body: "The courses, prompts and templates, sent to the email you paid with.",
+    title: "All of my AI courses",
+    body: `Claude for Beginners and more, to get you up to speed. They open on ${offer.coursesOpen}.`,
   },
 ];
 
 const FAQS = [
   {
-    q: "Is the portal open now?",
-    a: `Not yet. Logins go out on ${offer.portalOpens}. Your 1-on-1 calls don't wait for it: book the first one as soon as you've paid.`,
+    q: "What happens after I pay?",
+    a: `You're taken straight to the members' portal. Sign in with the email you paid with, then book your first call. The courses open on ${offer.coursesOpen}.`,
   },
   {
     q: "What happens after the three months?",
     a: `The ${offer.price} is paid once and nothing renews on its own. If you want to keep going, it's ${offer.after}.`,
   },
   {
-    q: "Who's on the calls?",
-    a: "Me, Daniel. Not a sales rep, and not a group webinar.",
-  },
-  {
     q: "Do I need to be technical?",
     a: "No. If you can share your screen and describe how you do a job today, that's enough.",
-  },
-  {
-    q: "Is my data safe?",
-    a: "Claude gets its own limited login to each system, can't approve anything, and every action is logged. We start on test data, like Xero's demo company, before touching anything real.",
-  },
-  {
-    q: "I don't use Xero. Is it still for me?",
-    a: "Yes. Glen's an architect and his first job was Meta ads. We start with whatever eats your week.",
   },
 ];
 
@@ -508,99 +303,8 @@ function Price({ ended, className }: { ended: boolean; className?: string }) {
       <span className="text-xl text-subtle-foreground line-through">{offer.was}</span>
       <span className="font-serif text-[2.75rem] leading-none font-bold">{offer.price.replace(" + GST", "")}</span>
       <span className="text-muted-foreground">+ GST for 3 months</span>
+      <span className="basis-full text-sm font-semibold text-primary-hover">Save {offer.saving}</span>
     </p>
-  );
-}
-
-function ResultCard({ result, wide = false }: { result: Result; wide?: boolean }) {
-  return (
-    <article className={cn("flex flex-col rounded-md border bg-card px-4 py-4 sm:px-5 sm:py-5", wide && "sm:col-span-2")}>
-      <Eyebrow>{result.who}</Eyebrow>
-      <h3 className="mt-1.5 text-[1.625rem] font-bold sm:text-[1.875rem]">{result.number}</h3>
-      {result.lines.map((line) => (
-        <p key={line} className="mt-2 text-[0.9375rem] text-muted-foreground">
-          {line}
-        </p>
-      ))}
-      {result.bars ? (
-        <dl className="mt-4 space-y-2.5">
-          {result.bars.map((bar) => (
-            <div key={bar.label}>
-              <dt className="flex justify-between text-[0.8125rem] font-semibold">
-                {bar.label} <span>{bar.value}</span>
-              </dt>
-              <dd className="mt-1 h-3 rounded-full bg-accent">
-                <span
-                  className={cn("block h-3 rounded-full", bar.muted ? "bg-subtle-foreground/50" : "bg-primary")}
-                  style={{ width: `${bar.share}%` }}
-                />
-              </dd>
-            </div>
-          ))}
-        </dl>
-      ) : null}
-      {result.image ? (
-        <img
-          src={result.image.src}
-          alt={result.image.alt}
-          width={result.image.width}
-          height={result.image.height}
-          loading="lazy"
-          className="mt-4 max-h-56 w-full rounded-md border object-cover object-top"
-        />
-      ) : null}
-    </article>
-  );
-}
-
-function ReviewCard({ review }: { review: Review }) {
-  return (
-    <figure className="flex flex-col rounded-md border bg-card px-4 py-4">
-      <figcaption className="flex gap-3">
-        <Avatar name={review.name} photo={review.photo} />
-        <span className="min-w-0">
-          <strong className="block text-[0.9375rem] leading-snug">{review.name}</strong>
-          <span className="line-clamp-2 text-xs leading-snug text-muted-foreground">{review.role}</span>
-        </span>
-      </figcaption>
-      <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-        <Stars /> <strong className="text-foreground">5.0</strong> &middot; {review.date}
-      </p>
-      <blockquote className="mt-2 flex-1 text-[0.9375rem] leading-relaxed">&ldquo;{review.quote}&rdquo;</blockquote>
-      <p className="mt-3 flex items-center gap-1.5 border-t pt-2.5 text-xs text-muted-foreground">
-        <LinkedInMark /> Recommendation on LinkedIn
-      </p>
-    </figure>
-  );
-}
-
-/** The reviewer's photo, or their initials until we have one. */
-function Avatar({ name, photo }: { name: string; photo?: string }) {
-  if (photo) {
-    return <img src={photo} alt="" width={44} height={44} className="h-11 w-11 shrink-0 rounded-full object-cover" />;
-  }
-  const initials = name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase())
-    .join("");
-  return (
-    <span
-      aria-hidden="true"
-      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold text-muted-foreground"
-    >
-      {initials}
-    </span>
-  );
-}
-
-function Stars() {
-  return (
-    <span className="inline-flex text-primary" role="img" aria-label="5 out of 5 stars">
-      {Array.from({ length: 5 }, (_, index) => (
-        <Star key={index} className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
-      ))}
-    </span>
   );
 }
 
@@ -608,7 +312,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
   return <h2 className="mb-3.5 text-2xl font-bold sm:text-[1.75rem]">{children}</h2>;
 }
 
-/** The small letter-spaced label above a heading. */
+/** The small letter-spaced label above a block. */
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p className="text-xs font-semibold tracking-[0.08em] text-primary-hover uppercase">{children}</p>;
 }
@@ -630,38 +334,34 @@ function withParams(href: string, params: Record<string, string>) {
   return url.origin === window.location.origin ? `${url.pathname}${url.search}` : url.toString();
 }
 
-/** On phones, the button follows you down the page between the hero and the price card. */
+/** On phones, a button that jumps to the offer while they're reading the reviews. */
 function StickyCta({
   heroCta,
-  priceCard,
-  href,
+  offerBlock,
   label,
-  onClick,
 }: {
   heroCta: React.RefObject<HTMLAnchorElement | null>;
-  priceCard: React.RefObject<HTMLElement | null>;
-  href: string;
+  offerBlock: React.RefObject<HTMLElement | null>;
   label: string;
-  onClick: () => void;
 }) {
   const [heroVisible, setHeroVisible] = React.useState(true);
-  const [cardVisible, setCardVisible] = React.useState(false);
+  const [offerVisible, setOfferVisible] = React.useState(false);
 
   React.useEffect(() => {
     const hero = heroCta.current;
-    const card = priceCard.current;
-    if (!hero || !card || !("IntersectionObserver" in window)) return;
+    const block = offerBlock.current;
+    if (!hero || !block || !("IntersectionObserver" in window)) return;
     const heroWatch = new IntersectionObserver(([entry]) => setHeroVisible(entry.isIntersecting));
-    const cardWatch = new IntersectionObserver(([entry]) => setCardVisible(entry.isIntersecting));
+    const offerWatch = new IntersectionObserver(([entry]) => setOfferVisible(entry.isIntersecting));
     heroWatch.observe(hero);
-    cardWatch.observe(card);
+    offerWatch.observe(block);
     return () => {
       heroWatch.disconnect();
-      cardWatch.disconnect();
+      offerWatch.disconnect();
     };
-  }, [heroCta, priceCard]);
+  }, [heroCta, offerBlock]);
 
-  const show = !heroVisible && !cardVisible;
+  const show = !heroVisible && !offerVisible;
   return (
     <div
       aria-hidden={!show}
@@ -670,7 +370,7 @@ function StickyCta({
         show ? "translate-y-0" : "pointer-events-none translate-y-full",
       )}
     >
-      <CtaLink href={href} onClick={onClick} tabIndex={show ? 0 : -1}>
+      <CtaLink href="#offer" tabIndex={show ? 0 : -1}>
         {label} <ArrowRight className="h-4 w-4" aria-hidden="true" />
       </CtaLink>
     </div>

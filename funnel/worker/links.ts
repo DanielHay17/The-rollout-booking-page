@@ -22,8 +22,10 @@ export const SHORT_LINKS: Record<string, ShortLink> = {
   "/fb": { to: "/", tags: { utm_source: "facebook", utm_medium: "social", utm_campaign: "bio" } },
   // For the newsletter itself: readers are already subscribed, so straight to booking.
   "/call": { to: "/sprint", tags: { utm_source: "the-rollout", utm_medium: "email", utm_campaign: "newsletter" } },
-  // The Black Friday offer page. For texts, send /bf?utm_medium=sms.
+  // The Black Friday offer page, for emails.
   "/bf": { to: "/black-friday", tags: { utm_source: "the-rollout", utm_medium: "email", utm_campaign: "black-friday" } },
+  // The same page for texts: short to type, and it opens at the price and button.
+  "/deal": { to: "/black-friday#offer", tags: { utm_source: "the-rollout", utm_medium: "sms", utm_campaign: "black-friday" } },
 };
 
 export function shortLinkRedirect(url: URL): Response | null {
