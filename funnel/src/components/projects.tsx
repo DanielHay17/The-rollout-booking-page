@@ -44,6 +44,8 @@ type Project = {
     after: { label: string; value: string };
     /** How long the "after" bar is next to the "before" bar, 0 to 100. */
     afterPercent: number;
+    /** Numbers drafted for Daniel to confirm. Only shows with ?preview until he does. */
+    pending?: boolean;
   };
   review?: ProjectReview;
   /** What's still missing. Only shown with ?preview, so the live page stays clean. */
@@ -130,6 +132,14 @@ const PROJECTS: Project[] = [
       height: 816,
       alt: "Real Balance's client dashboard: revenue, expenses, net profit and cash at bank, with recent activity and upcoming BAS and tax deadlines.",
     },
+    // Only "3+ hours saved" is known. The 4-hour starting point is a guess: confirm with Craig.
+    chart: {
+      title: "Monthly client reporting: about 4 hours a client, down to 1",
+      before: { label: "By hand", value: "4 hrs" },
+      after: { label: "With the live dashboard and AI", value: "1 hr" },
+      afterPercent: 25,
+      pending: true,
+    },
     review: {
       name: "Craig Whitton",
       role: "Managing Director, Real Balance",
@@ -151,6 +161,14 @@ const PROJECTS: Project[] = [
       width: 800,
       height: 446,
       alt: "Claude running beside Xero's bank reconciliation screen, prompted to work as an experienced Australian bookkeeper.",
+    },
+    // From the card's own claim. "Up to date" assumes the whole backlog is cleared: confirm.
+    chart: {
+      title: "Bank reconciliation backlog: 5 years, down to none",
+      before: { label: "Before", value: "5 years behind" },
+      after: { label: "With Claude, and a bookkeeper approving", value: "up to date" },
+      afterPercent: 0,
+      pending: true,
     },
     review: {
       name: "Moushumi Sikand",
@@ -356,7 +374,7 @@ function ProjectCard({
         </p>
         <h3 className="mt-1.5 font-serif text-[1.375rem] leading-tight font-bold">{project.title}</h3>
         <p className="mt-1.5 text-[0.9375rem] text-muted-foreground">{project.detail}</p>
-        {charts && project.chart ? <SavingChart chart={project.chart} /> : null}
+        {charts && project.chart && (!project.chart.pending || preview) ? <SavingChart chart={project.chart} /> : null}
       </div>
       <div className="flex flex-1 flex-col px-4 sm:px-5">
         {showReview ? <ProjectReviewCard review={review} /> : preview ? <ReviewSlot /> : null}
@@ -377,7 +395,15 @@ function SavingChart({ chart }: { chart: NonNullable<Project["chart"]> }) {
     { ...chart.after, percent: chart.afterPercent, after: true },
   ];
   return (
-    <div className="mt-3.5 rounded-md bg-[#EEF5F3] px-3.5 py-3">
+    <div
+      className={cn(
+        "mt-3.5 rounded-md bg-[#EEF5F3] px-3.5 py-3",
+        chart.pending ? "border-2 border-dashed border-primary/60" : "",
+      )}
+    >
+      {chart.pending ? (
+        <p className="mb-1.5 text-xs font-medium text-primary-hover">Draft numbers. Preview only until confirmed.</p>
+      ) : null}
       <p className="text-sm leading-snug font-semibold">{chart.title}</p>
       <dl className="mt-2.5 space-y-2">
         {rows.map((row) => (
