@@ -154,6 +154,34 @@ function BlackFridayPage() {
           </div>
         </section>
 
+        {/* What they're buying, in three pictures, each with what it does for them */}
+        <section className="mt-14">
+          <SectionHeading>One boring job, gone on every call</SectionHeading>
+          <p className="max-w-[44rem] text-muted-foreground">Here&apos;s what you get over the 3 months.</p>
+          <ol className="mt-5 grid gap-4 sm:grid-cols-3">
+            {STEPS.map((step) => (
+              <li key={step.label} className="flex flex-col overflow-hidden rounded-md border bg-card">
+                <img
+                  src={step.image.src}
+                  alt={step.image.alt}
+                  width={step.image.width}
+                  height={step.image.height}
+                  className={cn("aspect-[4/3] h-auto w-full border-b bg-white object-cover", step.image.position)}
+                />
+                <div className="flex flex-1 flex-col px-4 py-4">
+                  <Eyebrow>{step.label}</Eyebrow>
+                  <h3 className="mt-1.5 text-lg leading-snug font-bold">{step.title}</h3>
+                  <p className="mt-1.5 text-[0.9375rem] text-muted-foreground">{step.body}</p>
+                  <p className="mt-auto flex gap-2.5 pt-3 text-[0.9375rem] font-semibold">
+                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+                    {step.result}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
         {/* The same proof as /sprint: every build, in the client's own words */}
         <section className="mt-12">
           <SectionHeading>What we&apos;ve built for businesses like yours</SectionHeading>
@@ -248,6 +276,49 @@ function BlackFridayPage() {
     </>
   );
 }
+
+// The portal pictures come from its demo mode, so the member shown isn't a real client.
+const STEPS = [
+  {
+    label: "On the call",
+    title: "We set Claude up to do one job",
+    body: "You pick the job. We share screens and build it on your own files, in one hour.",
+    result: "So you leave every call with one job off your desk.",
+    image: {
+      src: "/assets/work/xero-reconcile-poster.webp",
+      width: 900,
+      height: 506,
+      alt: "A screen share: Claude working through a bank reconciliation in Xero's demo company, with Daniel on camera.",
+      position: "object-left",
+    },
+  },
+  {
+    label: "Between calls",
+    title: "Book your next call in the portal",
+    body: "Pick a time that suits you, and message me if you get stuck before then.",
+    result: "So you're never left waiting a month for an answer.",
+    image: {
+      src: "/assets/bf/portal-book-a-call.webp",
+      width: 900,
+      height: 1070,
+      alt: "The portal's Book a call screen: your monthly 1-on-1 with Daniel, with days and times to pick from.",
+      position: "object-top",
+    },
+  },
+  {
+    label: "Yours to keep",
+    title: "My skills, templates and courses",
+    body: `Download my skills, prompts and templates straight into your Claude. The courses open on ${offer.coursesOpen}.`,
+    result: "So you can set up the next job yourself.",
+    image: {
+      src: "/assets/bf/portal-classroom.webp",
+      width: 900,
+      height: 718,
+      alt: "The portal's Classroom, with two courses: Claude for your back office, and Claude 101.",
+      position: "object-top",
+    },
+  },
+];
 
 const INCLUDED = [
   {
