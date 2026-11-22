@@ -105,7 +105,16 @@ const GLEN: Project = {
     after: { label: "Glen and Claude", value: "one Claude subscription" },
     afterPercent: 6,
   },
-  todo: "Ask Glen for a review.",
+  // Drafted for Glen to approve, so it only shows with ?preview. First name
+  // only, and no practice name.
+  review: {
+    name: "Glen",
+    role: "Architect, Melbourne",
+    quote:
+      "I'd been paying an agency more than a thousand dollars a month to run our Meta ads, and it wasn't working. In one session Daniel had Claude connected to our ad account and making ads from our own project photos, in our own look. Now I run them myself, and I know exactly what's going out.",
+    pending: true,
+  },
+  todo: "Waiting on Glen's OK for this wording. Once he's happy: remove pending and add the date.",
 };
 
 /*
