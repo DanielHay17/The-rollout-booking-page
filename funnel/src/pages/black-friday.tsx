@@ -3,7 +3,7 @@ import "../index.css";
 import * as React from "react";
 import { ArrowDown, ArrowRight, Check } from "lucide-react";
 
-import { ProjectGrid, REVIEW_COUNT, Stars } from "@/components/projects";
+import { ProjectGrid, STORIES_REVIEW_COUNT, Stars } from "@/components/projects";
 import { CtaLink, PageColumn, SiteFooter, SiteHeader, mountPage } from "@/components/site";
 import { Vsl } from "@/components/vsl";
 import { config } from "@/config";
@@ -190,7 +190,7 @@ function BlackFridayPage() {
           </p>
           <p className="mt-2 mb-5 flex items-center gap-2 text-sm">
             <Stars small /> <strong>5.0</strong>
-            <span className="text-muted-foreground">from {REVIEW_COUNT} client reviews</span>
+            <span className="text-muted-foreground">from {STORIES_REVIEW_COUNT} client reviews</span>
           </p>
           <ProjectGrid preview={preview} stories />
         </section>

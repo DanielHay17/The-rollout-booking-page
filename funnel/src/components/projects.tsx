@@ -105,16 +105,14 @@ const GLEN: Project = {
     after: { label: "Glen and Claude", value: "one Claude subscription" },
     afterPercent: 6,
   },
-  // Drafted for Glen to approve, so it only shows with ?preview. First name
-  // only, and no practice name.
+  // Wording approved by Glen, 22 Nov 2026. First name only, and no practice name.
   review: {
     name: "Glen",
     role: "Architect, Melbourne",
     quote:
       "I'd been paying an agency more than a thousand dollars a month to run our Meta ads, and it wasn't working. In one session Daniel had Claude connected to our ad account and making ads from our own project photos, in our own look. Now I run them myself, and I know exactly what's going out.",
-    pending: true,
+    date: "November 22, 2026",
   },
-  todo: "Waiting on Glen's OK for this wording. Once he's happy: remove pending and add the date.",
 };
 
 /*
@@ -323,6 +321,9 @@ const PROJECTS: Project[] = [
 
 /** Reviews the live page shows; ones still waiting on their words don't count. */
 export const REVIEW_COUNT = PROJECTS.filter((project) => project.review?.quote && !project.review.pending).length;
+
+/** The same count for a grid that opens with the stories, which adds Glen's review. */
+export const STORIES_REVIEW_COUNT = REVIEW_COUNT + (GLEN.review?.quote && !GLEN.review.pending ? 1 : 0);
 
 /** Whether a card opens with a picture (or, with ?preview, the slot for one). */
 function hasMedia(project: Project, preview: boolean) {
